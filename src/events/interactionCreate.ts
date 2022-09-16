@@ -31,7 +31,7 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 		// }
 		const member = interaction.member as GuildMember;
 		const guildInformCache: GuildInform = myCache.get('Guilds')[interaction.guild.id];
-		const { adminCommand, adminMember, adminRole } = guildInformCache.permission;
+		const { adminCommand, adminMember, adminRole } = guildInformCache;
 		if (adminCommand.includes(interaction.commandName)) {
 			if (
 				!adminMember.includes(member.id) &&

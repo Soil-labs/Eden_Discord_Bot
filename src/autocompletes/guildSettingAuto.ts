@@ -14,7 +14,7 @@ export default new Auto({
 		let filter: Array<any> = [];
 		switch (name) {
 			case 'role': {
-				const currentRoles = guildInform.permission.adminRole;
+				const currentRoles = guildInform.adminRole;
 				filter = currentRoles
 					.map((roleId) => ({
 						name: interaction.guild.roles.cache.get(roleId)?.name,
@@ -24,7 +24,7 @@ export default new Auto({
 				break;
 			}
 			case 'member': {
-				const currentMembers = guildInform.permission.adminMember;
+				const currentMembers = guildInform.adminMember;
 				filter = currentMembers
 					.map((memberId) => ({
 						name: interaction.guild.members.cache.get(memberId)?.displayName,
@@ -34,7 +34,7 @@ export default new Auto({
 				break;
 			}
 			case 'command': {
-				const currentCommands = guildInform.permission.adminCommand;
+				const currentCommands = guildInform.adminCommand;
 				filter = currentCommands
 					.filter((command) => command.includes(value.toString()))
 					.map((command) => ({
@@ -42,15 +42,6 @@ export default new Auto({
 						value: command
 					}));
 				break;
-			}
-			case 'address': {
-				const currentAddresses = guildInform.proxyContract;
-				filter = currentAddresses
-					.filter((addr) => addr.includes(value.toString()))
-					.map((addr) => ({
-						name: addr,
-						value: addr
-					}));
 			}
 		}
 		if (filter.length === 0) return interaction.respond([]);
