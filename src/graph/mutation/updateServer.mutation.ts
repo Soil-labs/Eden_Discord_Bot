@@ -16,3 +16,4 @@ export async function updateServer(variable: GraphQL_UpdateServerMutationVariabl
 		request: request
 	});
 }
+

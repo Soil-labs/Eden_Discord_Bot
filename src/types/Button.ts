@@ -11,7 +11,7 @@ interface ButtonRunOptions {
 }
 
 type RunFunction = (options: ButtonRunOptions) => any;
-type buttonCustomId = '';
+type buttonCustomId = 'onboard' | 'end';
 export interface ButtonType {
 	customIds: Array<buttonCustomId>;
 	execute: RunFunction;

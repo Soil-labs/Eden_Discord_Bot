@@ -22,7 +22,6 @@ module.exports = {
 		complexity: ['error', 50],
 		'no-warning-comments': [1, { terms: ['todo', 'fixme'], location: 'start' }],
 		'max-depth': ['error', 8],
-		'@typescript-eslint/consistent-type-definitions': 'off',
-		'@typescript-eslint/no-require-imports': 'off'
+		'@typescript-eslint/consistent-type-definitions': 'off'
 	}
 };

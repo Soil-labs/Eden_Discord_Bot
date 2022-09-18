@@ -41,6 +41,13 @@ export type GraphQL_ErrorLog = {
   user?: Maybe<GraphQL_User>;
 };
 
+export type GraphQL_MatchProjectRole = {
+  __typename?: 'MatchProjectRole';
+  matchPercentage?: Maybe<Scalars['Int']>;
+  relatedSkills?: Maybe<Array<Maybe<GraphQL_Skills>>>;
+  roleID?: Maybe<Scalars['ID']>;
+};
+
 export type GraphQL_Members = {
   __typename?: 'Members';
   _id?: Maybe<Scalars['ID']>;
@@ -242,6 +249,20 @@ export type GraphQL_MutationUpdateSkillSubCategoryArgs = {
   fields?: InputMaybe<GraphQL_UpdateSkillSubCategoryInput>;
 };
 
+export type GraphQL_PageInfo = {
+  __typename?: 'PageInfo';
+  end?: Maybe<Scalars['String']>;
+  hasNextPage?: Maybe<Scalars['Boolean']>;
+  hasPrevPage?: Maybe<Scalars['Boolean']>;
+  start?: Maybe<Scalars['String']>;
+};
+
+export type GraphQL_PaginatedSkills = {
+  __typename?: 'PaginatedSkills';
+  data?: Maybe<Array<Maybe<GraphQL_Skills>>>;
+  pageInfo?: Maybe<GraphQL_PageInfo>;
+};
+
 export type GraphQL_Project = {
   __typename?: 'Project';
   _id?: Maybe<Scalars['ID']>;
@@ -311,10 +332,13 @@ export type GraphQL_Query = {
   findSkills?: Maybe<Array<Maybe<GraphQL_Skills>>>;
   findTeams?: Maybe<Array<Maybe<GraphQL_Team>>>;
   matchMembersToProject?: Maybe<Array<Maybe<GraphQL_MatchMembersToProjectOutput>>>;
+  matchMembersToProjectRole?: Maybe<Array<Maybe<GraphQL_MatchMembersToProjectRoleOutput>>>;
   matchMembersToSkills?: Maybe<Array<Maybe<GraphQL_MatchMembersToSkillOutput>>>;
   matchMembersToUser?: Maybe<Array<Maybe<GraphQL_MatchMembersToUserOutput>>>;
+  matchProjectsToMember?: Maybe<Array<Maybe<GraphQL_MatchProjectsToMemberOutput>>>;
   match_projectToUser?: Maybe<GraphQL_ProjectUserMatchType>;
   members_autocomplete?: Maybe<Array<Maybe<GraphQL_Members>>>;
+  skills?: Maybe<GraphQL_PaginatedSkills>;
   skills_autocomplete?: Maybe<Array<Maybe<GraphQL_Skills>>>;
   waitingToAproveSkills?: Maybe<Array<Maybe<GraphQL_Skills>>>;
 };
@@ -440,6 +464,11 @@ export type GraphQL_QueryMatchMembersToProjectArgs = {
 };
 
 
+export type GraphQL_QueryMatchMembersToProjectRoleArgs = {
+  fields?: InputMaybe<GraphQL_MatchMembersToProjectRoleInput>;
+};
+
+
 export type GraphQL_QueryMatchMembersToSkillsArgs = {
   fields?: InputMaybe<GraphQL_MatchMembersToSkillInput>;
 };
@@ -450,6 +479,11 @@ export type GraphQL_QueryMatchMembersToUserArgs = {
 };
 
 
+export type GraphQL_QueryMatchProjectsToMemberArgs = {
+  fields?: InputMaybe<GraphQL_MatchProjectsToMemberInput>;
+};
+
+
 export type GraphQL_QueryMatch_ProjectToUserArgs = {
   fields?: InputMaybe<GraphQL_Match_ProjectToUserInput>;
 };
@@ -457,6 +491,11 @@ export type GraphQL_QueryMatch_ProjectToUserArgs = {
 
 export type GraphQL_QueryMembers_AutocompleteArgs = {
   fields?: InputMaybe<GraphQL_Members_AutocompleteInput>;
+};
+
+
+export type GraphQL_QuerySkillsArgs = {
+  fields?: InputMaybe<GraphQL_FindSkillsInputPaginated>;
 };
 
 
@@ -547,6 +586,22 @@ export type GraphQL_Skills = {
   subCategorySkill?: Maybe<Array<Maybe<GraphQL_SkillSubCategory>>>;
   tweets?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
+
+export type GraphQL_SortBySkill = {
+  direction?: InputMaybe<GraphQL_SortDirection>;
+  field?: InputMaybe<GraphQL_SortableSkillFields>;
+};
+
+export enum GraphQL_SortDirection {
+  Asc = 'ASC',
+  Desc = 'DESC'
+}
+
+export enum GraphQL_SortableSkillFields {
+  Id = '_id',
+  Name = 'name',
+  RegisteredAt = 'registeredAt'
+}
 
 export type GraphQL_Subscription = {
   __typename?: 'Subscription';
@@ -950,6 +1005,14 @@ export type GraphQL_FindSkillsInput = {
   _id?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
 };
 
+export type GraphQL_FindSkillsInputPaginated = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  limit?: InputMaybe<Scalars['Int']>;
+  request?: InputMaybe<GraphQL_FindSkillsInput>;
+  sortBy?: InputMaybe<GraphQL_SortBySkill>;
+};
+
 export type GraphQL_FindTeamsInput = {
   _id?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
   projectID?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
@@ -997,6 +1060,18 @@ export type GraphQL_MatchMembersToProjectOutput = {
   member?: Maybe<GraphQL_Members>;
 };
 
+export type GraphQL_MatchMembersToProjectRoleInput = {
+  projectRoleID?: InputMaybe<Scalars['ID']>;
+  serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_MatchMembersToProjectRoleOutput = {
+  __typename?: 'matchMembersToProjectRoleOutput';
+  commonSkills?: Maybe<Array<Maybe<GraphQL_Skills>>>;
+  matchPercentage?: Maybe<Scalars['Float']>;
+  member?: Maybe<GraphQL_Members>;
+};
+
 export type GraphQL_MatchMembersToSkillInput = {
   serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   skillsID?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
@@ -1019,6 +1094,19 @@ export type GraphQL_MatchMembersToUserOutput = {
   commonSkills?: Maybe<Array<Maybe<GraphQL_Skills>>>;
   matchPercentage?: Maybe<Scalars['Float']>;
   member?: Maybe<GraphQL_Members>;
+};
+
+export type GraphQL_MatchProjectsToMemberInput = {
+  memberID?: InputMaybe<Scalars['ID']>;
+  serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_MatchProjectsToMemberOutput = {
+  __typename?: 'matchProjectsToMemberOutput';
+  matchPercentage?: Maybe<Scalars['Int']>;
+  matchProjectRoles?: Maybe<Array<Maybe<GraphQL_MatchProjectRole>>>;
+  project?: Maybe<GraphQL_Project>;
+  relatedSkills?: Maybe<Array<Maybe<GraphQL_Skills>>>;
 };
 
 export type GraphQL_Match_ProjectToUserInput = {
@@ -1135,11 +1223,7 @@ export type GraphQL_RoleType = {
   __typename?: 'roleType';
   _id?: Maybe<Scalars['ID']>;
   archive?: Maybe<Scalars['Boolean']>;
-  budget?: Maybe<GraphQL_BudgetType>;
-  dateRangeEnd?: Maybe<Scalars['String']>;
-  dateRangeStart?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
-  hoursPerWeek?: Maybe<Scalars['Int']>;
   skills?: Maybe<Array<Maybe<GraphQL_SkillRoleType>>>;
   title?: Maybe<Scalars['String']>;
 };
@@ -1328,6 +1412,13 @@ export type GraphQL_AddNewMemberMutationVariables = Exact<{
 
 export type GraphQL_AddNewMemberMutation = { __typename?: 'Mutation', addNewMember?: { __typename?: 'Members', _id?: string | null } | null };
 
+export type GraphQL_CreateRoomMutationVariables = Exact<{
+  fields: GraphQL_CreateRoomInput;
+}>;
+
+
+export type GraphQL_CreateRoomMutation = { __typename?: 'Mutation', createRoom?: { __typename?: 'Rooms', _id?: string | null } | null };
+
 export type GraphQL_UpdateMemberMutationVariables = Exact<{
   fields: GraphQL_UpdateMemberInput;
 }>;
@@ -1383,6 +1474,13 @@ export type GraphQL_FindProjects_RecommendedToUserQueryVariables = Exact<{
 
 
 export type GraphQL_FindProjects_RecommendedToUserQuery = { __typename?: 'Query', findProjects_RecommendedToUser?: Array<{ __typename?: 'projectMatchType', matchPercentage?: number | null, projectData?: { __typename?: 'Project', _id?: string | null, title?: string | null } | null, role?: { __typename?: 'roleType', title?: string | null, skills?: Array<{ __typename?: 'skillRoleType', skillData?: { __typename?: 'Skills', name?: string | null } | null } | null> | null } | null } | null> | null };
+
+export type GraphQL_FindRoomQueryVariables = Exact<{
+  fields?: InputMaybe<GraphQL_FindRoomsInput>;
+}>;
+
+
+export type GraphQL_FindRoomQuery = { __typename?: 'Query', findRoom?: { __typename?: 'Rooms', members?: Array<{ __typename?: 'Members', _id?: string | null } | null> | null } | null };
 
 export type GraphQL_FindServersQueryVariables = Exact<{
   fields?: InputMaybe<GraphQL_FindServersInput>;

@@ -1,10 +1,10 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedFieldData, MessageEmbed } from 'discord.js';
 import { sprintf } from 'sprintf-js';
 import { findMember } from '../graph/query/findMember.query';
 import { recommendProjectsToMember } from '../graph/query/findProjects_RecommendedToUser.query';
 import { Command } from '../structures/Command';
-import { CONTENT, EMBED_COLOR, ERROR, LINK, NUMBER } from '../utils/const';
-import { validMember, validSkill } from '../utils/util';
+import { CONTENT, EMBED_COLOR, ERROR_REPLY, LINK, NUMBER } from '../utils/const';
+import { getErrorReply, validMember, validSkill } from '../utils/util';
 import _ from 'lodash';
 import { matchMemberToSkills } from '../graph/query/matchMembersToSkills.query';
 
@@ -12,6 +12,11 @@ export default new Command({
 	name: 'find',
 	description: 'Find matches for a person with similar skillsets',
 	options: [
+		{
+			type: 'SUB_COMMAND',
+			description: 'Find projects that match your profile',
+			name: 'project'
+		},
 		{
 			type: 'SUB_COMMAND',
 			description: 'Find member profiles in the community',
@@ -73,9 +78,10 @@ export default new Command({
 
 			if (error)
 				return interaction.followUp({
-					content: sprintf(ERROR.GRAPHQL, {
-						action: `${interaction.commandName} ${subCommandName}`,
-						errorMessage: `\`${error}\``
+					content: getErrorReply({
+						commandName: interaction.commandName,
+						errorMessage: error,
+						subCommandName: subCommandName
 					})
 				});
 
@@ -165,9 +171,10 @@ export default new Command({
 
 			if (error)
 				return interaction.followUp({
-					content: sprintf(ERROR.GRAPHQL, {
-						action: `${interaction.commandName} ${subCommandName}`,
-						errorMessage: `\`${error}\``
+					content: getErrorReply({
+						commandName: interaction.commandName,
+						errorMessage: error,
+						subCommandName: subCommandName
 					})
 				});
 
@@ -238,7 +245,7 @@ export default new Command({
 
 			if (error)
 				return interaction.followUp({
-					content: sprintf(ERROR.GRAPHQL, {
+					content: sprintf(ERROR_REPLY.GRAPHQL, {
 						action: `${interaction.commandName} ${subCommandName}`,
 						errorMessage: `\`${error}\``
 					})
@@ -259,9 +266,9 @@ export default new Command({
 				.reduce(
 					(pre, skill) => {
 						const memberInGuild = interaction.guild.members.cache.get(skill.member._id);
-						pre.nameField += memberInGuild
+						pre.nameField += (memberInGuild
 							? `<@${skill.member._id}>`
-							: skill.member.discordName + '\n';
+							: skill.member.discordName) + '\n';
 						pre.matchField +=
 							(memberInGuild
 								? sprintf(
@@ -285,23 +292,26 @@ export default new Command({
 						skillField: ''
 					}
 				);
-			const fields = [
-				{
-					name: 'Match 🤝',
-					value: fieldContents.matchField,
-					inline: true
-				},
-				{
-					name: 'Member 🧙',
-					value: fieldContents.nameField,
-					inline: true
-				},
-				{
-					name: 'Skill 🛠️',
-					value: fieldContents.skillField,
-					inline: true
-				}
-			];
+			let fields: Array<EmbedFieldData> = [];
+			if (fieldContents.matchField) {
+				fields.push(
+					{
+						name: 'Match 🤝',
+						value: fieldContents.matchField,
+						inline: true
+					},
+					{
+						name: 'Member 🧙',
+						value: fieldContents.nameField,
+						inline: true
+					},
+					{
+						name: 'Skill 🛠️',
+						value: fieldContents.skillField,
+						inline: true
+					}
+				);
+			}
 
 			const authorName = `@${interaction.user.username} - Skill Matching Results`;
 			const avatarURL = interaction.user.avatarURL();

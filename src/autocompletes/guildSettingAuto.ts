@@ -1,15 +1,13 @@
 import { Auto } from '../structures/AutoComplete';
-import { GuildInform } from '../types/Cache';
 import { myCache } from '../utils/cache';
-import { logger } from '../utils/logger';
 
 export default new Auto({
-	CorrespondingCommandName: 'guild',
+	correspondingCommandName: 'guild',
 	execute: ({ interaction }) => {
 		const guildId = interaction.guild.id;
 		const { name, value } = interaction.options.getFocused(true);
-		if (!myCache.has('Guilds')) return interaction.respond([]);
-		const guildInform: GuildInform = myCache.get('Guilds')[guildId];
+		if (!myCache.myHas('Servers')) return interaction.respond([]);
+		const guildInform = myCache.myGet('Servers')[guildId];
 
 		let filter: Array<any> = [];
 		switch (name) {

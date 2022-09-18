@@ -1,4 +1,5 @@
 import { EmbedFieldData } from 'discord.js';
+import { Maybe } from '../graph/gql/result';
 
 export interface CacheType {
 	Projects: ProjectsCache;
@@ -15,13 +16,13 @@ export const templateGuildInform: GuildInform = {
 };
 
 export type VoiceContext = {
-	messageId: string;
-	messageLink: string;
-	channelId: string;
-	timestamp: string;
-	hostId: MemberId;
-	attendees: Array<MemberId>;
-	roomId: string;
+	messageId: Maybe<string>;
+	messageLink: Maybe<string>;
+	channelId: Maybe<string>;
+	timestamp: Maybe<number>;
+	hostId: Maybe<MemberId>;
+	attendees: Maybe<Array<MemberId>>;
+	roomId: Maybe<string>;
 };
 
 export type GuildInform = {

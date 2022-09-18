@@ -1,10 +1,8 @@
 import {
-	ApplicationCommandStringOption,
 	ChatInputApplicationCommandData,
 	Client,
 	ClientEvents,
 	Collection,
-	CommandInteractionOption,
 	Intents
 } from 'discord.js';
 import { initializeApp } from 'firebase/app';
@@ -23,7 +21,6 @@ import { AutoType } from '../types/Auto';
 import { findSkills } from '../graph/query/findSkills.query';
 import { findMembers } from '../graph/query/findMembers.query';
 import { CacheType, templateGuildInform } from '../types/Cache';
-import { Key } from 'node-cache';
 import { findServers } from '../graph/query/findServers.query';
 import { updateServer } from '../graph/mutation/updateServer.mutation';
 import { GraphReturn } from '../graph/graph';
@@ -38,7 +35,7 @@ export class MyClient extends Client {
 	public modals: Collection<string, ModalType> = new Collection();
 	public autos: Collection<string, AutoType> = new Collection();
 
-	private table;
+	private table: any;
 
 	public constructor() {
 		super({
@@ -110,17 +107,14 @@ export class MyClient extends Client {
 		const autoFiles = await globPromise(`${__dirname}/../autocompletes/*.ts`);
 		autoFiles.forEach(async (filePath) => {
 			const auto: AutoType = await this._importFiles(filePath);
-			this.autos.set(auto.CorrespondingCommandName, auto);
+			this.autos.set(auto.correspondingCommandName, auto);
 		});
 
-		await this._loadCache();
-
 		this.once('ready', async () => {
-			await this._firestoneInit();
 			logger.info('Bot is online');
+			await this._loadCache();
 			if (process.env.MODE === 'dev') {
-				
-				this._registerCommands({
+				await this._registerCommands({
 					guildId: process.env.GUILDID,
 					commands: slashCommands
 				});
@@ -208,7 +202,7 @@ export class MyClient extends Client {
 			logger.info(`\n${this.table.toString()}`);
 		}
 
-		myCache.on('expired', async(key: keyof CacheType, value) => {
+		myCache.on('expired', async (key: keyof CacheType, value) => {
 			// todo any better way to update the cache?
 			switch (key) {
 				case 'Members':

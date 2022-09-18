@@ -23,15 +23,15 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 				ephemeral: true
 			});
 		}
-		// if (!myCache.has('Guilds')) {
-		// 	return interaction.reply({
-		// 		content: COMMAND_CONTENTS.INIT_REPLY,
-		// 		ephemeral: true
-		// 	});
-		// }
+		
+		if (!myCache.myHas('Servers')) return interaction.reply({
+			content: 'Command is initing, please try again later.',
+			ephemeral: true
+		})
+
 		const member = interaction.member as GuildMember;
-		const guildInformCache: GuildInform = myCache.get('Guilds')[interaction.guild.id];
-		const { adminCommand, adminMember, adminRole } = guildInformCache;
+		const guildInform: GuildInform = myCache.myGet('Servers')[interaction.guild.id]
+		const { adminCommand, adminMember, adminRole } = guildInform;
 		if (adminCommand.includes(interaction.commandName)) {
 			if (
 				!adminMember.includes(member.id) &&
@@ -69,12 +69,6 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 				ephemeral: true
 			});
 		}
-		// if (!myCache.has('Guilds')) {
-		// 	return interaction.reply({
-		// 		content: COMMAND_CONTENTS.INIT_REPLY,
-		// 		ephemeral: true
-		// 	});
-		// }
 
 		try {
 			button.execute({
@@ -101,12 +95,6 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 				ephemeral: true
 			});
 		}
-		// if (!myCache.has('Guilds')) {
-		// 	return interaction.reply({
-		// 		content: COMMAND_CONTENTS.INIT_REPLY,
-		// 		ephemeral: true
-		// 	});
-		// }
 
 		try {
 			modal.execute({

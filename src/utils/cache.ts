@@ -9,11 +9,19 @@ class MyCache extends NodeCache {
 		return super.get(key);
 	}
 
-	public mySet<Key extends keyof CacheType>(key: Key, value: CacheType[Key], ttl?: number): boolean {
-        if (typeof ttl === 'undefined') {
-            return super.set(key, value);
-        }
+	public mySet<Key extends keyof CacheType>(
+		key: Key,
+		value: CacheType[Key],
+		ttl?: number
+	): boolean {
+		if (typeof ttl === 'undefined') {
+			return super.set(key, value);
+		}
 		return super.set(key, value, ttl);
+	}
+
+	public myHas<Key extends keyof CacheType>(key: Key) {
+		return super.has(key);
 	}
 }
 
