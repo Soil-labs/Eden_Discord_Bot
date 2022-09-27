@@ -1,15 +1,16 @@
+import { ApplicationCommandOptionChoiceData } from 'discord.js';
 import { Auto } from '../structures/AutoComplete';
-import { myCache } from '../utils/cache';
+import { myCache } from '../structures/Cache';
 
 export default new Auto({
-	correspondingCommandName: 'guild',
+	correspondingCommandName: 'admin',
 	execute: ({ interaction }) => {
 		const guildId = interaction.guild.id;
 		const { name, value } = interaction.options.getFocused(true);
-		if (!myCache.myHas('Servers')) return interaction.respond([]);
+		if (!myCache.myHas('Servers') || !myCache.myGet('Servers')[guildId]) return interaction.respond([]);
 		const guildInform = myCache.myGet('Servers')[guildId];
 
-		let filter: Array<any> = [];
+		let filter: Array<ApplicationCommandOptionChoiceData> = [];
 		switch (name) {
 			case 'role': {
 				const currentRoles = guildInform.adminRole;

@@ -1,4 +1,4 @@
-import { HexColorString } from 'discord.js';
+import { ApplicationCommandOptionChoiceData, HexColorString } from 'discord.js';
 
 type NumericalProperty =
 	| 'AWAIT_TIMEOUT'
@@ -17,7 +17,10 @@ type LinkProperty =
 	| 'ROOM'
 	| 'DISCORD_MSG'
 	| 'LAUNCH_PROJECT'
-	| 'PROJECT_TWEET';
+	| 'PROJECT_TWEET'
+	| 'GARDEN_FEED'
+	| 'GARDEN_GRAPH'
+	| 'THREAD';
 type ErroProperty = 'GRAPHQL';
 type ContentProperty =
 	| 'MATCH_PROJECT'
@@ -34,7 +37,7 @@ type Content = Readonly<Record<ContentProperty, string>>;
 const _frontend = 'https://oasis-app-front-end-zeta.vercel.app';
 
 export const NUMBER: Numerical = {
-	AWAIT_TIMEOUT: 10 * 1000,
+	AWAIT_TIMEOUT: 15 * 1000,
 	DISPLAY_SKILL_NUMBER: 2,
 	MATCH_NUMBER: 3,
 	DISPLAY_COMMON_SKILL_NUMBER: 2,
@@ -49,10 +52,13 @@ export const LINK: Link = {
 	USER: 'https://www.soil.xyz/profile/%s/',
 	SIGNUP: _frontend + '/member/ginpsu',
 	STAGING_ONBOARD: _frontend + 'onboard%s',
-	ROOM: 'https://eden-foundation.vercel.app/onboard/party/%(roomId)s',
+	ROOM: 'https://eden-foundation2.vercel.app/onboard/party/%(roomId)s',
 	DISCORD_MSG: 'https://discord.com/channels/%(guildId)s/%(channelId)s/%(messageId)s',
 	LAUNCH_PROJECT: _frontend + '/form/%s',
-	PROJECT_TWEET: _frontend + '/projects/%s/feed'
+	PROJECT_TWEET: _frontend + '/projects/%s/feed',
+	GARDEN_FEED: 'https://eden-garden-front.vercel.app/',
+	GARDEN_GRAPH: 'https://garden-rho.vercel.app/',
+	THREAD: 'https://discord.com/channels/%(guildId)s/%(threadId)s'
 };
 
 export const CONTENT: Content = {
@@ -69,9 +75,48 @@ export const CONTENT: Content = {
 };
 
 export const ERROR_REPLY: InternalError = {
-	GRAPHQL: 'Error occured when %(action)s: %(errorMessage)s'
+	GRAPHQL: 'Error occured when running \`%(action)s\`: %(errorMessage)s'
 };
 
 export const EMBED_COLOR: Readonly<HexColorString> = '#74FA6D';
+
+export const COMMADN_CHOICES: Array<ApplicationCommandOptionChoiceData> = [
+	{
+		name: 'admin',
+		value: 'admin'
+	},
+	{
+		name: 'find',
+		value: 'find'
+	},
+	{
+		name: 'champion',
+		value: 'champion'
+	},
+	{
+		name: 'invite',
+		value: 'invite'
+	},
+	{
+		name: 'onboard',
+		value: 'onboard'
+	},
+	{
+		name: 'project',
+		value: 'project'
+	},
+	{
+		name: 'signup',
+		value: 'signup'
+	},
+	{
+		name: 'birthday',
+		value: 'birthday'
+	},
+	{
+		name: 'update',
+		value: 'update'
+	}
+];
 
 export default {};

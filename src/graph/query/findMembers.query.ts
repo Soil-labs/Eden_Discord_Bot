@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import { MembersCache } from '../../types/Cache';
-import { myCache } from '../../utils/cache';
+import { myCache } from '../../structures/Cache';
 import { GraphQL_FindMembersQuery, GraphQL_FindMembersQueryVariables } from '../gql/result';
 import { myQuery } from '../graph';
 
@@ -22,7 +22,7 @@ export async function findMembers() {
 		request: request,
 		variable: { fields: {} }
 	});
-	if (error) return false;
+	if (error) return error;
 	else{
 		const toBeCached: MembersCache = {};
 		result.findMembers.forEach((member) => {

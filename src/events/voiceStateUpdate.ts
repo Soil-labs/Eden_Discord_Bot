@@ -9,7 +9,7 @@ import { sprintf } from 'sprintf-js';
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
 import { findRoom } from '../graph/query/findRoom.query';
 import { Event } from '../structures/Event';
-import { myCache } from '../utils/cache';
+import { myCache } from '../structures/Cache';
 import { LINK, NUMBER } from '../utils/const';
 import { logger } from '../utils/logger';
 import {

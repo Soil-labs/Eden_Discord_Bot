@@ -1,11 +1,23 @@
 import { GuildTextBasedChannel, Permissions, TextChannel, VoiceBasedChannel } from 'discord.js';
 import { sprintf } from 'sprintf-js';
-import { MemberInform, SkillInform } from '../types/Cache';
-import { myCache } from './cache';
+import {
+	GuildId,
+	MemberId,
+	MemberInform,
+	ProjectId,
+	RoleId,
+	RoleValueType,
+	SkillId,
+	SkillInform,
+	TeamId,
+	TeamInform,
+	TeamValueType
+} from '../types/Cache';
+import { myCache } from '../structures/Cache';
 import { ERROR_REPLY, NUMBER } from './const';
 import { TimeOutError } from './error';
 import _ from 'lodash';
-interface awaitWrapType<T> {
+export interface awaitWrapType<T> {
 	result: T | null;
 	error: any | null;
 }
@@ -59,20 +71,68 @@ export function checkChannelPermission(
 		.has([Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES]);
 }
 
-export function validMember(userId: string, guildId: string): MemberInform | null {
+export function checkGardenChannelPermission(
+	channel: GuildTextBasedChannel | VoiceBasedChannel,
+	userId: string
+) {
+	return channel
+		.permissionsFor(userId)
+		.has([
+			Permissions.FLAGS.VIEW_CHANNEL,
+			Permissions.FLAGS.SEND_MESSAGES,
+			Permissions.FLAGS.CREATE_PUBLIC_THREADS,
+			Permissions.FLAGS.MANAGE_THREADS
+		]);
+}
+
+export function validMember(userId: MemberId, guildId: GuildId): MemberInform | null {
 	const result = myCache.myGet('Members')[userId];
 	if (!result) return null;
 	return result.serverId.includes(guildId) ? result : null;
 }
 
-export function validSkill(skillId: string): SkillInform | null {
+export function validSkill(skillId: SkillId): SkillInform | null {
 	return myCache.myGet('Skills')[skillId] ?? null;
 }
 
-export function validProject(projectId: string, guildId: string) {
+export function validProject(projectId: ProjectId, guildId: GuildId) {
 	const result = myCache.myGet('Projects')[guildId];
 	if (!result) return null;
-	return result[projectId] ? true : false;
+	return result[projectId] ?? null;
+}
+
+export function validTeam(teamId: TeamId, guidId: GuildId) {
+	const result = myCache.myGet('Teams')[guidId];
+	if (!result) return null;
+	return result[teamId] ?? null;
+}
+
+export function validRole(roleId: RoleId, guidId: GuildId) {
+	const result = myCache.myGet('Roles')[guidId];
+	if (!result) return null;
+	return result[roleId] ?? null;
+}
+
+export function validGarden(
+	guildId: GuildId,
+	projectId: ProjectId,
+	teamId: TeamId,
+	roleId: RoleId
+) {
+	const result = myCache.myGet('ProjectTeamRole')[guildId];
+	const project = result[projectId];
+	if (!project) return 'Please choose a valid project.';
+	const team = project['teams'][teamId];
+	if (!team) return 'Please choose a valid team.';
+	const role = team['roles'][roleId];
+	if (!role) return 'Please choose a valid role.';
+	return {
+		projectTitle: project.projectTitle,
+		teamName: team.teamName,
+		categoryChannelId: team.categoryChannelId,
+		generalChannelId: team.generalChannelId,
+		roleName: role.roleName
+	};
 }
 
 export function getErrorReply(errorInform: {

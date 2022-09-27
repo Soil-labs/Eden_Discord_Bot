@@ -6,7 +6,7 @@ import { GraphReturn } from '../graph/graph';
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
 import { createRoom } from '../graph/mutation/createRoom.mutation';
 import { Command } from '../structures/Command';
-import { myCache } from '../utils/cache';
+import { myCache } from '../structures/Cache';
 import { CONTENT, LINK } from '../utils/const';
 import { checkChannelPermission, getErrorReply, updateMembersCache } from '../utils/util';
 import _ from 'lodash';
@@ -202,6 +202,7 @@ export default new Command({
 					ephemeral: true
 				});
 			}
+			// todo SEND and VIEW is not enought, does not work in D_D, like voice-chat-1
 			if (!checkChannelPermission(voiceChannel, interaction.guild.me.id)) {
 				return interaction.reply({
 					content:

@@ -1,11 +1,11 @@
 import { Message } from 'discord.js';
 import { sprintf } from 'sprintf-js';
 import { Button } from '../structures/Button';
-import { myCache } from '../utils/cache';
+import { myCache } from '../structures/Cache';
 import { convertMsToTime } from '../utils/util';
 
 export default new Button({
-	customIds: ['onboard', 'end'],
+	customIds: ['end'],
 	execute: async({ interaction }) => {
 		if (!myCache.myHas('VoiceContexts'))
 			return interaction.reply({
@@ -30,31 +30,6 @@ export default new Button({
 				content: 'Cannot find this auto onboarding, please start a new one.',
 				ephemeral: true
 			});
-
-		// if (interaction.customId == this.customId[0]){
-		//     const attendees = guildVoiceContext.attendees;
-
-		//     if (!attendees.includes(interaction.user.id)) return interaction.reply({
-		//         content: "Sorry, you did not join in this onboarding call.",
-		//         ephemeral: true
-		//     })
-		//     await interaction.deferReply({ ephemeral: true });
-
-		//     const member = interaction.user;
-
-		//     const roomLink = sprintf(CONSTANT.LINK.ROOM, {
-		//         roomId: roomId,
-		//     })
-
-		//     return interaction.followUp({
-		//         embeds: [
-		//             new MessageEmbed()
-		//                 .setTitle("Join the Party🎊")
-		//                 .setDescription(sprintf("Hey <@%s>! I'm an Eden 🌳 bot helping <@%s> with this onboarding call! Click [here](<%s>) to claim a ticket and join the onboarding Party Page!",
-		//                     interaction.user.id, hostId, roomLink))
-		//         ]
-		//     })
-		// }
 
 		if (interaction.customId === 'end') {
 			if (interaction.user.id !== hostId)

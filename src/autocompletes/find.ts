@@ -1,5 +1,6 @@
+import { ApplicationCommandOptionChoiceData } from 'discord.js';
 import { Auto } from '../structures/AutoComplete';
-import { myCache } from '../utils/cache';
+import { myCache } from '../structures/Cache';
 import { NUMBER } from '../utils/const';
 
 export default new Auto({
@@ -7,7 +8,7 @@ export default new Auto({
 	execute: ({ interaction }) => {
 		const guildId = interaction.guild.id;
 		const { name, value } = interaction.options.getFocused(true);
-		let filter: Array<any> = [];
+		let filter: Array<ApplicationCommandOptionChoiceData> = [];
 		switch (name) {
 			case 'project': {
 				if (!myCache.myHas('Projects')) return interaction.respond([]);
@@ -19,7 +20,7 @@ export default new Auto({
 							.startsWith(value.toLocaleLowerCase())
 					)
 					.map((projectId) => ({
-						name: projectInform[projectId],
+						name: projectInform[projectId].title,
 						value: projectId
 					}))
 					.slice(0, NUMBER.AUTOCOMPLETE_OPTION_LENGTH);

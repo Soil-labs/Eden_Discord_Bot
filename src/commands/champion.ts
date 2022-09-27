@@ -1,7 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import { Command } from '../structures/Command';
 import { LINK } from '../utils/const';
-import { logger } from '../utils/logger';
 
 export default new Command({
 	name: 'champion',

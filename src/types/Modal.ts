@@ -11,9 +11,9 @@ interface ModalRunOptions {
 }
 
 type RunFunction = (options: ModalRunOptions) => any;
-
+type ModalCustomId = 'update';
 // todo limit customId
 export interface ModalType {
-	customId: string;
+	customId: ModalCustomId;
 	execute: RunFunction;
 }

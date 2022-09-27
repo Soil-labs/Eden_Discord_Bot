@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import { GuildInformCache } from '../../types/Cache';
-import { myCache } from '../../utils/cache';
+import { myCache } from '../../structures/Cache';
 import { GraphQL_FindServersQuery, GraphQL_FindServersQueryVariables } from '../gql/result';
 import { myQuery } from '../graph';
 
@@ -25,7 +25,7 @@ export async function findServers() {
 			fields: {}
 		}
 	});
-	if (error) return false;
+	if (error) return error;
 	else {
 		const toBeCached: GuildInformCache = {};
 		result.findServers.forEach((server) => {

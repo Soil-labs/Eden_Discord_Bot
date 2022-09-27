@@ -1,6 +1,7 @@
 import {
 	AutocompleteInteraction,
 	CommandInteractionOptionResolver,
+	ContextMenuInteraction,
 	GuildMember,
 	Interaction
 } from 'discord.js';
@@ -10,7 +11,7 @@ import { ExtendedButtonInteraction } from '../types/Button';
 import { GuildInform } from '../types/Cache';
 import { ExtendedCommandInteration } from '../types/Command';
 import { ExtendedModalSubmitInteraction } from '../types/Modal';
-import { myCache } from '../utils/cache';
+import { myCache } from '../structures/Cache';
 import { logger } from '../utils/logger';
 import _ from 'lodash';
 
@@ -23,14 +24,15 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 				ephemeral: true
 			});
 		}
-		
-		if (!myCache.myHas('Servers')) return interaction.reply({
-			content: 'Command is initing, please try again later.',
-			ephemeral: true
-		})
+
+		if (!myCache.myHas('Servers'))
+			return interaction.reply({
+				content: 'Command is initing, please try again later.',
+				ephemeral: true
+			});
 
 		const member = interaction.member as GuildMember;
-		const guildInform: GuildInform = myCache.myGet('Servers')[interaction.guild.id]
+		const guildInform: GuildInform = myCache.myGet('Servers')[interaction.guild.id];
 		const { adminCommand, adminMember, adminRole } = guildInform;
 		if (adminCommand.includes(interaction.commandName)) {
 			if (
@@ -124,6 +126,26 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 			auto.execute({
 				client: client,
 				interaction: interaction as AutocompleteInteraction
+			});
+		} catch (error) {
+			return logger.error(error);
+		}
+	}
+
+	if (interaction.isContextMenu()) {
+		const menu = client.menus.get(interaction.commandName);
+
+		if (!menu) {
+			return interaction.reply({
+				content: `A non exitent context menu is triggered: ${interaction.commandName}`,
+				ephemeral: true
+			});
+		}
+
+		try {
+			menu.execute({
+				client: client,
+				interaction: interaction
 			});
 		} catch (error) {
 			return logger.error(error);

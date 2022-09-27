@@ -7,7 +7,7 @@ interface AutoRunOptions {
 }
 
 type RunFunction = (options: AutoRunOptions) => any;
-type CommandName = 'guild' | 'find';
+type CommandName = 'admin' | 'find' | 'update';
 export interface AutoType {
 	correspondingCommandName: CommandName;
 	execute: RunFunction;

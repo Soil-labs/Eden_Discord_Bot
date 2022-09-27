@@ -7,7 +7,7 @@ export const logger = pino({
 		options: {
 			colorize: true,
 			ignore: 'pid,hostname',
-			translateTime: 'UTC:yyyy mm dd HH:MM:ss'
+			translateTime: 'SYS:yyyy-mm-dd HH:MM:ss o'
 		}
 	}
 });

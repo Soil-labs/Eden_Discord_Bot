@@ -13,17 +13,24 @@ type GraphParam<T> = {
 	request: any;
 };
 
+// todo timeout adjustment
+// todo correctly handle error from graphql
 export async function myQuery<T, K>(params: GraphParam<T>): Promise<GraphReturn<K>> {
 	const { result, error } = await awaitWrapWithTimeout(
 		_client.request<K>(params.request, params.variable)
 	);
+
 	if (error instanceof TimeOutError) {
 		return [null, error.message];
 	}
-	// todo correctly handle error from graphql
+	if (error?.response) {
+		return [null, error.response.errors[0]?.message];
+	}
 	return [result, null];
 }
 
+// todo timeout adjustment
+// todo correctly handle error from graphql
 export async function myMutation<T, K>(params: GraphParam<T>): Promise<GraphReturn<K>> {
 	const { result, error } = await awaitWrapWithTimeout(
 		_client.request<K>(params.request, params.variable)
@@ -31,6 +38,8 @@ export async function myMutation<T, K>(params: GraphParam<T>): Promise<GraphRetu
 	if (error instanceof TimeOutError) {
 		return [null, error.message];
 	}
-	// todo correctly handle error from graphql
+	if (error?.response) {
+		return [null, error.response.errors[0]?.message];
+	}
 	return [result, null];
 }

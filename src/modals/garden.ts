@@ -1,0 +1,140 @@
+import { Modal } from '../structures/Modal';
+import { GardenMemberId } from '../types/Cache';
+import { myCache } from '../structures/Cache';
+import { MessageActionRow, MessageButton, MessageEmbed, TextChannel } from 'discord.js';
+import { LINK } from '../utils/const';
+import { GraphQL_CreateProjectUpdateInput } from '../graph/gql/result';
+import { sprintf } from 'sprintf-js';
+import { createProjectUpdate } from '../graph/mutation/createProjectUpdate.mutation';
+import { awaitWrap, checkGardenChannelPermission, getErrorReply } from '../utils/util';
+import _ from 'lodash';
+
+export default new Modal({
+	customId: 'update',
+	execute: async ({ interaction }) => {
+		const userId = interaction.user.id;
+		const guildId = interaction.guild.id;
+		const gardenUserIndentity: GardenMemberId = `${guildId}_${userId}`;
+		let gardenContext = myCache.myGet('GardenContext');
+		if (!gardenContext[gardenUserIndentity])
+			return interaction.reply({
+				content: 'Cannot find your record, please report to the admin.',
+				ephemeral: true
+			});
+		const title = interaction.fields.getTextInputValue('garden_title').trim();
+		const content = interaction.fields.getTextInputValue('garden_content').trim();
+
+		const {
+			categoryChannelId,
+			generalChannelId,
+			projectId,
+			memberIds,
+			teamIds,
+			roleIds,
+			tokenAmount,
+			projectTitle,
+			teamName,
+			roleName,
+			autoArchiveDuration
+		} = gardenContext[gardenUserIndentity];
+
+		await interaction.deferReply({ ephemeral: true });
+
+		let generalChannel = interaction.guild.channels.cache.get(generalChannelId) as TextChannel;
+		if (!generalChannel) {
+			const { result, error } = await awaitWrap(
+				interaction.guild.channels.fetch(generalChannelId)
+			);
+			if (error)
+				return interaction.followUp({
+					content: `Sorry, the general channel for ${teamName} is unfetchable.`
+				});
+			generalChannel = result as TextChannel;
+		}
+
+		// todo clear permission checking and miss permission report
+		if (!checkGardenChannelPermission(generalChannel, interaction.guild.me.id))
+			return interaction.followUp({
+				content: `Sorry, I don't have access to ${generalChannelId}.`,
+				ephemeral: true
+			});
+
+		const thread = await generalChannel.threads.create({
+			name: title,
+			autoArchiveDuration: autoArchiveDuration ?? 1440
+		});
+		let embedDescription = `\u200B\n**Project**: ${projectTitle}\n**Team**: ${teamName}\n**Role**: ${roleName}`;
+		if (tokenAmount) embedDescription += `\n**Token Transferred**: \`${tokenAmount}\``;
+		await thread.send({
+			content: _.uniq([...memberIds, userId])
+				.map((value) => `<@${value}>`)
+				.toString(),
+			embeds: [
+				new MessageEmbed()
+					.setAuthor({
+						name: `@${interaction.member.displayName} -- Author`,
+						iconURL: interaction.user.avatarURL()
+					})
+					.setDescription(embedDescription)
+			],
+			components: [
+				new MessageActionRow().addComponents(
+					new MessageButton()
+						.setLabel('Garden Feed')
+						.setEmoji('🔗')
+						.setStyle('LINK')
+						.setURL(LINK.GARDEN_FEED),
+					new MessageButton()
+						.setLabel('Garden Graph')
+						.setEmoji('🔗')
+						.setStyle('LINK')
+						.setURL(LINK.GARDEN_GRAPH)
+				)
+			]
+		});
+		thread.send({
+			content: `**Content**: \n${content}`
+		});
+
+		const gardenUpdateInform: GraphQL_CreateProjectUpdateInput = {
+            projectID: projectId,
+			memberID: memberIds,
+			authorID: userId,
+			teamID: teamIds,
+			roleID: roleIds,
+			title: title,
+			content: content,
+			serverID: [guildId],
+		};
+
+		gardenUpdateInform.threadDiscordID = sprintf(LINK.THREAD, {
+			guildId: guildId,
+			threadId: thread.id
+		});
+
+		if (tokenAmount) gardenUpdateInform.token = tokenAmount.toString();
+
+		const [result, error] = await createProjectUpdate({
+			fields: gardenUpdateInform
+		});
+
+		if (error) {
+            thread.delete('GraphQL Error, cannot upload garden information')
+			delete gardenContext[gardenUserIndentity];
+			myCache.mySet('GardenContext', gardenContext);
+			return interaction.followUp({
+				content: getErrorReply({
+					commandName: 'update',
+					errorMessage: error
+				})
+			});
+		}
+
+		delete gardenContext[gardenUserIndentity];
+		myCache.mySet('GardenContext', gardenContext);
+
+		return interaction.followUp({
+			content: `Update the Secret Garden successfully! Check the thread <#${thread.id}>.`
+		});
+	}
+});
