@@ -5,7 +5,7 @@ import { Command } from '../structures/Command';
 import { CONTENT, LINK } from '../utils/const';
 import {
 	awaitWrap,
-	checkChannelPermission,
+	checkTextChannelPermission,
 	getErrorReply,
 	updateMemberCache,
 	validMember
@@ -130,7 +130,11 @@ export default new Command({
 		);
 
 		if (dmError) {
-			if (checkChannelPermission(interaction.channel, interaction.guild.me.id)) {
+			const permissionCheck = checkTextChannelPermission(
+				interaction.channel,
+				interaction.guild.me.id
+			);
+			if (!permissionCheck) {
 				await interaction.channel.send({
 					content: `<@${inviter.id}> has invited <@${invitee.id}> to join Eden 🌳! BIG WAGMI ENERGY!⚡`,
 					embeds: [
@@ -152,7 +156,7 @@ export default new Command({
 			} else {
 				return interaction.followUp({
 					content:
-						'Invitee does not open the DM and I cannot send the invite link to this channel, please check it and try again.'
+						`Invitee does not open the DM and I cannot send the invite link to this channel: ${permissionCheck}`
 				});
 			}
 		}

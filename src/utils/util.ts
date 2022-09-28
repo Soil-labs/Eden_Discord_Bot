@@ -1,4 +1,8 @@
-import { GuildTextBasedChannel, Permissions, TextChannel, VoiceBasedChannel } from 'discord.js';
+import {
+	GuildTextBasedChannel,
+	Permissions,
+	VoiceBasedChannel,
+} from 'discord.js';
 import { sprintf } from 'sprintf-js';
 import {
 	GuildId,
@@ -6,12 +10,9 @@ import {
 	MemberInform,
 	ProjectId,
 	RoleId,
-	RoleValueType,
 	SkillId,
 	SkillInform,
 	TeamId,
-	TeamInform,
-	TeamValueType
 } from '../types/Cache';
 import { myCache } from '../structures/Cache';
 import { ERROR_REPLY, NUMBER } from './const';
@@ -62,13 +63,35 @@ export async function awaitWrapWithTimeout<T>(
 		});
 }
 
-export function checkChannelPermission(
-	channel: GuildTextBasedChannel | VoiceBasedChannel,
-	userId: string
-) {
-	return channel
-		.permissionsFor(userId)
-		.has([Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES]);
+export function checkTextChannelPermission(channel: GuildTextBasedChannel, userId: string) {
+	if (channel.type === 'GUILD_VOICE') {
+		if (!channel.permissionsFor(userId).has([Permissions.FLAGS.CONNECT])) {
+			return 'Missing **CONNECT** access.';
+		}
+	}
+	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.VIEW_CHANNEL])) {
+		return 'Missing **VIEW CHANNEL** access.';
+	}
+	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.SEND_MESSAGES])) {
+		return 'Missing **SEND MESSAGES** access.';
+	}
+	return false;
+}
+
+export function checkOnboardPermission(channel: VoiceBasedChannel, userId: string) {
+	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.CONNECT])) {
+		return 'Missing **CONNECT** access.';
+	}
+	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.VIEW_CHANNEL])) {
+		return 'Missing **VIEW CHANNEL** access.';
+	}
+	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.SEND_MESSAGES])) {
+		return 'Missing **SEND MESSAGES** access.';
+	}
+	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.READ_MESSAGE_HISTORY])) {
+		return 'Missing **READ MESSAGE HISTORY** access.';
+	}
+	return false;
 }
 
 export function checkGardenChannelPermission(

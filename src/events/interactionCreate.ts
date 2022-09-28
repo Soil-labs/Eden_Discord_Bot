@@ -1,7 +1,6 @@
 import {
 	AutocompleteInteraction,
 	CommandInteractionOptionResolver,
-	ContextMenuInteraction,
 	GuildMember,
 	Interaction
 } from 'discord.js';
@@ -14,8 +13,15 @@ import { ExtendedModalSubmitInteraction } from '../types/Modal';
 import { myCache } from '../structures/Cache';
 import { logger } from '../utils/logger';
 import _ from 'lodash';
+import { sprintf } from 'sprintf-js';
+import { ERROR_REPLY } from '../utils/const';
 
-export default new Event('interactionCreate', (interaction: Interaction) => {
+export default new Event('interactionCreate', async (interaction: Interaction) => {
+	const errorInform = {
+		userName: interaction?.user?.username,
+		guildName: interaction?.guild?.name
+	};
+
 	if (interaction.isCommand()) {
 		const command = client.commands.get(interaction.commandName);
 		if (!command) {
@@ -46,19 +52,33 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 		}
 
 		try {
-			command.execute({
+			// todo without await, catch cannot grab the error, because catch will be invalid after this command starts
+			await command.execute({
 				client: client,
 				interaction: interaction as ExtendedCommandInteration,
 				args: interaction.options as CommandInteractionOptionResolver
 			});
 		} catch (error) {
+			const errorMsg = sprintf(ERROR_REPLY.INTERACTION, {
+				...errorInform,
+				commandName: interaction.commandName,
+				errorName: error?.name,
+				errorMsg: error?.message,
+				errorStack: error?.stack
+			});
 			if (interaction.deferred) {
-				logger.error(error);
+				logger.error(errorMsg);
 				return interaction.followUp({
-					content: 'Unknown Error'
+					content: ERROR_REPLY.COMMON
 				});
 			}
-			return logger.error(error);
+			if (!interaction.replied) {
+				logger.error(errorMsg);
+				interaction.reply({
+					content: ERROR_REPLY.COMMON,
+					ephemeral: true
+				});
+			}
 		}
 	}
 
@@ -73,18 +93,31 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 		}
 
 		try {
-			button.execute({
+			await button.execute({
 				client: client,
 				interaction: interaction as ExtendedButtonInteraction
 			});
 		} catch (error) {
+			const errorMsg = sprintf(ERROR_REPLY.BUTTON, {
+				...errorInform,
+				customId: interaction.customId,
+				errorName: error?.name,
+				errorMsg: error?.message,
+				errorStack: error?.stack
+			});
 			if (interaction.deferred) {
-				logger.error(error);
+				logger.error(errorMsg);
 				return interaction.followUp({
-					content: 'Unknown Error'
+					content: ERROR_REPLY.COMMON
 				});
 			}
-			return logger.error(error);
+			if (!interaction.replied) {
+				logger.error(errorMsg);
+				interaction.reply({
+					content: ERROR_REPLY.COMMON,
+					ephemeral: true
+				});
+			}
 		}
 	}
 
@@ -99,18 +132,31 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 		}
 
 		try {
-			modal.execute({
+			await modal.execute({
 				client: client,
 				interaction: interaction as ExtendedModalSubmitInteraction
 			});
 		} catch (error) {
+			const errorMsg = sprintf(ERROR_REPLY.MODAL, {
+				...errorInform,
+				customId: interaction.customId,
+				errorName: error?.name,
+				errorMsg: error?.message,
+				errorStack: error?.stack
+			});
 			if (interaction.deferred) {
-				logger.error(error);
-				return interaction.followUp({
-					content: 'Unknown Error'
+				logger.error(errorMsg);
+				interaction.followUp({
+					content: ERROR_REPLY.COMMON
 				});
 			}
-			return logger.error(error);
+			if (!interaction.replied) {
+				logger.error(errorMsg);
+				interaction.reply({
+					content: ERROR_REPLY.COMMON,
+					ephemeral: true
+				});
+			}
 		}
 	}
 
@@ -123,12 +169,20 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 		}
 
 		try {
-			auto.execute({
+			await auto.execute({
 				client: client,
 				interaction: interaction as AutocompleteInteraction
 			});
 		} catch (error) {
-			return logger.error(error);
+			return logger.error(
+				sprintf(ERROR_REPLY.AUTO, {
+					...errorInform,
+					commandName: interaction.commandName,
+					errorName: error?.name,
+					errorMsg: error?.message,
+					errorStack: error?.stack
+				})
+			);
 		}
 	}
 
@@ -143,12 +197,31 @@ export default new Event('interactionCreate', (interaction: Interaction) => {
 		}
 
 		try {
-			menu.execute({
+			await menu.execute({
 				client: client,
 				interaction: interaction
 			});
 		} catch (error) {
-			return logger.error(error);
+			const errorMessage = sprintf(ERROR_REPLY.MENU, {
+				...errorInform,
+				menuName: interaction.commandName,
+				errorName: error?.name,
+				errorMsg: error?.message,
+				errorStack: error?.stack
+			});
+			if (interaction.deferred) {
+				logger.error(errorMessage);
+				interaction.followUp({
+					content: ERROR_REPLY.COMMON
+				});
+			}
+			if (!interaction.replied) {
+				logger.error(errorMessage);
+				interaction.reply({
+					content: ERROR_REPLY.COMMON,
+					ephemeral: true
+				});
+			}
 		}
 	}
 });

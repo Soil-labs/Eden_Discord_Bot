@@ -1,4 +1,9 @@
-import { MessageActionRow, MessageButton, MessageEmbed, VoiceChannel } from 'discord.js';
+import {
+	MessageActionRow,
+	MessageButton,
+	MessageEmbed,
+	VoiceChannel
+} from 'discord.js';
 import { ChannelTypes } from 'discord.js/typings/enums';
 import { sprintf } from 'sprintf-js';
 import { GraphQL_AddNewMemberMutation } from '../graph/gql/result';
@@ -8,7 +13,11 @@ import { createRoom } from '../graph/mutation/createRoom.mutation';
 import { Command } from '../structures/Command';
 import { myCache } from '../structures/Cache';
 import { CONTENT, LINK } from '../utils/const';
-import { checkChannelPermission, getErrorReply, updateMembersCache } from '../utils/util';
+import {
+	checkOnboardPermission,
+	getErrorReply,
+	updateMembersCache
+} from '../utils/util';
 import _ from 'lodash';
 import { VoiceContext } from '../types/Cache';
 
@@ -182,7 +191,7 @@ export default new Command({
 			const contexts = myCache.myGet('VoiceContexts');
 			const guildVoiceContext = contexts[guildId] as VoiceContext;
 			// Onboarding is going on
-			if (guildVoiceContext && !guildVoiceContext.channelId) {
+			if (guildVoiceContext?.channelId) {
 				return interaction.reply({
 					embeds: [
 						new MessageEmbed()
@@ -202,11 +211,11 @@ export default new Command({
 					ephemeral: true
 				});
 			}
-			// todo SEND and VIEW is not enought, does not work in D_D, like voice-chat-1
-			if (!checkChannelPermission(voiceChannel, interaction.guild.me.id)) {
+			const permissionCheck = checkOnboardPermission(voiceChannel, interaction.guild.me.id);
+
+			if (permissionCheck) {
 				return interaction.reply({
-					content:
-						'Permission denied, please check whether the bot is allowed to send message in this channel',
+					content: `Permission denied: ${permissionCheck}`,
 					ephemeral: true
 				});
 			}

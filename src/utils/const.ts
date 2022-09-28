@@ -21,7 +21,7 @@ type LinkProperty =
 	| 'GARDEN_FEED'
 	| 'GARDEN_GRAPH'
 	| 'THREAD';
-type ErroProperty = 'GRAPHQL';
+type ErroProperty = 'COMMON' | 'GRAPHQL' | 'INTERACTION' | 'BUTTON' | 'AUTO' | 'MODAL' | 'MENU';
 type ContentProperty =
 	| 'MATCH_PROJECT'
 	| 'INVITE_DM'
@@ -75,7 +75,14 @@ export const CONTENT: Content = {
 };
 
 export const ERROR_REPLY: InternalError = {
-	GRAPHQL: 'Error occured when running \`%(action)s\`: %(errorMessage)s'
+	GRAPHQL: 'Error occured when running `%(action)s`: %(errorMessage)s',
+	COMMON: 'Unknown Error, please report this to the admin',
+	INTERACTION:
+		'User: %(userName)s Guild: %(guildName)s Error: %(errorName)s occurs when executing %(commandName)s command. Msg: %(errorMsg)s Stack: %(errorStack)s.',
+	BUTTON: 'User: %(userName)s Guild: %(guildName)s Error: %(errorName)s occurs when interacting %(customId)s button. Msg: %(errorMsg)s Stack: %(errorStack)s.',
+	AUTO: 'User: %(userName)s Guild: %(guildName)s Error: %(errorName)s occurs when interacting %(commandName)s auto. Msg: %(errorMsg)s Stack: %(errorStack)s.',
+	MODAL: 'User: %(userName)s Guild: %(guildName)s Error: %(errorName)s occurs when interacting %(customId)s modal. Msg: %(errorMsg)s Stack: %(errorStack)s.',
+	MENU: 'User: %(userName)s Guild: %(guildName)s Error: %(errorName)s occurs when executing %(menuName)s menu. Msg: %(errorMsg)s Stack: %(errorStack)s.'
 };
 
 export const EMBED_COLOR: Readonly<HexColorString> = '#74FA6D';

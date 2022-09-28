@@ -273,7 +273,7 @@ export class MyClient extends Client {
 			const autoArchiveDay = autoArchiveDuration / (24 * 60);
 			if (autoArchiveDay === 3 || autoArchiveDay === 7) {
 				// todo remember to change it to the normal value
-				const oneDayInMil = 72 * 60 * 60 * 1000;
+				const oneDayInMil = 24 * 60 * 60 * 1000;
 				if (
 					firstMsg.createdTimestamp + autoArchiveDuration * 60 * 1000 - current <=
 					oneDayInMil

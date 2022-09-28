@@ -14,7 +14,8 @@ import { LINK, NUMBER } from '../utils/const';
 import { logger } from '../utils/logger';
 import {
 	awaitWrap,
-	checkChannelPermission,
+	checkOnboardPermission,
+	checkTextChannelPermission,
 	convertMsToTime,
 	updateMemberCache,
 	validMember
@@ -62,10 +63,12 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 
 			const voiceChannel = newState.channel as VoiceChannel;
 			// todo find a way to resume or some method to handle deleted message, fetch from audio log? maybe
-			if (!checkChannelPermission(voiceChannel, newState.guild.me.id))
-				return logger.warn(
-					`Cannot fectch message in ${voiceChannel.name} when voiceStateUpdate`
-				);
+
+            // todo possibility of that someone changed the permission when onboard is going on
+			// if (!checkOnboardPermission(voiceChannel, newState.guild.me.id))
+			// 	return logger.warn(
+			// 		`Cannot fectch message in ${voiceChannel.name} when voiceStateUpdate`
+			// 	);
 
 			const dashboardMsg = await voiceChannel.messages.fetch(messageId);
 

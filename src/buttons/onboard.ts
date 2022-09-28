@@ -69,7 +69,7 @@ export default new Button({
 					timestamp: null,
 					hostId: null,
 					attendees: null,
-					roomId: null
+					roomId: null,
 				}
 			});
 
