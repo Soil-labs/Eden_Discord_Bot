@@ -52,10 +52,13 @@ export default new Modal({
 			generalChannel = result as TextChannel;
 		}
 
-		// todo clear permission checking and miss permission report
-		if (!checkGardenChannelPermission(generalChannel, interaction.guild.me.id))
+		const permissionCheck = checkGardenChannelPermission(
+			generalChannel,
+			interaction.guild.me.id
+		);
+		if (permissionCheck)
 			return interaction.followUp({
-				content: `Sorry, I don't have access to ${generalChannelId}.`,
+				content: permissionCheck,
 				ephemeral: true
 			});
 
@@ -97,14 +100,14 @@ export default new Modal({
 		});
 
 		const gardenUpdateInform: GraphQL_CreateProjectUpdateInput = {
-            projectID: projectId,
+			projectID: projectId,
 			memberID: memberIds,
 			authorID: userId,
 			teamID: teamIds,
 			roleID: roleIds,
 			title: title,
 			content: content,
-			serverID: [guildId],
+			serverID: [guildId]
 		};
 
 		gardenUpdateInform.threadDiscordID = sprintf(LINK.THREAD, {
@@ -119,7 +122,7 @@ export default new Modal({
 		});
 
 		if (error) {
-            thread.delete('GraphQL Error, cannot upload garden information')
+			thread.delete('GraphQL Error, cannot upload garden information');
 			delete gardenContext[gardenUserIndentity];
 			myCache.mySet('GardenContext', gardenContext);
 			return interaction.followUp({
