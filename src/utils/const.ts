@@ -1,4 +1,5 @@
 import { ApplicationCommandOptionChoiceData, HexColorString } from 'discord.js';
+import { CommandNameEmun } from '../types/Command';
 
 type NumericalProperty =
 	| 'AWAIT_TIMEOUT'
@@ -7,7 +8,9 @@ type NumericalProperty =
 	| 'DISPLAY_COMMON_SKILL_NUMBER'
 	| 'AUTOCOMPLETE_OPTION_LENGTH'
 	| 'ONBOARD_REPEAT_CONTEXT'
-	| 'ONBOARD_AUTO_DELETE';
+	| 'ONBOARD_AUTO_DELETE'
+	| 'THREAD_SCAN'
+	| 'BIRTHDAY_SCAN';
 type LinkProperty =
 	| 'DASHBOARD'
 	| 'PROJECT_ALL'
@@ -34,7 +37,7 @@ type Link = Readonly<Record<LinkProperty, string>>;
 type InternalError = Readonly<Record<ErroProperty, string>>;
 type Content = Readonly<Record<ContentProperty, string>>;
 
-const _frontend = 'https://oasis-app-front-end-zeta.vercel.app';
+const _frontend = process.env.PM2_FRONTEND;
 
 export const NUMBER: Numerical = {
 	AWAIT_TIMEOUT: 15 * 1000,
@@ -43,7 +46,9 @@ export const NUMBER: Numerical = {
 	DISPLAY_COMMON_SKILL_NUMBER: 2,
 	AUTOCOMPLETE_OPTION_LENGTH: 25,
 	ONBOARD_REPEAT_CONTEXT: 0.25 * 60,
-	ONBOARD_AUTO_DELETE: 0.25 * 60
+	ONBOARD_AUTO_DELETE: 0.25 * 60,
+	THREAD_SCAN: 60 * 60 * 1000,
+	BIRTHDAY_SCAN: 0.25 * 60 * 1000
 };
 
 export const LINK: Link = {
@@ -87,10 +92,14 @@ export const ERROR_REPLY: InternalError = {
 
 export const EMBED_COLOR: Readonly<HexColorString> = '#74FA6D';
 
-export const COMMADN_CHOICES: Array<ApplicationCommandOptionChoiceData> = [
+type ExtendedApplicationCommandOptionChoiceData = {
+	name: CommandNameEmun;
+} & ApplicationCommandOptionChoiceData;
+
+export const COMMADN_CHOICES: Array<ExtendedApplicationCommandOptionChoiceData> = [
 	{
-		name: 'admin',
-		value: 'admin'
+		name: 'set',
+		value: 'set'
 	},
 	{
 		name: 'find',
@@ -124,6 +133,86 @@ export const COMMADN_CHOICES: Array<ApplicationCommandOptionChoiceData> = [
 		name: 'update',
 		value: 'update'
 	}
+];
+
+export const MONTH_ENUM: Array<ApplicationCommandOptionChoiceData> = [
+	{
+		name: 'January',
+		value: '1'
+	},
+	{
+		name: 'February',
+		value: '2'
+	},
+	{
+		name: 'March',
+		value: '3'
+	},
+	{
+		name: 'April',
+		value: '4'
+	},
+	{
+		name: 'May',
+		value: '5'
+	},
+	{
+		name: 'June',
+		value: '6'
+	},
+	{
+		name: 'July',
+		value: '7'
+	},
+	{
+		name: 'August',
+		value: '8'
+	},
+	{
+		name: 'September',
+		value: '9'
+	},
+	{
+		name: 'October',
+		value: '10'
+	},
+	{
+		name: 'November',
+		value: '11'
+	},
+	{
+		name: 'December',
+		value: '12'
+	}
+];
+
+export const TIMEZONE: Array<ApplicationCommandOptionChoiceData> = [
+	{ name: 'UTC-01', value: -1 },
+	{ name: 'UTC-02', value: -2 },
+	{ name: 'UTC-03', value: -3 },
+	{ name: 'UTC-04', value: -4 },
+	{ name: 'UTC-05', value: -5 },
+	{ name: 'UTC-06', value: -6 },
+	{ name: 'UTC-07', value: -7 },
+	{ name: 'UTC-08', value: -8 },
+	{ name: 'UTC-09', value: -9 },
+	{ name: 'UTC-10', value: -10 },
+	{ name: 'UTC-11', value: -11 },
+	{ name: 'UTC-12', value: -12 },
+	{ name: 'UTC+00', value: 0 },
+	{ name: 'UTC+01', value: 1 },
+	{ name: 'UTC+02', value: 2 },
+	{ name: 'UTC+03', value: 3 },
+	{ name: 'UTC+04', value: 4 },
+	{ name: 'UTC+05', value: 5 },
+	{ name: 'UTC+06', value: 6 },
+	{ name: 'UTC+07', value: 7 },
+	{ name: 'UTC+08', value: 8 },
+	{ name: 'UTC+09', value: 9 },
+	{ name: 'UTC+10', value: 10 },
+	{ name: 'UTC+11', value: 11 },
+	{ name: 'UTC+12', value: 12 },
+	{ name: 'UTC+13', value: 13 }
 ];
 
 export default {};

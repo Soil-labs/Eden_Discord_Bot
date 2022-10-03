@@ -2,7 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import { TimeOutError } from '../utils/error';
 import { awaitWrapWithTimeout } from '../utils/util';
 
-const _client = new GraphQLClient('https://oasis-botdevelopment.up.railway.app/graphql', {
+const _client = new GraphQLClient(process.env.PM2_ENDPOINT, {
 	headers: {}
 });
 

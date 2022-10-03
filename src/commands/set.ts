@@ -1,13 +1,19 @@
-import { MessageEmbed } from 'discord.js';
+import { GuildTextBasedChannel, MessageEmbed } from 'discord.js';
 import { updateServer } from '../graph/mutation/updateServer.mutation';
 import { Command } from '../structures/Command';
 import { GuildInform, MemberId, readGuildInform } from '../types/Cache';
 import { myCache } from '../structures/Cache';
 import { COMMADN_CHOICES } from '../utils/const';
-import { getErrorReply } from '../utils/util';
+import {
+	checkGardenChannelPermission,
+	checkTextChannelPermission,
+	getErrorReply
+} from '../utils/util';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { getApp } from 'firebase/app';
 
 export default new Command({
-	name: 'admin',
+	name: 'set',
 	description: 'Set Eden',
 	options: [
 		{
@@ -116,37 +122,16 @@ export default new Command({
 			]
 		},
 		{
-			type: 'SUB_COMMAND_GROUP',
-			name: 'set',
-			description: 'Set a serie of channels',
+			type: 'SUB_COMMAND',
+			name: 'channel',
+			description: 'Set up different channels',
 			options: [
 				{
-					type: 'SUB_COMMAND',
+					type: 'CHANNEL',
 					name: 'birthday',
-					description: 'Set up a birthday channel to send celebration',
-					options: [
-						{
-							type: 'CHANNEL',
-							name: 'channel',
-							description: 'Choose a channel',
-							required: true,
-							channelTypes: ['GUILD_TEXT']
-						}
-					]
-				},
-				{
-					type: 'SUB_COMMAND',
-					name: 'garden',
-					description: 'Set up a garden channel to sync project progress',
-					options: [
-						{
-							type: 'CHANNEL',
-							name: 'channel',
-							description: 'Choose a channel',
-							required: true,
-							channelTypes: ['GUILD_TEXT']
-						}
-					]
+					description: 'Choose a text channel for birthday notification.',
+					required: true,
+					channelTypes: ['GUILD_TEXT']
 				}
 			]
 		},
@@ -174,6 +159,48 @@ export default new Command({
 						.addFields(readGuildInform(guildInform))
 				],
 				ephemeral: true
+			});
+		}
+
+		if (subCommandName === 'channel') {
+			const targetChannel = args.getChannel('birthday') as GuildTextBasedChannel;
+			
+			const permissionCheck = checkTextChannelPermission(targetChannel, interaction.guild.me.id);
+			if (permissionCheck) return interaction.reply({
+				content: permissionCheck,
+				ephemeral: true
+			})
+
+			if (!myCache.myHas('GuildSettings')) {
+				return interaction.reply({
+					content: 'Command is initing, please try again later.',
+					ephemeral: true
+				});
+			}
+			if (
+				myCache.myGet('GuildSettings')?.[guildId]?.['birthdayChannelId'] ===
+				targetChannel.id
+			) {
+				return interaction.reply({
+					content: `<#${targetChannel.id}> has been set as birthday channel successfully.`,
+					ephemeral: true
+				});
+			}
+			await interaction.deferReply({ ephemeral: true });
+			const db = getFirestore(getApp());
+			await setDoc(doc(db, 'Guilds', guildId), {
+				birthdayChannelId: targetChannel.id
+			});
+
+			myCache.mySet('GuildSettings', {
+				...myCache.myGet('GuildSettings'),
+				[guildId]: {
+					birthdayChannelId: targetChannel.id
+				}
+			});
+
+			return interaction.followUp({
+				content: `<#${targetChannel.id}> has been set as birthday channel successfully.`
 			});
 		}
 

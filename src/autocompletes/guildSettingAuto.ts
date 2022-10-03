@@ -3,7 +3,7 @@ import { Auto } from '../structures/AutoComplete';
 import { myCache } from '../structures/Cache';
 
 export default new Auto({
-	correspondingCommandName: 'admin',
+	correspondingCommandName: 'set',
 	execute: ({ interaction }) => {
 		const guildId = interaction.guild.id;
 		const { name, value } = interaction.options.getFocused(true);

@@ -7,10 +7,13 @@ import {
 	MessageActionRow,
 	MessageApplicationCommandData,
 	MessageButton,
+	MessageEmbed,
+	TextChannel,
 	ThreadChannel,
 	UserApplicationCommandData
 } from 'discord.js';
-import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, getDocs, query, collection, writeBatch } from 'firebase/firestore';
+import { getApp, initializeApp } from 'firebase/app';
 import { CommandType } from '../types/Command';
 import AsciiTable from 'ascii-table';
 
@@ -25,7 +28,17 @@ import { ModalType } from '../types/Modal';
 import { AutoType } from '../types/Auto';
 import { findSkills } from '../graph/query/findSkills.query';
 import { findMembers } from '../graph/query/findMembers.query';
-import { CacheType, templateGuildInform } from '../types/Cache';
+import {
+	BirthdayCache,
+	BirthdayInform,
+	CacheType,
+	GuildId,
+	GuildSettingCache,
+	GuildSettingInform,
+	MemberId,
+	templateGuildInform,
+	templateGuildSettingInform
+} from '../types/Cache';
 import { findServers } from '../graph/query/findServers.query';
 import { updateServer } from '../graph/mutation/updateServer.mutation';
 import { GraphReturn } from '../graph/graph';
@@ -34,7 +47,8 @@ import { findProjects } from '../graph/query/findProjects.query';
 import { ContextMenuType } from '../types/ContextMenu';
 import { findProjectUpdates } from '../graph/query/findGardens.query';
 import garden from '../modals/garden';
-import { awaitWrap, awaitWrapType } from '../utils/util';
+import { awaitWrap, awaitWrapType, getNextBirthday } from '../utils/util';
+import { NUMBER } from '../utils/const';
 
 const globPromise = promisify(glob);
 
@@ -96,12 +110,20 @@ export class MyClient extends Client {
 			| MessageApplicationCommandData
 			| UserApplicationCommandData
 		> = [];
+		const allowCommands = process.env.PM2_ALLOWCOMMANDS;
 		const commandFiles = await globPromise(`${__dirname}/../commands/*{.ts,.js}`);
 		commandFiles.forEach(async (filePath) => {
 			const command: CommandType = await this._importFiles(filePath);
 			if (!command.name) return;
-			this.commands.set(command.name, command);
-			slashCommands.push(command);
+			if (typeof allowCommands === 'undefined') {
+				this.commands.set(command.name, command);
+				slashCommands.push(command);
+				return;
+			}
+			if (allowCommands.includes(command.name)) {
+				this.commands.set(command.name, command);
+				slashCommands.push(command);
+			}
 		});
 
 		const buttonFiles = await globPromise(`${__dirname}/../buttons/*{.ts,.js}`);
@@ -134,8 +156,10 @@ export class MyClient extends Client {
 		this.once('ready', async () => {
 			logger.info('Bot is online');
 			await this._loadCache();
-			setInterval(this._threadScan, 1 * 60 * 1000, this);
-			if (process.env.MODE === 'dev') {
+			await this._firestoneInit();
+			setInterval(this._threadScan, NUMBER.THREAD_SCAN, this);
+			setInterval(this._birthdayScan, NUMBER.BIRTHDAY_SCAN, this);
+			if (process.env.PM2_MODE === 'dev') {
 				await this._registerCommands({
 					guildId: process.env.GUILDID,
 					commands: slashCommands
@@ -156,11 +180,119 @@ export class MyClient extends Client {
 	}
 
 	private async _firestoneInit() {
-		// const app = initializeApp({
-		// projectId: process.env.PROJECTID
-		// });
-		// const db = getFirestore(app);
-		// const guildQuery = query(collection(db, 'Guilds'));
+		const app = initializeApp({
+			projectId: process.env.PROJECTID
+		});
+		const db = getFirestore(app);
+		const guildQuery = query(collection(db, 'Guilds'));
+		const guildsSnapshot = await getDocs(guildQuery);
+		await this.guilds.fetch();
+
+		const batch = writeBatch(db);
+
+		let guildsCache: GuildSettingCache;
+		if (!guildsSnapshot.empty) {
+			const queries: GuildSettingCache = {};
+			guildsSnapshot.forEach((query) => {
+				queries[query.id] = query.data() as GuildSettingInform;
+			});
+			for (const [guildId, _] of this.guilds.cache) {
+				if (guildId in queries) {
+					const guildQuery = queries[guildId];
+					guildsCache = {
+						...guildsCache,
+						[guildId]: {
+							birthdayChannelId: guildQuery.birthdayChannelId
+						}
+					};
+				} else {
+					guildsCache = {
+						...guildsCache,
+						[guildId]: templateGuildSettingInform
+					};
+					batch.set(doc(db, 'Guilds', guildId), {
+						...templateGuildSettingInform
+					});
+				}
+			}
+		} else {
+			logger.info('Init Database...');
+			for (const [guildId, _] of this.guilds.cache) {
+				guildsCache = {
+					...guildsCache,
+					[guildId]: templateGuildSettingInform
+				};
+				batch.set(doc(db, 'Guilds', guildId), {
+					...templateGuildSettingInform
+				});
+			}
+		}
+		await batch.commit();
+		myCache.mySet('GuildSettings', guildsCache);
+	}
+
+	private async _birthdayScan(client: Client) {
+		const db = getFirestore(getApp());
+		const batch = writeBatch(db);
+
+		const birthdayQuery = query(collection(db, 'Birthday'));
+		const birthdaysSnapshot = await getDocs(birthdayQuery);
+		const birthdayInReadyMembers: Array<{
+			memberId: MemberId;
+			nextBirthday: Number;
+		}> = [];
+		birthdaysSnapshot.forEach((birthday) => {
+			const { id: memberId } = birthday;
+			const birthdayData = birthday.data() as BirthdayInform;
+			const current = Math.floor(new Date().getTime() / 1000);
+			if (current > birthdayData.date) {
+				const nextBirthday = getNextBirthday(
+					Number(birthdayData.month),
+					Number(birthdayData.day),
+					birthdayData.offset
+				);
+				birthdayInReadyMembers.push({
+					memberId: memberId,
+					nextBirthday: nextBirthday
+				});
+				const toBeUpdated: BirthdayInform = {
+					...birthdayData,
+					date: nextBirthday
+				};
+				batch.update(doc(db, 'Birthday', memberId), toBeUpdated);
+			}
+		});
+
+		const guildSettingCache = myCache.myGet('GuildSettings');
+		for (const guildId of Object.keys(guildSettingCache)) {
+			const birthdayChannelId = guildSettingCache[guildId].birthdayChannelId;
+			if (!birthdayChannelId) continue;
+			const guild = client.guilds.cache.get(guildId);
+			if (!guild) continue;
+			const channel = guild.channels.cache.get(birthdayChannelId) as TextChannel;
+			if (!channel) continue;
+			for (const { memberId, nextBirthday } of birthdayInReadyMembers) {
+				let member = guild.members.cache.get(memberId);
+				if (!member) {
+					const { result, error } = await awaitWrap(guild.members.fetch(memberId));
+					if (error) continue;
+					member = result;
+				}
+				channel.send({
+					content: `<@${memberId}>`,
+					embeds: [
+						new MessageEmbed()
+							.setAuthor({
+								name: `@${member.displayName}`,
+								iconURL: member.user.avatarURL()
+							})
+							.setTitle('Happy Birthday!🥳')
+							.setDescription(`Next Birthday: <t:${nextBirthday}>`)
+					]
+				});
+			}
+		}
+		await batch.commit();
 	}
 
 	private async _loadCache() {

@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionChoiceData } from 'discord.js';
 import { Auto } from '../structures/AutoComplete';
-import { ProjectId, RoleValueType, TeamId, TeamValueType } from '../types/Cache';
+import { ProjectId, TeamId } from '../types/Cache';
 import { myCache } from '../structures/Cache';
 import { NUMBER } from '../utils/const';
 

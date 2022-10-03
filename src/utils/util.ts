@@ -1,8 +1,4 @@
-import {
-	GuildTextBasedChannel,
-	Permissions,
-	VoiceBasedChannel,
-} from 'discord.js';
+import { GuildTextBasedChannel, Permissions, VoiceBasedChannel } from 'discord.js';
 import { sprintf } from 'sprintf-js';
 import {
 	GuildId,
@@ -12,7 +8,7 @@ import {
 	RoleId,
 	SkillId,
 	SkillInform,
-	TeamId,
+	TeamId
 } from '../types/Cache';
 import { myCache } from '../structures/Cache';
 import { ERROR_REPLY, NUMBER } from './const';
@@ -98,14 +94,19 @@ export function checkGardenChannelPermission(
 	channel: GuildTextBasedChannel | VoiceBasedChannel,
 	userId: string
 ) {
-	return channel
-		.permissionsFor(userId)
-		.has([
-			Permissions.FLAGS.VIEW_CHANNEL,
-			Permissions.FLAGS.SEND_MESSAGES,
-			Permissions.FLAGS.CREATE_PUBLIC_THREADS,
-			Permissions.FLAGS.MANAGE_THREADS
-		]);
+	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.VIEW_CHANNEL])) {
+		return 'Missing **VIEW CHANNEL** access.';
+	}
+	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.SEND_MESSAGES])) {
+		return 'Missing **SEND MESSAGES** access.';
+	}
+	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.CREATE_PUBLIC_THREADS])) {
+		return 'Missing **CREATE PUBLIC THREADS** access.';
+	}
+	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.MANAGE_THREADS])) {
+		return 'Missing **MANAGE THREADS** access.';
+	}
+	return false;
 }
 
 export function validMember(userId: MemberId, guildId: GuildId): MemberInform | null {
@@ -226,4 +227,19 @@ export function convertMsToTime(milliseconds: number) {
 	minutes = minutes % 60;
 
 	return `${_padTo2Digits(hours)}:${_padTo2Digits(minutes)}:${_padTo2Digits(seconds)}`;
+}
+
+export function getNextBirthday(month: number, day: number, offset: number) {
+	const date = new Date();
+	const thisYear = new Date().getUTCFullYear();
+	const machineTimezonBirthday = new Date(`${thisYear}-${month}-${day}`).getTime();
+	let utcBirthday = machineTimezonBirthday + date.getTimezoneOffset() * 60000;
+	let offsetBirthday = utcBirthday - 3600000 * offset;
+	if (date.getTime() > machineTimezonBirthday) {
+		utcBirthday =
+			new Date(`${thisYear + 1}-${month}-${day}`).getTime() +
+			date.getTimezoneOffset() * 60000;
+		offsetBirthday = utcBirthday - 3600000 * offset;
+	}
+	return Math.floor(offsetBirthday / 1000);
 }

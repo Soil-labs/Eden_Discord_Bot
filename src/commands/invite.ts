@@ -96,7 +96,7 @@ export default new Command({
 		});
 
 		let embedContent = new MessageEmbed().setTitle("You've been invited to join Eden 🌳");
-		if (process.env.MODE === 'prod' && !process.env.DMALLOWED) {
+		if (process.env.PM2_MODE === 'prod' && process.env.PM2_DMDISABLED) {
 			// const { result, error } = await awaitWrap(interaction.channel.send({
 			//     content: `<@${inviter.id}> has invited <@${invitee.id}> to join Eden 🌳! BIG WAGMI ENERGY!⚡`,
 			//     embeds: [

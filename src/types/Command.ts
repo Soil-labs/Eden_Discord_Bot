@@ -18,8 +18,9 @@ interface CommandRunOptions {
 }
 
 type RunFunction = (options: CommandRunOptions) => any;
-
+export type CommandNameEmun = `set` | 'champion' | 'count' | 'find' | 'invite' | 'onboard' | 'project' | 'signup' | 'update' | 'birthday'
 export type CommandType = {
+	name: CommandNameEmun;
 	userPermissions?: PermissionResolvable[];
 	execute: RunFunction;
 } & ChatInputApplicationCommandData;

@@ -1,4 +1,4 @@
-import { EmbedFieldData, ThreadAutoArchiveDuration } from 'discord.js';
+import { EmbedFieldData, Guild, ThreadAutoArchiveDuration } from 'discord.js';
 import { Maybe } from '../graph/gql/result';
 
 export interface CacheType {
@@ -20,6 +20,10 @@ export const templateGuildInform: GuildInform = {
 	adminCommand: []
 };
 
+export const templateGuildSettingInform: GuildSettingInform = {
+	birthdayChannelId: null
+}
+
 export type VoiceContext = {
 	messageId: Maybe<string>;
 	messageLink: Maybe<string>;
@@ -39,7 +43,6 @@ export type GuildInform = {
 // todo this part will be integrated with GuildInform, once graphql has
 export type GuildSettingInform = {
 	birthdayChannelId: string;
-	gardenChannelId: string;
 };
 
 export type ProjectInform = {
@@ -111,6 +114,13 @@ export type TeamValueType = {
 	};
 };
 
+export type BirthdayInform = {
+	date: number,
+	day: string,
+	month: string,
+	offset: number,
+}
+
 export type GuildInformCache = Record<GuildId, GuildInform>;
 export type ProjectsCache = Record<GuildId, ProjectInform>;
 export type MembersCache = Record<MemberId, MemberInform>;
@@ -121,6 +131,7 @@ export type RolesCache = Record<GuildId, RoleInform>;
 export type ProjectTeamRoleCache = Record<GuildId, ProjectTeamRoleInform>;
 export type GardenContextCache = Record<GardenMemberId, GardenInform>;
 export type GuildSettingCache = Record<GuildId, GuildSettingInform>;
+export type BirthdayCache = Record<MemberId, BirthdayInform>;
 
 export function readGuildInform(guildInform: GuildInform): EmbedFieldData[] {
 	let adminInform = {

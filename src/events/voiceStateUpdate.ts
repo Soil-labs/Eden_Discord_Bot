@@ -14,8 +14,6 @@ import { LINK, NUMBER } from '../utils/const';
 import { logger } from '../utils/logger';
 import {
 	awaitWrap,
-	checkOnboardPermission,
-	checkTextChannelPermission,
 	convertMsToTime,
 	updateMemberCache,
 	validMember
@@ -169,7 +167,7 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 			return;
 		} else return;
 	} catch (error) {
-		console.log(
+		logger.error(
 			`User: ${newState?.member?.displayName} Guild: ${newState?.guild?.name} Error: ${error?.name} occurs when voiceStateUpdate. Msg: ${error?.message} Stack: ${error?.stack}`
 		);
 	}
