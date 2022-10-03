@@ -46,7 +46,6 @@ export default new ContextMenu({
 				})
 			});
 
-		console.log(frenUser.avatarURL());
 		const userEmbed = new MessageEmbed()
 			.setTitle(sprintf('@%s - Personal Tagline', frenUser.displayName))
 			.setThumbnail(frenUser.user.avatarURL());

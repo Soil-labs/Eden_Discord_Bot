@@ -16,7 +16,7 @@ module.exports = {
 				// PM2_DMDISABLED: true,
 				// PM2_ALLOWCOMMANDS: ['champion', 'invite', 'onboard', 'signup']
 			},
-			env_dev: {
+			env_dd: {
 				PM2_ENDPOINT: 'https://oasis-botdevelopment.up.railway.app/graphql',
 				PM2_FRONTEND: 'https://eden-develop.vercel.app',
 				PM2_MODE: 'dev',
