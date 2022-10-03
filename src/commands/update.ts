@@ -102,10 +102,13 @@ export default new Command({
 				});
 			generalChannel = result as TextChannel;
 		}
-
-		if (!checkGardenChannelPermission(generalChannel, interaction.guild.me.id))
+		const permissinChecking = checkGardenChannelPermission(
+			generalChannel,
+			interaction.guild.me.id
+		);
+		if (permissinChecking)
 			return interaction.reply({
-				content: `Sorry, I don't have access to <#${generalChannelId}>.`,
+				content: permissinChecking,
 				ephemeral: true
 			});
 
