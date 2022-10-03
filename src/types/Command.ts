@@ -7,8 +7,8 @@ import {
 } from 'discord.js';
 import { MyClient } from '../structures/Client';
 
-export interface ExtendedCommandInteration extends CommandInteraction{
-    member: GuildMember
+export interface ExtendedCommandInteration extends CommandInteraction {
+	member: GuildMember;
 }
 
 interface CommandRunOptions {
@@ -18,7 +18,17 @@ interface CommandRunOptions {
 }
 
 type RunFunction = (options: CommandRunOptions) => any;
-export type CommandNameEmun = `set` | 'champion' | 'count' | 'find' | 'invite' | 'onboard' | 'project' | 'signup' | 'update' | 'birthday'
+export type CommandNameEmun =
+	| `set`
+	| 'champion'
+	| 'count'
+	| 'find'
+	| 'invite'
+	| 'onboard'
+	| 'project'
+	| 'signup'
+	| 'garden'
+	| 'birthday';
 export type CommandType = {
 	name: CommandNameEmun;
 	userPermissions?: PermissionResolvable[];

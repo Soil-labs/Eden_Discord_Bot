@@ -11,7 +11,7 @@ import { myCache } from '../structures/Cache';
 import { awaitWrap, checkGardenChannelPermission, validGarden } from '../utils/util';
 
 export default new Command({
-	name: 'update',
+	name: 'garden',
 	description: 'Report your project milestone.',
 	options: [
 		{
