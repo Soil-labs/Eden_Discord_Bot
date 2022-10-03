@@ -1,5 +1,6 @@
-import { EmbedFieldData, Guild, ThreadAutoArchiveDuration } from 'discord.js';
-import { Maybe } from '../graph/gql/result';
+import { EmbedFieldData, ThreadAutoArchiveDuration } from 'discord.js'
+import { GraphQL_UpdateServerInput, Maybe } from '../graph/gql/result';
+import { myCache } from '../structures/Cache';
 
 export interface CacheType {
 	Projects: ProjectsCache;
@@ -15,14 +16,14 @@ export interface CacheType {
 }
 
 export const templateGuildInform: GuildInform = {
-	adminRole: [],
-	adminMember: [],
-	adminCommand: []
+	adminRoles: [],
+	adminCommands: [],
+	adminID: []
 };
 
 export const templateGuildSettingInform: GuildSettingInform = {
 	birthdayChannelId: null
-}
+};
 
 export type VoiceContext = {
 	messageId: Maybe<string>;
@@ -34,11 +35,9 @@ export type VoiceContext = {
 	roomId: Maybe<string>;
 };
 
-export type GuildInform = {
-	adminRole: Array<string>;
-	adminMember: Array<string>;
-	adminCommand: Array<string>;
-};
+export type GuildInform = Required<
+	Pick<GraphQL_UpdateServerInput, 'adminCommands' | 'adminID' | 'adminRoles'>
+>;
 
 // todo this part will be integrated with GuildInform, once graphql has
 export type GuildSettingInform = {
@@ -115,11 +114,11 @@ export type TeamValueType = {
 };
 
 export type BirthdayInform = {
-	date: number,
-	day: string,
-	month: string,
-	offset: number,
-}
+	date: number;
+	day: string;
+	month: string;
+	offset: number;
+};
 
 export type GuildInformCache = Record<GuildId, GuildInform>;
 export type ProjectsCache = Record<GuildId, ProjectInform>;
@@ -133,28 +132,36 @@ export type GardenContextCache = Record<GardenMemberId, GardenInform>;
 export type GuildSettingCache = Record<GuildId, GuildSettingInform>;
 export type BirthdayCache = Record<MemberId, BirthdayInform>;
 
-export function readGuildInform(guildInform: GuildInform): EmbedFieldData[] {
+export function readGuildInform(guildInform: GuildInform, guildId: GuildId): EmbedFieldData[] {
 	let adminInform = {
 		adminRole: '> -',
 		adminMember: '> -',
 		adminCommand: '> -'
 	};
 
-	const { adminCommand, adminMember, adminRole } = guildInform;
-	if (adminCommand.length !== 0) {
-		adminInform.adminCommand = `> ${adminCommand.reduce((pre, cur) => {
-			return pre + cur + '\n';
+	const { adminCommands, adminID, adminRoles } = guildInform;
+	if (adminCommands.length !== 0) {
+		adminInform.adminCommand = `> ${adminCommands.reduce((pre, cur) => {
+			return pre + `> ${cur}\n`;
 		}, '')}`;
 	}
-	if (adminMember.length !== 0) {
-		adminInform.adminMember = `> ${adminMember.reduce((pre, cur) => {
-			return pre + `<@${cur}>\n`;
+	if (adminID.length !== 0) {
+		adminInform.adminMember = `> ${adminID.reduce((pre, cur) => {
+			return pre + `> <@${cur}>\n`;
 		}, '')}`;
 	}
-	if (adminRole.length !== 0) {
-		adminInform.adminRole = `> ${adminRole.reduce((pre, cur) => {
-			return pre + `<@&${cur}>\n`;
+	if (adminRoles.length !== 0) {
+		adminInform.adminRole = `> ${adminRoles.reduce((pre, cur) => {
+			return pre + `> <@&${cur}>\n`;
 		}, '')}`;
+	}
+
+	let birthdayChannel = '> -';
+	if (myCache.myHas('GuildSettings')) {
+		const guildSettingInform = myCache.myGet('GuildSettings')[guildId];
+		if (guildSettingInform?.birthdayChannelId) {
+			birthdayChannel = `> <#${guildSettingInform?.birthdayChannelId}>\n`;
+		}
 	}
 
 	return [
@@ -172,6 +179,11 @@ export function readGuildInform(guildInform: GuildInform): EmbedFieldData[] {
 			name: 'Admin Command',
 			value: adminInform.adminCommand,
 			inline: true
+		},
+		{
+			name: 'Birthday Channel',
+			value: birthdayChannel,
+			inline: false
 		}
 	];
 }

@@ -275,11 +275,14 @@ export type GraphQL_PaginatedSkills = {
 export type GraphQL_Project = {
   __typename?: 'Project';
   _id?: Maybe<Scalars['ID']>;
+  backColorEmoji?: Maybe<Scalars['String']>;
   budget?: Maybe<GraphQL_BudgetType>;
   champion?: Maybe<GraphQL_Members>;
   collaborationLinks?: Maybe<Array<Maybe<GraphQL_CollaborationLinksType>>>;
   dates?: Maybe<GraphQL_DatesType>;
   description?: Maybe<Scalars['String']>;
+  descriptionOneLine?: Maybe<Scalars['String']>;
+  emoji?: Maybe<Scalars['String']>;
   gardenServerID?: Maybe<Scalars['String']>;
   garden_teams?: Maybe<Array<Maybe<GraphQL_Team>>>;
   role?: Maybe<Array<Maybe<GraphQL_RoleType>>>;
@@ -756,6 +759,7 @@ export type GraphQL_AttributesType = {
 
 export type GraphQL_BudgetInput = {
   perHour?: InputMaybe<Scalars['String']>;
+  perMonth?: InputMaybe<Scalars['String']>;
   token?: InputMaybe<Scalars['String']>;
   totalBudget?: InputMaybe<Scalars['String']>;
 };
@@ -763,6 +767,7 @@ export type GraphQL_BudgetInput = {
 export type GraphQL_BudgetType = {
   __typename?: 'budgetType';
   perHour?: Maybe<Scalars['String']>;
+  perMonth?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   totalBudget?: Maybe<Scalars['String']>;
 };
@@ -1289,6 +1294,8 @@ export type GraphQL_RoleInput = {
   dateRangeStart?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   hoursPerWeek?: InputMaybe<Scalars['Int']>;
+  keyRosponsibilities?: InputMaybe<Scalars['String']>;
+  openPositions?: InputMaybe<Scalars['Int']>;
   skills?: InputMaybe<Array<InputMaybe<GraphQL_SkillRoleInput>>>;
   title?: InputMaybe<Scalars['String']>;
 };
@@ -1297,7 +1304,13 @@ export type GraphQL_RoleType = {
   __typename?: 'roleType';
   _id?: Maybe<Scalars['ID']>;
   archive?: Maybe<Scalars['Boolean']>;
+  budget?: Maybe<GraphQL_BudgetType>;
+  dateRangeEnd?: Maybe<Scalars['String']>;
+  dateRangeStart?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  hoursPerWeek?: Maybe<Scalars['Int']>;
+  keyRosponsibilities?: Maybe<Scalars['String']>;
+  openPositions?: Maybe<Scalars['Int']>;
   skills?: Maybe<Array<Maybe<GraphQL_SkillRoleType>>>;
   title?: Maybe<Scalars['String']>;
 };
@@ -1438,11 +1451,14 @@ export type GraphQL_UpdateMemberInput = {
 
 export type GraphQL_UpdateProjectInput = {
   _id?: InputMaybe<Scalars['ID']>;
+  backColorEmoji?: InputMaybe<Scalars['String']>;
   budget?: InputMaybe<GraphQL_BudgetInput>;
   champion?: InputMaybe<Scalars['String']>;
   collaborationLinks?: InputMaybe<Array<InputMaybe<GraphQL_CollaborationLinksInput>>>;
   dates?: InputMaybe<GraphQL_DatesInput>;
   description?: InputMaybe<Scalars['String']>;
+  descriptionOneLine?: InputMaybe<Scalars['String']>;
+  emoji?: InputMaybe<Scalars['String']>;
   gardenServerID?: InputMaybe<Scalars['String']>;
   role?: InputMaybe<Array<InputMaybe<GraphQL_RoleInput>>>;
   serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;

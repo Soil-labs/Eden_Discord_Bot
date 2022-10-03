@@ -20,8 +20,8 @@ module.exports = {
 		// Disable para limit
 		'max-params': 0,
 		complexity: ['error', 50],
-		'no-warning-comments': [1, { terms: ['todo', 'fixme', 'to-do'], location: 'start' }],
+		'no-warning-comments': [1, { terms: ['todo', 'fixme', 'to-do'], location: 'anywhere' }],
 		'max-depth': ['error', 8],
-		'@typescript-eslint/consistent-type-definitions': 'off'
+		'@typescript-eslint/consistent-type-definitions': 'off',
 	}
 };

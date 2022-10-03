@@ -18,7 +18,7 @@ export default new Event('guildCreate', async (newGuild: Guild) => {
 					fields: {
 						...templateGuildInform,
 						_id: guildId,
-						name: newGuild.name
+						name: newGuild.name,
 					}
 				});
 				if (error) {

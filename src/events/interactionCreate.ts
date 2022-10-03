@@ -39,16 +39,17 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 
 		const member = interaction.member as GuildMember;
 		const guildInform: GuildInform = myCache.myGet('Servers')[interaction.guild.id];
-		const { adminCommand, adminMember, adminRole } = guildInform;
-		if (adminCommand.includes(interaction.commandName)) {
+		const { adminCommands, adminID, adminRoles } = guildInform;
+		if (adminCommands.includes(interaction.commandName)) {
 			if (
-				!adminMember.includes(member.id) &&
-				_.intersection(Array.from(member.roles.cache.keys()), adminRole).length === 0
-			)
+				!adminID.includes(member.id) &&
+				_.intersection(Array.from(member.roles.cache.keys()), adminRoles).length === 0
+			) {
 				return interaction.reply({
 					content: "Sorry, you don't have permission to run this command.",
 					ephemeral: true
 				});
+			}
 		}
 
 		try {

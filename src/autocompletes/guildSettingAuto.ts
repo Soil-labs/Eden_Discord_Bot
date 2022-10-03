@@ -13,7 +13,7 @@ export default new Auto({
 		let filter: Array<ApplicationCommandOptionChoiceData> = [];
 		switch (name) {
 			case 'role': {
-				const currentRoles = guildInform.adminRole;
+				const currentRoles = guildInform.adminRoles;
 				filter = currentRoles
 					.map((roleId) => ({
 						name: interaction.guild.roles.cache.get(roleId)?.name,
@@ -23,7 +23,7 @@ export default new Auto({
 				break;
 			}
 			case 'member': {
-				const currentMembers = guildInform.adminMember;
+				const currentMembers = guildInform.adminID;
 				filter = currentMembers
 					.map((memberId) => ({
 						name: interaction.guild.members.cache.get(memberId)?.displayName,
@@ -33,7 +33,7 @@ export default new Auto({
 				break;
 			}
 			case 'command': {
-				const currentCommands = guildInform.adminCommand;
+				const currentCommands = guildInform.adminCommands;
 				filter = currentCommands
 					.filter((command) => command.includes(value.toString()))
 					.map((command) => ({

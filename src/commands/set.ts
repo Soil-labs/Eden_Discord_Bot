@@ -4,11 +4,7 @@ import { Command } from '../structures/Command';
 import { GuildInform, MemberId, readGuildInform } from '../types/Cache';
 import { myCache } from '../structures/Cache';
 import { COMMADN_CHOICES } from '../utils/const';
-import {
-	checkGardenChannelPermission,
-	checkTextChannelPermission,
-	getErrorReply
-} from '../utils/util';
+import { checkTextChannelPermission, getErrorReply } from '../utils/util';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
 
@@ -156,7 +152,7 @@ export default new Command({
 				embeds: [
 					new MessageEmbed()
 						.setTitle(`${interaction.guild.name} Permission Dashboard`)
-						.addFields(readGuildInform(guildInform))
+						.addFields(readGuildInform(guildInform, guildId))
 				],
 				ephemeral: true
 			});
@@ -164,12 +160,16 @@ export default new Command({
 
 		if (subCommandName === 'channel') {
 			const targetChannel = args.getChannel('birthday') as GuildTextBasedChannel;
-			
-			const permissionCheck = checkTextChannelPermission(targetChannel, interaction.guild.me.id);
-			if (permissionCheck) return interaction.reply({
-				content: permissionCheck,
-				ephemeral: true
-			})
+
+			const permissionCheck = checkTextChannelPermission(
+				targetChannel,
+				interaction.guild.me.id
+			);
+			if (permissionCheck)
+				return interaction.reply({
+					content: permissionCheck,
+					ephemeral: true
+				});
 
 			if (!myCache.myHas('GuildSettings')) {
 				return interaction.reply({
@@ -205,7 +205,7 @@ export default new Command({
 		}
 
 		const commandGroupName = args.getSubcommandGroup();
-		const { adminRole, adminCommand, adminMember } = guildInform;
+		const { adminID, adminCommands, adminRoles } = guildInform;
 		let toBeCached: GuildInform;
 		let successReply: string;
 
@@ -213,27 +213,27 @@ export default new Command({
 			let toBeCachedAdminMember: Array<MemberId>;
 			if (subCommandName === 'add') {
 				const member = args.getUser('member');
-				if (adminMember.includes(member.id))
+				if (adminID.includes(member.id))
 					return interaction.reply({
 						content: `\`${member.username}\` has been added to the admin group`,
 						ephemeral: true
 					});
-				toBeCachedAdminMember = [...adminMember, member.id];
+				toBeCachedAdminMember = [...adminID, member.id];
 				successReply = `\`${member.username}\` has been added to the admin group`;
 			} else {
 				const memberId = args.getString('member');
-				if (!adminMember.includes(memberId))
+				if (!adminID.includes(memberId))
 					return interaction.reply({
 						content: 'Please check your input, the member you chose is not in the list',
 						ephemeral: true
 					});
-				toBeCachedAdminMember = adminMember.filter((value) => value !== memberId);
+				toBeCachedAdminMember = adminID.filter((value) => value !== memberId);
 				const memberObj = interaction.guild.members.cache.get(memberId);
 				successReply = `\`${memberObj?.displayName}\` has been removed from the admin group`;
 			}
 			toBeCached = {
 				...guildInform,
-				adminMember: toBeCachedAdminMember
+				adminID: toBeCachedAdminMember
 			};
 		}
 
@@ -241,54 +241,60 @@ export default new Command({
 			let toBeCachedAdminRole: Array<string>;
 			if (subCommandName === 'add') {
 				const role = args.getRole('role');
-				if (adminRole.includes(role.id))
+				if (adminRoles.includes(role.id))
 					return interaction.reply({
 						content: `\`${role.name}\` has been added to the admin group`,
 						ephemeral: true
 					});
-				toBeCachedAdminRole = [...adminRole, role.id];
+				toBeCachedAdminRole = [...adminRoles, role.id];
 				successReply = `\`${role.name}\` has been added to the admin group`;
 			} else {
 				const roleId = args.getString('role');
-				if (!adminRole.includes(roleId))
+				if (!adminRoles.includes(roleId))
 					return interaction.reply({
 						content: 'Please check your input, the role you chose is not in the list',
 						ephemeral: true
 					});
-				toBeCachedAdminRole = adminRole.filter((value) => value !== roleId);
+				toBeCachedAdminRole = adminRoles.filter((value) => value !== roleId);
 				const roleObj = interaction.guild.roles.cache.get(roleId);
 				successReply = `\`${roleObj?.name}\` has been removed from the admin group`;
 			}
 			toBeCached = {
 				...guildInform,
-				adminRole: toBeCachedAdminRole
+				adminRoles: toBeCachedAdminRole
 			};
 		}
 
 		if (commandGroupName === 'command') {
 			const commandName = args.getString('command');
-			let toBeCachedAdminCommands;
+			let toBeCachedAdminCommands: Array<string>;
 			if (subCommandName === 'add') {
-				if (adminCommand.includes(commandName))
+				if (adminCommands.includes(commandName))
 					return interaction.reply({
 						content: `\`${commandName}\` has been added to the admin group`,
 						ephemeral: true
 					});
-				toBeCachedAdminCommands = [...adminCommand, commandName];
+				if (adminID.length ===0 && adminRoles.length ===0){
+					return interaction.reply({
+						content: "Sorry, you cannot add this command to admin command group without setting \`admin member\` or \`admin role\`",
+						ephemeral: true
+					})
+				}
+				toBeCachedAdminCommands = [...adminCommands, commandName];
 				successReply = `\`${commandName}\` has been added to the admin group`;
 			} else {
-				if (!adminCommand.includes(commandName))
+				if (!adminCommands.includes(commandName))
 					return interaction.reply({
 						content:
 							'Please check your input, the command you chose is not in the list',
 						ephemeral: true
 					});
-				toBeCachedAdminCommands = adminCommand.filter((value) => value !== commandName);
+				toBeCachedAdminCommands = adminCommands.filter((value) => value !== commandName);
 				successReply = `\`${commandName}\` has been removed from the admin group`;
 			}
 			toBeCached = {
 				...guildInform,
-				adminCommand: toBeCachedAdminCommands
+				adminCommands: toBeCachedAdminCommands
 			};
 		}
 

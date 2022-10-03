@@ -29,10 +29,8 @@ import { AutoType } from '../types/Auto';
 import { findSkills } from '../graph/query/findSkills.query';
 import { findMembers } from '../graph/query/findMembers.query';
 import {
-	BirthdayCache,
 	BirthdayInform,
 	CacheType,
-	GuildId,
 	GuildSettingCache,
 	GuildSettingInform,
 	MemberId,
@@ -46,8 +44,7 @@ import { GraphQL_UpdateServerMutation } from '../graph/gql/result';
 import { findProjects } from '../graph/query/findProjects.query';
 import { ContextMenuType } from '../types/ContextMenu';
 import { findProjectUpdates } from '../graph/query/findGardens.query';
-import garden from '../modals/garden';
-import { awaitWrap, awaitWrapType, getNextBirthday } from '../utils/util';
+import { awaitWrap, getNextBirthday } from '../utils/util';
 import { NUMBER } from '../utils/const';
 
 const globPromise = promisify(glob);
@@ -316,10 +313,10 @@ export class MyClient extends Client {
 		const cachedGuildInform = myCache.myGet('Servers');
 		const serverToBeUpdated: Array<Promise<GraphReturn<GraphQL_UpdateServerMutation>>> = [];
 		const guilds = await this.guilds.fetch();
-		if (guilds.size === 0) {
-			logger.error('The bot is bot running in any guild!');
-			process.exit(1);
-		}
+		// if (guilds.size === 0) {
+		// 	logger.error('The bot is not running in any guild!');
+		// 	process.exit(1);
+		// }
 
 		guilds.forEach((guild, guildId) => {
 			if (!(guildId in cachedGuildInform)) {

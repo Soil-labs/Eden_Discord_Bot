@@ -10,9 +10,9 @@
 		"watch": "tsc -w",
 		"eslint": "eslint src --ext .ts",
 		"generate": "graphql-codegen --config codegen.ts",
-		"deploy-oasis": "rm -rf dist && npm run build && (pm2 delete oasis && pm2 start oasis.config.js) || pm2 start oasis.config.js",
-		"deploy-eden": "rm -rf dist && npm run build && (pm2 delete eden && pm2 start eden.config.js) || pm2 start eden.config.js",
-		"deploy-eden-dd": "rm -rf dist && npm run build && (pm2 delete eden && pm2 start eden.config.js --env dd) || pm2 start eden.config.js --env dd"
+		"deploy-oasis": "rm -rf dist && npm run build && ((pm2 delete oasis && pm2 start oasis.config.js) || pm2 start oasis.config.js)",
+		"deploy-eden": "rm -rf dist && npm run build && ((pm2 delete eden && pm2 start eden.config.js) || pm2 start eden.config.js)",
+		"deploy-dd": "rm -rf dist && npm run build && ((pm2 delete eden && pm2 start dd.config.js) || pm2 start dd.config.js)"
 	},
 	"repository": {
 		"type": "git",

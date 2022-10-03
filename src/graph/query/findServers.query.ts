@@ -30,9 +30,9 @@ export async function findServers() {
 		const toBeCached: GuildInformCache = {};
 		result.findServers.forEach((server) => {
 			toBeCached[server._id] = {
-				adminCommand: server.adminCommands,
-				adminMember: server.adminID,
-				adminRole: server.adminRoles
+				adminCommands: server.adminCommands,
+				adminID: server.adminID,
+				adminRoles: server.adminRoles
 			}
 		});
 		myCache.mySet('Servers', toBeCached);
