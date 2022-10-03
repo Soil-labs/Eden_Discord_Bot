@@ -12,7 +12,14 @@ module.exports = {
 			env: {
 				PM2_ENDPOINT: 'https://eden-deploy.herokuapp.com/graphql',
 				PM2_FRONTEND: 'https://eden-app-front-end-zeta.vercel.app',
-				PM2_MODE: 'prod',
+				PM2_MODE: 'prod'
+				// PM2_DMDISABLED: true,
+				// PM2_ALLOWCOMMANDS: ['champion', 'invite', 'onboard', 'signup']
+			},
+			env_dev: {
+				PM2_ENDPOINT: 'https://oasis-botdevelopment.up.railway.app/graphql',
+				PM2_FRONTEND: 'https://oasis-app-front-end-zeta.vercel.app',
+				PM2_MODE: 'dev',
 				PM2_DMDISABLED: true,
 				PM2_ALLOWCOMMANDS: ['champion', 'invite', 'onboard', 'signup']
 			}

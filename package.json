@@ -11,7 +11,8 @@
 		"eslint": "eslint src --ext .ts",
 		"generate": "graphql-codegen --config codegen.ts",
 		"deploy-oasis": "rm -rf dist && npm run build && (pm2 delete oasis && pm2 start oasis.config.js) || pm2 start oasis.config.js",
-		"deploy-eden": "rm -rf dist && npm run build && (pm2 delete eden && pm2 start eden.config.js) || pm2 start eden.config.js"
+		"deploy-eden": "rm -rf dist && npm run build && (pm2 delete eden && pm2 start eden.config.js) || pm2 start eden.config.js",
+		"deploy-eden-dev": "rm -rf dist && npm run build && (pm2 delete eden && pm2 start eden.config.js --env dev) || pm2 start eden.config.js --env dev"
 	},
 	"repository": {
 		"type": "git",
