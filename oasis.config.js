@@ -11,7 +11,7 @@ module.exports = {
 			ignore_watch: ['node_modules', 'src'],
 			env: {
 				PM2_ENDPOINT: 'https://oasis-botdevelopment.up.railway.app/graphql',
-				PM2_FRONTEND: 'https://oasis-app-front-end-zeta.vercel.app',
+				PM2_FRONTEND: 'https://eden-develop.vercel.app',
 				PM2_MODE: 'prod'
 				// Undefined DMDISABLED means false
 				// PM2_DMDISABLED: false,
@@ -20,8 +20,8 @@ module.exports = {
 			},
 			env_dev: {
 				PM2_ENDPOINT: 'https://oasis-botdevelopment.up.railway.app/graphql',
-				PM2_FRONTEND: 'https://oasis-app-front-end-zeta.vercel.app',
-				PM2_MODE: 'dev',
+				PM2_FRONTEND: 'https://eden-develop.vercel.app',
+				PM2_MODE: 'dev'
 			}
 		}
 	]

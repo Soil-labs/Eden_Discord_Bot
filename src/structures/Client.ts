@@ -419,7 +419,7 @@ export class MyClient extends Client {
 									.setCustomId('expired')
 									.setLabel('Archive this thread Now')
 									.setStyle('DANGER')
-									.setEmoji('⚠️'),
+									.setEmoji('🗃️'),
 								new MessageButton()
 									.setLabel(
 										`Archive this thread in ${
@@ -428,7 +428,7 @@ export class MyClient extends Client {
 									)
 									.setCustomId('putoffexpire')
 									.setStyle('SUCCESS')
-									.setEmoji('😌')
+									.setEmoji('💡')
 							])
 						]
 					});
