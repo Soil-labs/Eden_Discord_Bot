@@ -61,30 +61,30 @@ export async function awaitWrapWithTimeout<T>(
 
 export function checkTextChannelPermission(channel: GuildTextBasedChannel, userId: string) {
 	if (channel.type === 'GUILD_VOICE') {
-		if (!channel.permissionsFor(userId).has([Permissions.FLAGS.CONNECT])) {
+		if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.CONNECT])) {
 			return 'Missing **CONNECT** access.';
 		}
 	}
-	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.VIEW_CHANNEL])) {
+	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.VIEW_CHANNEL])) {
 		return 'Missing **VIEW CHANNEL** access.';
 	}
-	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.SEND_MESSAGES])) {
+	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.SEND_MESSAGES])) {
 		return 'Missing **SEND MESSAGES** access.';
 	}
 	return false;
 }
 
 export function checkOnboardPermission(channel: VoiceBasedChannel, userId: string) {
-	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.CONNECT])) {
+	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.CONNECT])) {
 		return 'Missing **CONNECT** access.';
 	}
-	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.VIEW_CHANNEL])) {
+	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.VIEW_CHANNEL])) {
 		return 'Missing **VIEW CHANNEL** access.';
 	}
-	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.SEND_MESSAGES])) {
+	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.SEND_MESSAGES])) {
 		return 'Missing **SEND MESSAGES** access.';
 	}
-	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.READ_MESSAGE_HISTORY])) {
+	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.READ_MESSAGE_HISTORY])) {
 		return 'Missing **READ MESSAGE HISTORY** access.';
 	}
 	return false;
@@ -94,16 +94,16 @@ export function checkGardenChannelPermission(
 	channel: GuildTextBasedChannel | VoiceBasedChannel,
 	userId: string
 ) {
-	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.VIEW_CHANNEL])) {
+	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.VIEW_CHANNEL])) {
 		return 'Missing **VIEW CHANNEL** access.';
 	}
-	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.SEND_MESSAGES])) {
+	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.SEND_MESSAGES])) {
 		return 'Missing **SEND MESSAGES** access.';
 	}
-	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.CREATE_PUBLIC_THREADS])) {
+	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.CREATE_PUBLIC_THREADS])) {
 		return 'Missing **CREATE PUBLIC THREADS** access.';
 	}
-	if (!channel.permissionsFor(userId).has([Permissions.FLAGS.MANAGE_THREADS])) {
+	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.MANAGE_THREADS])) {
 		return 'Missing **MANAGE THREADS** access.';
 	}
 	return false;
