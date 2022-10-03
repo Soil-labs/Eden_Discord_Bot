@@ -2,9 +2,17 @@ import { GraphQLClient } from 'graphql-request';
 import { TimeOutError } from '../utils/error';
 import { awaitWrapWithTimeout } from '../utils/util';
 
-const _client = new GraphQLClient(process.env.PM2_ENDPOINT, {
-	headers: {}
-});
+let _client: GraphQLClient;
+
+if (typeof process.env.PM2_ENDPOINT === 'undefined') {
+	_client = new GraphQLClient('https://oasis-botdevelopment.up.railway.app/graphql', {
+		headers: {}
+	});
+} else {
+	_client = new GraphQLClient(process.env.PM2_ENDPOINT, {
+		headers: {}
+	});
+}
 
 // todo replace string with types of errors
 export type GraphReturn<T> = [T, string];

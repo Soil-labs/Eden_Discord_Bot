@@ -141,19 +141,19 @@ export function readGuildInform(guildInform: GuildInform, guildId: GuildId): Emb
 
 	const { adminCommands, adminID, adminRoles } = guildInform;
 	if (adminCommands.length !== 0) {
-		adminInform.adminCommand = `> ${adminCommands.reduce((pre, cur) => {
+		adminInform.adminCommand = adminCommands.reduce((pre, cur) => {
 			return pre + `> ${cur}\n`;
-		}, '')}`;
+		}, '');
 	}
 	if (adminID.length !== 0) {
-		adminInform.adminMember = `> ${adminID.reduce((pre, cur) => {
+		adminInform.adminMember = adminID.reduce((pre, cur) => {
 			return pre + `> <@${cur}>\n`;
-		}, '')}`;
+		}, '');
 	}
 	if (adminRoles.length !== 0) {
-		adminInform.adminRole = `> ${adminRoles.reduce((pre, cur) => {
+		adminInform.adminRole = adminRoles.reduce((pre, cur) => {
 			return pre + `> <@&${cur}>\n`;
-		}, '')}`;
+		}, '');
 	}
 
 	let birthdayChannel = '> -';

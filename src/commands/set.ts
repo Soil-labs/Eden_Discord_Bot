@@ -209,10 +209,15 @@ export default new Command({
 		let toBeCached: GuildInform;
 		let successReply: string;
 
-		if (commandGroupName === 'memeber') {
+		if (commandGroupName === 'member') {
 			let toBeCachedAdminMember: Array<MemberId>;
 			if (subCommandName === 'add') {
 				const member = args.getUser('member');
+				if (member.bot)
+					return interaction.reply({
+						content: 'Sorry, you cannot choose a bot.',
+						ephemeral: true
+					});
 				if (adminID.includes(member.id))
 					return interaction.reply({
 						content: `\`${member.username}\` has been added to the admin group`,
@@ -274,11 +279,12 @@ export default new Command({
 						content: `\`${commandName}\` has been added to the admin group`,
 						ephemeral: true
 					});
-				if (adminID.length ===0 && adminRoles.length ===0){
+				if (adminID.length === 0 && adminRoles.length === 0) {
 					return interaction.reply({
-						content: "Sorry, you cannot add this command to admin command group without setting \`admin member\` or \`admin role\`",
+						content:
+							'Sorry, you cannot add this command to admin command group without setting `admin member` or `admin role`',
 						ephemeral: true
-					})
+					});
 				}
 				toBeCachedAdminCommands = [...adminCommands, commandName];
 				successReply = `\`${commandName}\` has been added to the admin group`;

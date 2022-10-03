@@ -6,6 +6,7 @@ declare global {
 			TOKEN: string;
 			GUILDID: string;
 			PROJECTID: string;
+			MODE: 'dev' | 'prod';
 			PM2_MODE: 'dev' | 'prod';
 			PM2_ENDPOINT: string;
 			PM2_FRONTEND: string;

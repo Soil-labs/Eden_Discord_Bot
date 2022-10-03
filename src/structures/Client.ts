@@ -156,7 +156,7 @@ export class MyClient extends Client {
 			await this._firestoneInit();
 			setInterval(this._threadScan, NUMBER.THREAD_SCAN, this);
 			setInterval(this._birthdayScan, NUMBER.BIRTHDAY_SCAN, this);
-			if (process.env.PM2_MODE === 'dev') {
+			if (process.env.PM2_MODE === 'dev' || process.env.MODE === 'dev') {
 				await this._registerCommands({
 					guildId: process.env.GUILDID,
 					commands: slashCommands
@@ -340,7 +340,6 @@ export class MyClient extends Client {
 				process.exit(1);
 			}
 		});
-
 		myCache.mySet('Servers', cachedGuildInform);
 		myCache.mySet('VoiceContexts', {});
 
