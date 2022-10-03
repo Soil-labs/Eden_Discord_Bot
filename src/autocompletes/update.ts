@@ -5,7 +5,7 @@ import { myCache } from '../structures/Cache';
 import { NUMBER } from '../utils/const';
 
 export default new Auto({
-	correspondingCommandName: 'update',
+	correspondingCommandName: 'garden',
 	execute: ({ interaction }) => {
 		const guildId = interaction.guild.id;
 		const { name, value } = interaction.options.getFocused(true);

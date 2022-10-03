@@ -130,8 +130,8 @@ export const COMMADN_CHOICES: Array<ExtendedApplicationCommandOptionChoiceData> 
 		value: 'birthday'
 	},
 	{
-		name: 'update',
-		value: 'update'
+		name: 'garden',
+		value: 'garden'
 	}
 ];
 
