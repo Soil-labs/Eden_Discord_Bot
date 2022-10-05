@@ -57,7 +57,7 @@ export const LINK: Link = {
 	USER: 'https://www.soil.xyz/profile/%s/',
 	SIGNUP: _frontend + '/member/ginpsu',
 	STAGING_ONBOARD: _frontend + 'onboard%s',
-	ROOM: 'https://eden-foundation2.vercel.app/onboard/party/%(roomId)s',
+	ROOM: 'https://eden-foundation-develop.vercel.app/onboard/party/%(roomId)s',
 	DISCORD_MSG: 'https://discord.com/channels/%(guildId)s/%(channelId)s/%(messageId)s',
 	LAUNCH_PROJECT: _frontend + '/form/%s',
 	PROJECT_TWEET: _frontend + '/projects/%s/feed',
