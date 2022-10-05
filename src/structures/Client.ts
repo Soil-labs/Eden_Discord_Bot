@@ -367,7 +367,6 @@ export class MyClient extends Client {
 	}
 
 	private async _threadScan(client: Client) {
-		logger.info('start');
 		const [gardens, gardenError] = await findProjectUpdates();
 		if (gardenError) return;
 		// todo why _id could be null and serverID is []
