@@ -12,7 +12,7 @@
 		"generate": "graphql-codegen --config codegen.ts",
 		"deploy-oasis": "rm -rf dist && npm run build && ((pm2 delete oasis && pm2 start oasis.config.js) || pm2 start oasis.config.js)",
 		"deploy-eden": "rm -rf dist && npm run build && ((pm2 delete eden && pm2 start eden.config.js) || pm2 start eden.config.js)",
-		"deploy-dd": "rm -rf dist && npm run build && ((pm2 delete eden && pm2 start dd.config.js) || pm2 start dd.config.js)"
+		"deploy-dd": "rm -rf dist && npm run build && ((pm2 delete eden_dd && pm2 start dd.config.js) || pm2 start dd.config.js)"
 	},
 	"repository": {
 		"type": "git",
