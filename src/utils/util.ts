@@ -11,7 +11,7 @@ import {
 	TeamId
 } from '../types/Cache';
 import { myCache } from '../structures/Cache';
-import { ERROR_REPLY, NUMBER } from './const';
+import { ERROR_REPLY, NUMBER, TIMEZONE } from './const';
 import { TimeOutError } from './error';
 import _ from 'lodash';
 export interface awaitWrapType<T> {
@@ -157,6 +157,16 @@ export function validGarden(
 		generalChannelId: team.generalChannelId,
 		roleName: role.roleName
 	};
+}
+
+export function dateIsValid(month: number, day: number) {
+	const thisYear = new Date().getFullYear();
+	const date = new Date(`${thisYear}-${month}-${day}`);
+	if (isNaN(date.getTime())) {
+		const nextYearDate = new Date(`${thisYear + 1}-${month}-${day}`);
+		return !isNaN(nextYearDate.getTime());
+	}
+	return true
 }
 
 export function getErrorReply(errorInform: {

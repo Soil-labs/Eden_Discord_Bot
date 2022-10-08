@@ -3,8 +3,8 @@ import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
 import { BirthdayInform } from '../types/Cache';
-import { MONTH_ENUM } from '../utils/const';
-import { awaitWrap, getNextBirthday } from '../utils/util';
+import { MONTH_ENUM, TIMEZONE } from '../utils/const';
+import { awaitWrap, dateIsValid, getNextBirthday } from '../utils/util';
 
 export default new Command({
 	name: 'birthday',
@@ -26,7 +26,7 @@ export default new Command({
 		{
 			name: 'timezone',
 			description: 'Choose your timezone',
-			type: 'INTEGER',
+			type: 'STRING',
 			required: true,
 			autocomplete: true
 		}
@@ -47,18 +47,17 @@ export default new Command({
 		const [month, day, offset] = [
 			Number(args.getString('month')),
 			args.getInteger('day'),
-			args.getInteger('timezone')
+			Number(args.getString('timezone'))
 		];
 
 		const userId = interaction.user.id;
-		// todo how to validate
-		// if (!isValidDate(month, day))
-		// 	return interaction.reply({
-		// 		content: `Your input \`${month}-${day}\` is a invalid date.`,
-		// 		ephemeral: true
-		// 	});
+		if (!dateIsValid(month, day))
+			return interaction.reply({
+				content: `Your input \`day\` is an invalid date.`,
+				ephemeral: true
+			});
 
-		if (isNaN(offset)) {
+		if (TIMEZONE.filter(({ name, value }) => value === offset.toString()).length === 0) {
 			return interaction.reply({
 				content: `Your input \`timezone\` is invalid.`,
 				ephemeral: true
