@@ -33,6 +33,7 @@
 		"@types/sprintf-js": "^1.1.2",
 		"@typescript-eslint/parser": "^5.36.2",
 		"ascii-table": "^0.0.9",
+		"axios": "^1.0.0",
 		"discord-api-types": "^0.37.10",
 		"discord.js": "^13.10.2",
 		"dotenv": "^16.0.2",

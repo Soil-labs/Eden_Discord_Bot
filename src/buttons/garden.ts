@@ -1,3 +1,4 @@
+import { MessageEmbed } from 'discord.js';
 import { Button } from '../structures/Button';
 
 export default new Button({
@@ -16,7 +17,11 @@ export default new Button({
 		if (thread.isThread()) {
 			if (customId === 'expired') {
 				await interaction.reply({
-					content: `<#${thread.id}> has been archived by ${interaction.user.id}.`
+					embeds: [
+						new MessageEmbed().setDescription(
+							`<#${thread.id}> has been archived by <@${interaction.user.id}>.`
+						)
+					]
 				});
 				return thread.setArchived();
 			} else {
@@ -26,7 +31,11 @@ export default new Button({
 				const archiveDuration = archiveDays === 3 ? 4320 : 10080;
 				thread.setAutoArchiveDuration(archiveDuration);
 				return interaction.reply({
-					content: `<#${thread.id}> will be archived in ${archiveDays} days by ${interaction.user.id}.`
+					embeds: [
+						new MessageEmbed().setDescription(
+							`<#${thread.id}> will be archived in ${archiveDays} days by <@${interaction.user.id}>.`
+						)
+					]
 				});
 			}
 		} else {

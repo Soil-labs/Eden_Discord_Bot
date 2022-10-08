@@ -151,7 +151,7 @@ export class MyClient extends Client {
 		});
 
 		this.once('ready', async () => {
-			logger.info('Bot is online');
+			await this.guilds.fetch()
 			await this._loadCache();
 			await this._firestoneInit();
 			setInterval(this._threadScan, NUMBER.THREAD_SCAN, this);
@@ -183,7 +183,6 @@ export class MyClient extends Client {
 		const db = getFirestore(app);
 		const guildQuery = query(collection(db, 'Guilds'));
 		const guildsSnapshot = await getDocs(guildQuery);
-		await this.guilds.fetch();
 
 		const batch = writeBatch(db);
 
@@ -312,13 +311,12 @@ export class MyClient extends Client {
 		});
 		const cachedGuildInform = myCache.myGet('Servers');
 		const serverToBeUpdated: Array<Promise<GraphReturn<GraphQL_UpdateServerMutation>>> = [];
-		const guilds = await this.guilds.fetch();
 		// if (guilds.size === 0) {
 		// 	logger.error('The bot is not running in any guild!');
 		// 	process.exit(1);
 		// }
 
-		guilds.forEach((guild, guildId) => {
+		this.guilds.cache.forEach((guild, guildId) => {
 			if (!(guildId in cachedGuildInform)) {
 				cachedGuildInform[guildId] = {
 					...templateGuildInform

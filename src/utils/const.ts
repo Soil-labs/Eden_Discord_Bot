@@ -37,7 +37,7 @@ type Link = Readonly<Record<LinkProperty, string>>;
 type InternalError = Readonly<Record<ErroProperty, string>>;
 type Content = Readonly<Record<ContentProperty, string>>;
 
-const _frontend = process.env.PM2_FRONTEND;
+const _frontend = process.env.PM2_FRONTEND ?? 'https://eden-develop.vercel.app';
 
 export const NUMBER: Numerical = {
 	AWAIT_TIMEOUT: 15 * 1000,
@@ -47,7 +47,7 @@ export const NUMBER: Numerical = {
 	AUTOCOMPLETE_OPTION_LENGTH: 25,
 	ONBOARD_REPEAT_CONTEXT: 6 * 60,
 	ONBOARD_AUTO_DELETE: 2 * 60,
-	THREAD_SCAN: 120 * 60 * 1000,
+	THREAD_SCAN: 60 * 60 * 1000,
 	BIRTHDAY_SCAN: 60 * 60 * 1000
 };
 
