@@ -2,7 +2,9 @@ import {
 	AutocompleteInteraction,
 	CommandInteractionOptionResolver,
 	GuildMember,
-	Interaction
+	Interaction,
+	MessageContextMenuInteraction,
+	UserContextMenuInteraction
 } from 'discord.js';
 import { client } from '..';
 import { Event } from '../structures/Event';
@@ -15,6 +17,7 @@ import { logger } from '../utils/logger';
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
 import { ERROR_REPLY } from '../utils/const';
+import { ExtendedUserContextMenuInteraction } from '../types/ContextMenu';
 
 export default new Event('interactionCreate', async (interaction: Interaction) => {
 	const errorInform = {
@@ -198,10 +201,15 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 		}
 
 		try {
-			await menu.execute({
-				client: client,
-				interaction: interaction
-			});
+			if (menu.type === 'MESSAGE') {
+				await menu.execute({
+					interaction: interaction as MessageContextMenuInteraction
+				});
+			} else {
+				await menu.execute({
+					interaction: interaction as ExtendedUserContextMenuInteraction
+				});
+			}
 		} catch (error) {
 			const errorMessage = sprintf(ERROR_REPLY.MENU, {
 				...errorInform,

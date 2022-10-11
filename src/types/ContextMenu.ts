@@ -1,21 +1,38 @@
 import {
-	ContextMenuInteraction,
+	GuildMember,
 	MessageApplicationCommandData,
+	MessageContextMenuInteraction,
 	PermissionResolvable,
-    UserApplicationCommandData
+	UserApplicationCommandData,
+	UserContextMenuInteraction
 } from 'discord.js';
-import { MyClient } from '../structures/Client';
 
-
-interface CommandRunOptions {
-	client: MyClient;
-	interaction: ContextMenuInteraction;
+export interface ExtendedUserContextMenuInteraction extends UserContextMenuInteraction {
+	targetMember: GuildMember;
 }
 
-type RunFunction = (options: CommandRunOptions) => any;
+interface MessageContextMenuCommandRunOption {
+	interaction: MessageContextMenuInteraction;
+}
 
-export type ContextMenuType = {
+interface UserContextMenuCommandRunOption {
+	interaction: ExtendedUserContextMenuInteraction;
+}
+
+type MessageContextMenuRunFunction = (options: MessageContextMenuCommandRunOption) => any;
+type UserContextMenuRunFunction = (options: UserContextMenuCommandRunOption) => any;
+
+type ContextMenuNameEnum = 'Read my profile';
+export type UserContextMenuType = {
 	userPermissions?: PermissionResolvable[];
-	execute: RunFunction;
-} & (UserApplicationCommandData | MessageApplicationCommandData);
+	execute: UserContextMenuRunFunction;
+	name: ContextMenuNameEnum;
+	type: 'USER';
+} & UserApplicationCommandData;
 
+export type MessageContextMenuType = {
+	userPermissions?: PermissionResolvable[];
+	execute: MessageContextMenuRunFunction;
+	name: ContextMenuNameEnum;
+	type: 'MESSAGE';
+} & MessageApplicationCommandData;

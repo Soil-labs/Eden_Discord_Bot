@@ -215,4 +215,17 @@ export const TIMEZONE: Array<ApplicationCommandOptionChoiceData> = [
 	{ name: 'UTC+13', value: '13' }
 ];
 
+export const COMMAND_HELP: Readonly<Record<Exclude<CommandNameEmun, 'help'>, string>> = {
+	birthday: '**</birthday:>**\nSet up your birthday and celebrate\n',
+	champion: '',
+	set: '',
+	count: '',
+	find: '',
+	invite: '',
+	onboard: '',
+	project: '',
+	signup: '',
+	garden: ''
+};
+
 export default {};

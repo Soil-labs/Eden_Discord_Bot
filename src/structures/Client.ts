@@ -42,7 +42,7 @@ import { updateServer } from '../graph/mutation/updateServer.mutation';
 import { GraphReturn } from '../graph/graph';
 import { GraphQL_UpdateServerMutation } from '../graph/gql/result';
 import { findProjects } from '../graph/query/findProjects.query';
-import { ContextMenuType } from '../types/ContextMenu';
+import { MessageContextMenuType, UserContextMenuType } from '../types/ContextMenu';
 import { findProjectUpdates } from '../graph/query/findGardens.query';
 import { awaitWrap, getNextBirthday } from '../utils/util';
 import { NUMBER } from '../utils/const';
@@ -54,7 +54,8 @@ export class MyClient extends Client {
 	public buttons: Collection<string, ButtonType> = new Collection();
 	public modals: Collection<string, ModalType> = new Collection();
 	public autos: Collection<string, AutoType> = new Collection();
-	public menus: Collection<string, ContextMenuType> = new Collection();
+	public menus: Collection<string, MessageContextMenuType | UserContextMenuType> =
+		new Collection();
 
 	private table: any;
 
@@ -145,13 +146,16 @@ export class MyClient extends Client {
 
 		const menuFiles = await globPromise(`${__dirname}/../contextmenus/*{.ts,.js}`);
 		menuFiles.forEach(async (filePath) => {
-			const menu: ContextMenuType = await this._importFiles(filePath);
+			const menu: MessageContextMenuType | UserContextMenuType = await this._importFiles(
+				filePath
+			);
 			this.menus.set(menu.name, menu);
 			slashCommands.push(menu);
 		});
 
 		this.once('ready', async () => {
-			await this.guilds.fetch()
+			logger.info('Bot is online');
+			await this.guilds.fetch();
 			await this._loadCache();
 			await this._firestoneInit();
 			setInterval(this._threadScan, NUMBER.THREAD_SCAN, this);

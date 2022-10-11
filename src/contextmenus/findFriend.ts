@@ -1,21 +1,16 @@
 import { MessageEmbed } from 'discord.js';
 import { sprintf } from 'sprintf-js';
 import { findMember } from '../graph/query/findMember.query';
-import { ContextMenu } from '../structures/ContextMenu';
+import { UserContextMenu } from '../structures/ContextMenu';
 import { LINK, NUMBER } from '../utils/const';
 import { getErrorReply, validMember } from '../utils/util';
 
-export default new ContextMenu({
+export default new UserContextMenu({
 	type: 'USER',
 	name: 'Read my profile',
 	execute: async ({ interaction }) => {
-		const frenUser = interaction.guild.members.cache.get(interaction.targetId);
+		const frenUser = interaction.targetMember;
 		const guildId = interaction.guild.id;
-		if (!frenUser)
-			return interaction.reply({
-				content: 'Sorry, we cannot fetch you in this guild.',
-				ephemeral: true
-			});
 
 		if (frenUser.user.bot)
 			return interaction.reply({
