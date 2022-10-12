@@ -34,7 +34,7 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 			});
 		}
 
-		if (!myCache.myHas('Servers'))
+		if (!myCache.myHas('Servers') || !myCache.myHas(`GuildSettings`))
 			return interaction.reply({
 				content: 'Command is initing, please try again later.',
 				ephemeral: true

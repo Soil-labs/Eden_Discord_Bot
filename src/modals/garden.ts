@@ -68,10 +68,11 @@ export default new Modal({
 		});
 		let embedDescription = `\u200B\n**Project**: ${projectTitle}\n**Team**: ${teamName}\n**Role**: ${roleName}`;
 		if (tokenAmount) embedDescription += `\n**Token Transferred**: \`${tokenAmount}\``;
+		const memberIdsString = _.uniq([...memberIds, userId])
+			.map((value) => `<@${value}>`)
+			.toString();
 		await thread.send({
-			content: _.uniq([...memberIds, userId])
-				.map((value) => `<@${value}>`)
-				.toString(),
+			content: memberIdsString,
 			embeds: [
 				new MessageEmbed()
 					.setAuthor({
@@ -131,6 +132,43 @@ export default new Modal({
 					errorMessage: error
 				})
 			});
+		}
+
+		if (
+			myCache.myHas('GuildSettings') &&
+			myCache.myGet('GuildSettings')[guildId]?.forwardChannelId
+		) {
+			const forwardChannel = interaction.guild.channels.cache.get(
+				myCache.myGet('GuildSettings')[guildId].forwardChannelId
+			) as TextChannel;
+			if (forwardChannel) {
+				forwardChannel.send({
+					embeds: [
+						new MessageEmbed()
+							.setAuthor({
+								name: interaction.member.displayName,
+								iconURL: interaction.user.avatarURL()
+							})
+							.setTitle(title)
+							.setDescription(content)
+							.addFields([
+								{
+									name: 'Members of Garden',
+									value: memberIdsString
+								}
+							])
+					],
+					components: [
+						new MessageActionRow().addComponents([
+							new MessageButton()
+								.setLabel('Jump to the thread')
+								.setStyle('LINK')
+								.setEmoji('🔗')
+								.setURL(gardenUpdateInform.threadDiscordID)
+						])
+					]
+				});
+			}
 		}
 
 		delete gardenContext[gardenUserIndentity];

@@ -3,10 +3,11 @@ import { updateServer } from '../graph/mutation/updateServer.mutation';
 import { Command } from '../structures/Command';
 import { GuildInform, MemberId, readGuildInform } from '../types/Cache';
 import { myCache } from '../structures/Cache';
-import { COMMADN_CHOICES } from '../utils/const';
+import { COMMADN_CHOICES, CONTENT } from '../utils/const';
 import { checkTextChannelPermission, getErrorReply } from '../utils/util';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
+import { sprintf } from 'sprintf-js';
 
 export default new Command({
 	name: 'set',
@@ -126,7 +127,13 @@ export default new Command({
 					type: 'CHANNEL',
 					name: 'birthday',
 					description: 'Choose a text channel for birthday notification.',
-					required: true,
+					channelTypes: ['GUILD_TEXT']
+				},
+				{
+					type: 'CHANNEL',
+					name: 'forward_garden',
+					description:
+						'Choose a text channel, where people receive the latest news from Garden.',
 					channelTypes: ['GUILD_TEXT']
 				}
 			]
@@ -151,7 +158,7 @@ export default new Command({
 			return interaction.reply({
 				embeds: [
 					new MessageEmbed()
-						.setTitle(`${interaction.guild.name} Permission Dashboard`)
+						.setTitle(`${interaction.guild.name} Dashboard`)
 						.addFields(readGuildInform(guildInform, guildId))
 				],
 				ephemeral: true
@@ -159,49 +166,133 @@ export default new Command({
 		}
 
 		if (subCommandName === 'channel') {
-			const targetChannel = args.getChannel('birthday') as GuildTextBasedChannel;
+			// todo follow discord-partner-bot implementation and remove duplication
+			const birthdayChannel = args.getChannel('birthday') as GuildTextBasedChannel;
+			const forwardCahnnel = args.getChannel('forward_garden') as GuildTextBasedChannel;
 
-			const permissionCheck = checkTextChannelPermission(
-				targetChannel,
-				interaction.guild.me.id
-			);
-			if (permissionCheck)
+			if (!birthdayChannel && !forwardCahnnel) {
 				return interaction.reply({
-					content: permissionCheck,
-					ephemeral: true
-				});
-
-			if (!myCache.myHas('GuildSettings')) {
-				return interaction.reply({
-					content: 'Command is initing, please try again later.',
+					content: 'You have to choose at least one channel option.',
 					ephemeral: true
 				});
 			}
-			if (
-				myCache.myGet('GuildSettings')?.[guildId]?.['birthdayChannelId'] ===
-				targetChannel.id
-			) {
-				return interaction.reply({
-					content: `<#${targetChannel.id}> has been set as birthday channel successfully.`,
-					ephemeral: true
-				});
-			}
-			await interaction.deferReply({ ephemeral: true });
+
 			const db = getFirestore(getApp());
-			await setDoc(doc(db, 'Guilds', guildId), {
-				birthdayChannelId: targetChannel.id
-			});
 
-			myCache.mySet('GuildSettings', {
-				...myCache.myGet('GuildSettings'),
-				[guildId]: {
-					birthdayChannelId: targetChannel.id
+			if (birthdayChannel) {
+				const birthdayChannelPermissionCheck = checkTextChannelPermission(
+					birthdayChannel,
+					interaction.guild.me.id
+				);
+				if (birthdayChannelPermissionCheck) {
+					return interaction.reply({
+						content: sprintf(CONTENT.CHANNEL_SETTING_FAIL_REPLY, {
+							targetChannelId: birthdayChannel.id,
+							setChannelName: 'birthday',
+							reason: birthdayChannelPermissionCheck
+						}),
+						ephemeral: true
+					});
 				}
-			});
 
-			return interaction.followUp({
-				content: `<#${targetChannel.id}> has been set as birthday channel successfully.`
-			});
+				if (
+					myCache.myGet('GuildSettings')?.[guildId]?.birthdayChannelId ===
+					birthdayChannel.id
+				) {
+					return interaction.reply({
+						content: sprintf(CONTENT.CHANNEL_SETTING_SUCCESS_REPLY, {
+							targetChannelId: birthdayChannel.id,
+							setChannelName: 'birthday'
+						}),
+						ephemeral: true
+					});
+				}
+
+				await interaction.deferReply({ ephemeral: true });
+				await setDoc(
+					doc(db, 'Guilds', guildId),
+					{
+						birthdayChannelId: birthdayChannel.id
+					},
+					{
+						merge: true
+					}
+				);
+
+				myCache.mySet('GuildSettings', {
+					...myCache.myGet('GuildSettings'),
+					[guildId]: {
+						birthdayChannelId: birthdayChannel.id,
+						forwardChannelId:
+							myCache.myGet('GuildSettings')?.[guildId]?.forwardChannelId
+					}
+				});
+
+				return interaction.followUp({
+					content: sprintf(CONTENT.CHANNEL_SETTING_SUCCESS_REPLY, {
+						targetChannelId: birthdayChannel.id,
+						setChannelName: 'birthday'
+					})
+				});
+			}
+
+			if (forwardCahnnel) {
+				const forwardChannelPermissionCheck = checkTextChannelPermission(
+					forwardCahnnel,
+					interaction.guild.me.id
+				);
+
+				if (forwardChannelPermissionCheck) {
+					return interaction.reply({
+						content: sprintf(CONTENT.CHANNEL_SETTING_FAIL_REPLY, {
+							targetChannelId: forwardCahnnel.id,
+							setChannelName: 'forward_garden',
+							reason: forwardChannelPermissionCheck
+						}),
+						ephemeral: true
+					});
+				}
+
+				if (
+					myCache.myGet('GuildSettings')?.[guildId]?.forwardChannelId ===
+					forwardCahnnel.id
+				) {
+					return interaction.reply({
+						content: sprintf(CONTENT.CHANNEL_SETTING_SUCCESS_REPLY, {
+							targetChannelId: forwardCahnnel.id,
+							setChannelName: 'forward_garden'
+						}),
+						ephemeral: true
+					});
+				}
+
+				await interaction.deferReply({ ephemeral: true });
+				await setDoc(
+					doc(db, 'Guilds', guildId),
+					{
+						forwardChannelId: forwardCahnnel.id
+					},
+					{
+						merge: true
+					}
+				);
+
+				myCache.mySet('GuildSettings', {
+					...myCache.myGet('GuildSettings'),
+					[guildId]: {
+						forwardChannelId: forwardCahnnel.id,
+						birthdayChannelId:
+							myCache.myGet('GuildSettings')?.[guildId]?.birthdayChannelId
+					}
+				});
+
+				return interaction.followUp({
+					content: sprintf(CONTENT.CHANNEL_SETTING_SUCCESS_REPLY, {
+						targetChannelId: forwardCahnnel.id,
+						setChannelName: 'forward_garden'
+					})
+				});
+			}
 		}
 
 		const commandGroupName = args.getSubcommandGroup();

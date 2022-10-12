@@ -202,7 +202,8 @@ export class MyClient extends Client {
 					guildsCache = {
 						...guildsCache,
 						[guildId]: {
-							birthdayChannelId: guildQuery.birthdayChannelId
+							birthdayChannelId: guildQuery.birthdayChannelId ?? null,
+							forwardChannelId: guildQuery.forwardChannelId ?? null
 						}
 					};
 				} else {

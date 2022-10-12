@@ -30,7 +30,9 @@ type ContentProperty =
 	| 'INVITE_DM'
 	| 'INVITE_DM_FAIL'
 	| 'ONBOARD_SELF'
-	| 'GROUP_ONBORAD';
+	| 'GROUP_ONBORAD'
+	| 'CHANNEL_SETTING_FAIL_REPLY'
+	| 'CHANNEL_SETTING_SUCCESS_REPLY';
 
 type Numerical = Readonly<Record<NumericalProperty, number>>;
 type Link = Readonly<Record<LinkProperty, string>>;
@@ -71,12 +73,15 @@ export const CONTENT: Content = {
 		'In order for Eden 🌳 to recommend the right projects for you, we need to know about your skills. Add them [here](%(onboardLink)s).',
 	GROUP_ONBORAD:
 		'Growing the garden of opportunities is how we are all going to make it. To onboard new members, click [here](%(onboardLink)s).',
-
 	MATCH_PROJECT: 'Find all the relevant projects for you [here](%s).',
 	INVITE_DM:
 		"<@%(inviterId)s> has invited you to join the tool we use to coordinate talent across the community. It uses AI to make smart, community driven recommendations for projects you'd love. To join, click [here](%(onboardLink)s).",
 	INVITE_DM_FAIL:
-		"Hi <@%(inviteeId)s>! Eden is the tool we use to coordinate talent across the community. It uses AI to make smart, community driven recommendations for projects you'd love. To join, click [here](%(onboardLink)s)."
+		"Hi <@%(inviteeId)s>! Eden is the tool we use to coordinate talent across the community. It uses AI to make smart, community driven recommendations for projects you'd love. To join, click [here](%(onboardLink)s).",
+	CHANNEL_SETTING_FAIL_REPLY:
+		'Fail to set <#%(targetChannelId)s> as %(setChannelName)s channel, because of `%(reason)s`.',
+	CHANNEL_SETTING_SUCCESS_REPLY:
+		'Success to set <#%(targetChannelId)s> as %(setChannelName)s channel.'
 };
 
 export const ERROR_REPLY: InternalError = {

@@ -1,4 +1,4 @@
-import { EmbedFieldData, ThreadAutoArchiveDuration } from 'discord.js'
+import { EmbedFieldData, ThreadAutoArchiveDuration } from 'discord.js';
 import { GraphQL_UpdateServerInput, Maybe } from '../graph/gql/result';
 import { myCache } from '../structures/Cache';
 
@@ -22,7 +22,8 @@ export const templateGuildInform: GuildInform = {
 };
 
 export const templateGuildSettingInform: GuildSettingInform = {
-	birthdayChannelId: null
+	birthdayChannelId: null,
+	forwardChannelId: null
 };
 
 export type VoiceContext = {
@@ -42,6 +43,7 @@ export type GuildInform = Required<
 // todo this part will be integrated with GuildInform, once graphql has
 export type GuildSettingInform = {
 	birthdayChannelId: string;
+	forwardChannelId: string;
 };
 
 export type ProjectInform = {
@@ -157,10 +159,14 @@ export function readGuildInform(guildInform: GuildInform, guildId: GuildId): Emb
 	}
 
 	let birthdayChannel = '> -';
+	let forwardChannel = '> -';
 	if (myCache.myHas('GuildSettings')) {
 		const guildSettingInform = myCache.myGet('GuildSettings')[guildId];
 		if (guildSettingInform?.birthdayChannelId) {
 			birthdayChannel = `> <#${guildSettingInform?.birthdayChannelId}>\n`;
+		}
+		if (guildSettingInform?.forwardChannelId) {
+			forwardChannel = `> <#${guildSettingInform?.forwardChannelId}>\n`;
 		}
 	}
 
@@ -183,7 +189,12 @@ export function readGuildInform(guildInform: GuildInform, guildId: GuildId): Emb
 		{
 			name: 'Birthday Channel',
 			value: birthdayChannel,
-			inline: false
+			inline: true
+		},
+		{
+			name: 'Gadern Forward Channel',
+			value: forwardChannel,
+			inline: true
 		}
 	];
 }
