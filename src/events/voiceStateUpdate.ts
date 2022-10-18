@@ -6,18 +6,14 @@ import {
 	VoiceState
 } from 'discord.js';
 import { sprintf } from 'sprintf-js';
+
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
 import { findRoom } from '../graph/query/findRoom.query';
-import { Event } from '../structures/Event';
 import { myCache } from '../structures/Cache';
+import { Event } from '../structures/Event';
 import { LINK, NUMBER } from '../utils/const';
 import { logger } from '../utils/logger';
-import {
-	awaitWrap,
-	convertMsToTime,
-	updateMemberCache,
-	validMember
-} from '../utils/util';
+import { awaitWrap, convertMsToTime, updateMemberCache, validMember } from '../utils/util';
 
 export default new Event('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
 	if (newState.member.user.bot) return;
@@ -26,6 +22,7 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 		const guildId = oldState.guild.id;
 		const contexts = myCache.myGet('VoiceContexts');
 		const guildVoiceContext = contexts[guildId];
+
 		if (!guildVoiceContext || !guildVoiceContext.channelId) return;
 
 		const onboardingChannelId = guildVoiceContext.channelId;
@@ -36,10 +33,11 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 		) {
 			const { messageId, timestamp, attendees, hostId, roomId } = guildVoiceContext;
 			const newMemberId = newState.member.id;
+
 			if (attendees.includes(newMemberId)) return;
 
 			if (!validMember(newMemberId, guildId)) {
-				const [result, graphQLError] = await addNewMember({
+				const { result } = await addNewMember({
 					fields: {
 						_id: newMemberId,
 						discordName: newState.member.displayName,
@@ -50,6 +48,7 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 					}
 				});
 				// todo handle the case that the user fail to be onboarded
+
 				if (result) {
 					updateMemberCache({
 						userId: newMemberId,
@@ -62,7 +61,7 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 			const voiceChannel = newState.channel as VoiceChannel;
 			// todo find a way to resume or some method to handle deleted message, fetch from audio log? maybe
 
-            // todo possibility of that someone changed the permission when onboard is going on
+			// todo possibility of that someone changed the permission when onboard is going on
 			// if (!checkOnboardPermission(voiceChannel, newState.guild.me.id))
 			// 	return logger.warn(
 			// 		`Cannot fectch message in ${voiceChannel.name} when voiceStateUpdate`
@@ -70,10 +69,11 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 
 			const dashboardMsg = await voiceChannel.messages.fetch(messageId);
 
-			let embeds = dashboardMsg.embeds;
+			const embeds = dashboardMsg.embeds;
 
 			const difference = new Date().getTime() - timestamp * 1000;
 			// description limit: 4096
+
 			embeds[0].description += sprintf(
 				'\n`%s` <@%s> joined this onboarding call.',
 				convertMsToTime(difference),
@@ -122,21 +122,25 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 						])
 					]
 				});
+
 				setTimeout(async () => {
 					if (msg.deletable) {
 						msg.delete();
 					}
-					const [result, error] = await findRoom({
+					const { result, error } = await findRoom({
 						fields: {
 							_id: roomId
 						}
 					});
+
 					if (error) return;
 					const filtered = result.findRoom.members.filter(
 						(value) => value._id === newMemberId
 					);
+
 					if (filtered.length === 0) {
 						const dmChannel = await newState.member.createDM();
+
 						return awaitWrap(
 							dmChannel.send({
 								embeds: [

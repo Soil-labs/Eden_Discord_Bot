@@ -39,6 +39,7 @@
 		"dotenv": "^16.0.2",
 		"eslint": "^8.23.0",
 		"eslint-config-alloy": "^4.6.2",
+		"eslint-plugin-simple-import-sort": "^8.0.0",
 		"firebase": "^9.9.4",
 		"glob": "^8.0.3",
 		"graphql": "^16.6.0",

@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import { GraphQL_UpdateServerMutation, GraphQL_UpdateServerMutationVariables } from '../gql/result';
 import { myMutation } from '../graph';
 
@@ -16,4 +17,3 @@ export async function updateServer(variable: GraphQL_UpdateServerMutationVariabl
 		request: request
 	});
 }
-

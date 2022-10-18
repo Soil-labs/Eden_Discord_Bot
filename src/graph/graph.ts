@@ -1,4 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
+
 import { TimeOutError } from '../utils/error';
 import { awaitWrapWithTimeout } from '../utils/util';
 
@@ -15,7 +16,10 @@ if (typeof process.env.PM2_ENDPOINT === 'undefined') {
 }
 
 // todo replace string with types of errors
-export type GraphReturn<T> = [T, string];
+export type GraphReturn<T> = {
+	result: T;
+	error: string;
+};
 type GraphParam<T> = {
 	variable: T;
 	request: any;
@@ -29,12 +33,21 @@ export async function myQuery<T, K>(params: GraphParam<T>): Promise<GraphReturn<
 	);
 
 	if (error instanceof TimeOutError) {
-		return [null, error.message];
+		return {
+			result: null,
+			error: error.message
+		};
 	}
 	if (error?.response) {
-		return [null, error.response.errors[0]?.message];
+		return {
+			result: null,
+			error: error.response.errors[0]?.message
+		};
 	}
-	return [result, null];
+	return {
+		result: result,
+		error: null
+	};
 }
 
 // todo timeout adjustment
@@ -43,11 +56,21 @@ export async function myMutation<T, K>(params: GraphParam<T>): Promise<GraphRetu
 	const { result, error } = await awaitWrapWithTimeout(
 		_client.request<K>(params.request, params.variable)
 	);
+
 	if (error instanceof TimeOutError) {
-		return [null, error.message];
+		return {
+			result: null,
+			error: error.message
+		};
 	}
 	if (error?.response) {
-		return [null, error.response.errors[0]?.message];
+		return {
+			result: null,
+			error: error.response.errors[0]?.message
+		};
 	}
-	return [result, null];
+	return {
+		result: result,
+		error: null
+	};
 }

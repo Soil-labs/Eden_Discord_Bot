@@ -1,4 +1,6 @@
 import { ApplicationCommandOptionChoiceData, HexColorString } from 'discord.js';
+
+import { VoiceContext } from '../types/Cache';
 import { CommandNameEmun } from '../types/Command';
 
 type NumericalProperty =
@@ -10,7 +12,8 @@ type NumericalProperty =
 	| 'ONBOARD_REPEAT_CONTEXT'
 	| 'ONBOARD_AUTO_DELETE'
 	| 'THREAD_SCAN'
-	| 'BIRTHDAY_SCAN';
+	| 'BIRTHDAY_SCAN'
+	| 'ONBOARD_CALL_SCAN';
 type LinkProperty =
 	| 'DASHBOARD'
 	| 'PROJECT_ALL'
@@ -50,7 +53,8 @@ export const NUMBER: Numerical = {
 	ONBOARD_REPEAT_CONTEXT: 6 * 60,
 	ONBOARD_AUTO_DELETE: 2 * 60,
 	THREAD_SCAN: 60 * 60 * 1000,
-	BIRTHDAY_SCAN: 60 * 60 * 1000
+	BIRTHDAY_SCAN: 60 * 60 * 1000,
+	ONBOARD_CALL_SCAN: 5 * 60 * 1000
 };
 
 export const LINK: Link = {
@@ -100,6 +104,17 @@ export const EMBED_COLOR: Readonly<HexColorString> = '#74FA6D';
 type ExtendedApplicationCommandOptionChoiceData = {
 	name: CommandNameEmun;
 } & ApplicationCommandOptionChoiceData;
+
+export const defaultGuildVoiceContext: VoiceContext = {
+	messageId: null,
+	messageLink: null,
+	channelId: null,
+	timestamp: null,
+	hostId: null,
+	attendees: null,
+	roomId: null,
+	isNotified: null
+};
 
 export const COMMADN_CHOICES: Array<ExtendedApplicationCommandOptionChoiceData> = [
 	{

@@ -1,3 +1,4 @@
+import AsciiTable from 'ascii-table';
 import {
 	ChatInputApplicationCommandData,
 	Client,
@@ -10,24 +11,25 @@ import {
 	MessageEmbed,
 	TextChannel,
 	ThreadChannel,
-	UserApplicationCommandData
+	UserApplicationCommandData,
+	VoiceChannel
 } from 'discord.js';
-import { getFirestore, doc, getDocs, query, collection, writeBatch } from 'firebase/firestore';
 import { getApp, initializeApp } from 'firebase/app';
-import { CommandType } from '../types/Command';
-import AsciiTable from 'ascii-table';
-
+import { collection, doc, getDocs, getFirestore, query, writeBatch } from 'firebase/firestore';
 import glob from 'glob';
+import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
-import { RegisterCommandsOptions } from '../types/CommandRegister';
-import { logger } from '../utils/logger';
-import { Event } from './Event';
-import { myCache } from './Cache';
-import { ButtonType } from '../types/Button';
-import { ModalType } from '../types/Modal';
-import { AutoType } from '../types/Auto';
-import { findSkills } from '../graph/query/findSkills.query';
+
+import { GraphQL_UpdateServerMutation } from '../graph/gql/result';
+import { GraphReturn } from '../graph/graph';
+import { updateServer } from '../graph/mutation/updateServer.mutation';
+import { findProjectUpdates } from '../graph/query/findGardens.query';
 import { findMembers } from '../graph/query/findMembers.query';
+import { findProjects } from '../graph/query/findProjects.query';
+import { findServers } from '../graph/query/findServers.query';
+import { findSkills } from '../graph/query/findSkills.query';
+import { AutoType } from '../types/Auto';
+import { ButtonType } from '../types/Button';
 import {
 	BirthdayInform,
 	CacheType,
@@ -35,17 +37,18 @@ import {
 	GuildSettingInform,
 	MemberId,
 	templateGuildInform,
-	templateGuildSettingInform
+	templateGuildSettingInform,
+	VoiceContextCache
 } from '../types/Cache';
-import { findServers } from '../graph/query/findServers.query';
-import { updateServer } from '../graph/mutation/updateServer.mutation';
-import { GraphReturn } from '../graph/graph';
-import { GraphQL_UpdateServerMutation } from '../graph/gql/result';
-import { findProjects } from '../graph/query/findProjects.query';
+import { CommandType } from '../types/Command';
+import { RegisterCommandsOptions } from '../types/CommandRegister';
 import { MessageContextMenuType, UserContextMenuType } from '../types/ContextMenu';
-import { findProjectUpdates } from '../graph/query/findGardens.query';
-import { awaitWrap, getNextBirthday } from '../utils/util';
-import { NUMBER } from '../utils/const';
+import { ModalType } from '../types/Modal';
+import { defaultGuildVoiceContext, NUMBER } from '../utils/const';
+import { logger } from '../utils/logger';
+import { awaitWrap, checkOnboardPermission, convertMsToTime, getNextBirthday } from '../utils/util';
+import { myCache } from './Cache';
+import { Event } from './Event';
 
 const globPromise = promisify(glob);
 
@@ -110,8 +113,10 @@ export class MyClient extends Client {
 		> = [];
 		const allowCommands = process.env.PM2_ALLOWCOMMANDS;
 		const commandFiles = await globPromise(`${__dirname}/../commands/*{.ts,.js}`);
+
 		commandFiles.forEach(async (filePath) => {
 			const command: CommandType = await this._importFiles(filePath);
+
 			if (!command.name) return;
 			if (typeof allowCommands === 'undefined') {
 				this.commands.set(command.name, command);
@@ -125,30 +130,38 @@ export class MyClient extends Client {
 		});
 
 		const buttonFiles = await globPromise(`${__dirname}/../buttons/*{.ts,.js}`);
+
 		buttonFiles.forEach(async (filePath) => {
 			const button: ButtonType = await this._importFiles(filePath);
+
 			button.customIds.forEach((customId) => {
 				this.buttons.set(customId, button);
 			});
 		});
 
 		const modalFiles = await globPromise(`${__dirname}/../modals/*{.ts,.js}`);
+
 		modalFiles.forEach(async (filePath) => {
 			const modal: ModalType = await this._importFiles(filePath);
+
 			this.modals.set(modal.customId, modal);
 		});
 
 		const autoFiles = await globPromise(`${__dirname}/../autocompletes/*{.ts,.js}`);
+
 		autoFiles.forEach(async (filePath) => {
 			const auto: AutoType = await this._importFiles(filePath);
+
 			this.autos.set(auto.correspondingCommandName, auto);
 		});
 
 		const menuFiles = await globPromise(`${__dirname}/../contextmenus/*{.ts,.js}`);
+
 		menuFiles.forEach(async (filePath) => {
 			const menu: MessageContextMenuType | UserContextMenuType = await this._importFiles(
 				filePath
 			);
+
 			this.menus.set(menu.name, menu);
 			slashCommands.push(menu);
 		});
@@ -160,6 +173,7 @@ export class MyClient extends Client {
 			await this._firestoneInit();
 			setInterval(this._threadScan, NUMBER.THREAD_SCAN, this);
 			setInterval(this._birthdayScan, NUMBER.BIRTHDAY_SCAN, this);
+			setInterval(this._idleOnboardCallScan, NUMBER.ONBOARD_CALL_SCAN, this);
 			if (process.env.PM2_MODE === 'dev' || process.env.MODE === 'dev') {
 				await this._registerCommands({
 					guildId: process.env.GUILDID,
@@ -174,8 +188,10 @@ export class MyClient extends Client {
 
 		// Load Events
 		const eventFiles = await globPromise(`${__dirname}/../events/*{.ts,.js}`);
+
 		eventFiles.forEach(async (filePath) => {
 			const event: Event<keyof ClientEvents> = await this._importFiles(filePath);
+
 			this.on(event.eventName, event.run);
 		});
 	}
@@ -191,14 +207,17 @@ export class MyClient extends Client {
 		const batch = writeBatch(db);
 
 		let guildsCache: GuildSettingCache;
+
 		if (!guildsSnapshot.empty) {
 			const queries: GuildSettingCache = {};
+
 			guildsSnapshot.forEach((query) => {
 				queries[query.id] = query.data() as GuildSettingInform;
 			});
-			for (const [guildId, _] of this.guilds.cache) {
+			for (const guildId of this.guilds.cache.keys()) {
 				if (guildId in queries) {
 					const guildQuery = queries[guildId];
+
 					guildsCache = {
 						...guildsCache,
 						[guildId]: {
@@ -218,7 +237,7 @@ export class MyClient extends Client {
 			}
 		} else {
 			logger.info('Init Database...');
-			for (const [guildId, _] of this.guilds.cache) {
+			for (const guildId of this.guilds.cache.keys()) {
 				guildsCache = {
 					...guildsCache,
 					[guildId]: templateGuildSettingInform
@@ -232,70 +251,6 @@ export class MyClient extends Client {
 		myCache.mySet('GuildSettings', guildsCache);
 	}
 
-	private async _birthdayScan(client: Client) {
-		const db = getFirestore(getApp());
-		const batch = writeBatch(db);
-
-		const birthdayQuery = query(collection(db, 'Birthday'));
-		const birthdaysSnapshot = await getDocs(birthdayQuery);
-		const birthdayInReadyMembers: Array<{
-			memberId: MemberId;
-			nextBirthday: Number;
-		}> = [];
-		birthdaysSnapshot.forEach((birthday) => {
-			const { id: memberId } = birthday;
-			const birthdayData = birthday.data() as BirthdayInform;
-			const current = Math.floor(new Date().getTime() / 1000);
-			if (current > birthdayData.date) {
-				const nextBirthday = getNextBirthday(
-					Number(birthdayData.month),
-					Number(birthdayData.day),
-					birthdayData.offset
-				);
-				birthdayInReadyMembers.push({
-					memberId: memberId,
-					nextBirthday: nextBirthday
-				});
-				const toBeUpdated: BirthdayInform = {
-					...birthdayData,
-					date: nextBirthday
-				};
-				batch.update(doc(db, 'Birthday', memberId), toBeUpdated);
-			}
-		});
-
-		const guildSettingCache = myCache.myGet('GuildSettings');
-		for (const guildId of Object.keys(guildSettingCache)) {
-			const birthdayChannelId = guildSettingCache[guildId].birthdayChannelId;
-			if (!birthdayChannelId) continue;
-			const guild = client.guilds.cache.get(guildId);
-			if (!guild) continue;
-			const channel = guild.channels.cache.get(birthdayChannelId) as TextChannel;
-			if (!channel) continue;
-			for (const { memberId, nextBirthday } of birthdayInReadyMembers) {
-				let member = guild.members.cache.get(memberId);
-				if (!member) {
-					const { result, error } = await awaitWrap(guild.members.fetch(memberId));
-					if (error) continue;
-					member = result;
-				}
-				channel.send({
-					content: `<@${memberId}>`,
-					embeds: [
-						new MessageEmbed()
-							.setAuthor({
-								name: `@${member.displayName}`,
-								iconURL: member.user.avatarURL()
-							})
-							.setTitle('Happy Birthday!🥳')
-							.setDescription(`Next Birthday: <t:${nextBirthday}>`)
-					]
-				});
-			}
-		}
-		await batch.commit();
-	}
-
 	private async _loadCache() {
 		let exitFlag = false;
 		const cacheResults = await Promise.all([
@@ -305,6 +260,7 @@ export class MyClient extends Client {
 			findServers()
 		]);
 		const rowNames: Array<keyof CacheType> = ['Projects', 'Skills', 'Members', 'Servers'];
+
 		cacheResults.forEach((result, index) => {
 			if (typeof result === 'boolean') {
 				this.table.addRow(rowNames[index], '✅ Fetched and cached');
@@ -320,6 +276,7 @@ export class MyClient extends Client {
 		// 	logger.error('The bot is not running in any guild!');
 		// 	process.exit(1);
 		// }
+		const voiceContexts: VoiceContextCache = {};
 
 		this.guilds.cache.forEach((guild, guildId) => {
 			if (!(guildId in cachedGuildInform)) {
@@ -336,6 +293,7 @@ export class MyClient extends Client {
 					})
 				);
 			}
+			voiceContexts[guildId] = defaultGuildVoiceContext;
 		});
 		(await Promise.all(serverToBeUpdated)).forEach((result) => {
 			if (!result[1]) {
@@ -344,7 +302,7 @@ export class MyClient extends Client {
 			}
 		});
 		myCache.mySet('Servers', cachedGuildInform);
-		myCache.mySet('VoiceContexts', {});
+		myCache.mySet('VoiceContexts', voiceContexts);
 
 		if (exitFlag) {
 			// todo change colors to red
@@ -370,7 +328,8 @@ export class MyClient extends Client {
 	}
 
 	private async _threadScan(client: Client) {
-		const [gardens, gardenError] = await findProjectUpdates();
+		const { result: gardens, error: gardenError } = await findProjectUpdates();
+
 		if (gardenError) return;
 		// todo why _id could be null and serverID is []
 		const filteredGardens = gardens.findProjectUpdates
@@ -382,14 +341,18 @@ export class MyClient extends Client {
 				authorId: garden.author._id,
 				threadId: garden.threadDiscordID.match(/\d+$/)[0]
 			}));
+
 		for (const { serverId, authorId, threadId } of filteredGardens) {
 			const guild = client.guilds.cache.get(serverId);
+
 			if (!guild) continue;
 			let thread = guild.channels.cache.get(threadId) as ThreadChannel;
+
 			if (!thread) {
 				const { result: tmpThread, error: tmpError } = await awaitWrap(
 					guild.channels.fetch(threadId)
 				);
+
 				if (tmpError) continue;
 				if (tmpThread.isThread()) {
 					thread = tmpThread;
@@ -399,11 +362,14 @@ export class MyClient extends Client {
 			const current = new Date().getTime();
 			const { messages, autoArchiveDuration } = thread;
 			const firstMsg = (await messages.fetch({ limit: 1 }))?.first();
+
 			if (!firstMsg) continue;
 			const autoArchiveDay = autoArchiveDuration / (24 * 60);
+
 			if (autoArchiveDay === 3 || autoArchiveDay === 7) {
 				// todo remember to change it to the normal value
 				const oneDayInMil = 24 * 60 * 60 * 1000;
+
 				if (
 					firstMsg.createdTimestamp + autoArchiveDuration * 60 * 1000 - current <=
 					oneDayInMil
@@ -429,6 +395,150 @@ export class MyClient extends Client {
 									.setEmoji('💡')
 							])
 						]
+					});
+				}
+			}
+		}
+	}
+
+	private async _birthdayScan(client: Client) {
+		const db = getFirestore(getApp());
+		const batch = writeBatch(db);
+
+		const birthdayQuery = query(collection(db, 'Birthday'));
+		const birthdaysSnapshot = await getDocs(birthdayQuery);
+		const birthdayInReadyMembers: Array<{
+			memberId: MemberId;
+			nextBirthday: Number;
+		}> = [];
+
+		birthdaysSnapshot.forEach((birthday) => {
+			const { id: memberId } = birthday;
+			const birthdayData = birthday.data() as BirthdayInform;
+			const current = Math.floor(new Date().getTime() / 1000);
+
+			if (current > birthdayData.date) {
+				const nextBirthday = getNextBirthday(
+					Number(birthdayData.month),
+					Number(birthdayData.day),
+					birthdayData.offset
+				);
+
+				birthdayInReadyMembers.push({
+					memberId: memberId,
+					nextBirthday: nextBirthday
+				});
+				const toBeUpdated: BirthdayInform = {
+					...birthdayData,
+					date: nextBirthday
+				};
+
+				batch.update(doc(db, 'Birthday', memberId), toBeUpdated);
+			}
+		});
+
+		const guildSettingCache = myCache.myGet('GuildSettings');
+
+		for (const guildId of Object.keys(guildSettingCache)) {
+			const birthdayChannelId = guildSettingCache[guildId].birthdayChannelId;
+
+			if (!birthdayChannelId) continue;
+			const guild = client.guilds.cache.get(guildId);
+
+			if (!guild) continue;
+			const channel = guild.channels.cache.get(birthdayChannelId) as TextChannel;
+
+			if (!channel) continue;
+			for (const { memberId, nextBirthday } of birthdayInReadyMembers) {
+				let member = guild.members.cache.get(memberId);
+
+				if (!member) {
+					const { result, error } = await awaitWrap(guild.members.fetch(memberId));
+
+					if (error) continue;
+					member = result;
+				}
+				channel.send({
+					content: `<@${memberId}>`,
+					embeds: [
+						new MessageEmbed()
+							.setAuthor({
+								name: `@${member.displayName}`,
+								iconURL: member.user.avatarURL()
+							})
+							.setTitle('Happy Birthday!🥳')
+							.setDescription(`Next Birthday: <t:${nextBirthday}>`)
+					]
+				});
+			}
+		}
+		await batch.commit();
+	}
+
+	private async _idleOnboardCallScan(client: Client) {
+		for (const [guildId, guild] of client.guilds.cache) {
+			const voiceContexts = myCache.myGet('VoiceContexts');
+			const guildVoiceContext = voiceContexts[guildId];
+
+			if (!guildVoiceContext.channelId) continue;
+			const voiceChannel = guild.channels.cache.get(
+				guildVoiceContext.channelId
+			) as VoiceChannel;
+
+			if (!voiceChannel) continue;
+			if (checkOnboardPermission(voiceChannel, guild.me.id)) continue;
+			if (voiceChannel.members.size === 0) {
+				if (guildVoiceContext.isNotified) {
+					const { hostId, timestamp, messageId } = guildVoiceContext;
+					const targetMsg = await voiceChannel.messages.fetch(messageId);
+
+					const button = targetMsg.components;
+
+					button[0].components[0].disabled = true;
+					button[0].components[1].disabled = true;
+
+					const embeds = targetMsg.embeds;
+					const title = `${guild.name} Onboarding Call Ended`;
+
+					const difference = new Date().getTime() - timestamp * 1000;
+
+					embeds[0].description += sprintf(
+						'\n`%s` This onboarding call was auto ended.',
+						convertMsToTime(difference),
+						hostId
+					);
+
+					embeds[0].title = title;
+					await targetMsg.edit({
+						embeds: embeds,
+						components: button
+					});
+
+					voiceChannel.send({
+						content: `<@${hostId}>, onboarding call has been closed now.`
+					});
+					myCache.mySet('VoiceContexts', {
+						...voiceContexts,
+						[guildId]: defaultGuildVoiceContext
+					});
+				} else {
+					voiceChannel.send({
+						content: `<@${guildVoiceContext.hostId}>, no member is in this channel now. Do you want to cloes this onboarding call?`,
+						components: [
+							new MessageActionRow().addComponents([
+								new MessageButton()
+									.setLabel('Jump to the Dashboard')
+									.setStyle('LINK')
+									.setURL(guildVoiceContext.messageLink)
+							])
+						]
+					});
+					myCache.mySet('VoiceContexts', {
+						...voiceContexts,
+						[guildId]: {
+							...guildVoiceContext,
+							isNotified: true
+						}
 					});
 				}
 			}

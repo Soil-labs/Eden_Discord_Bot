@@ -1,4 +1,5 @@
 import { EmbedFieldData, ThreadAutoArchiveDuration } from 'discord.js';
+
 import { GraphQL_UpdateServerInput, Maybe } from '../graph/gql/result';
 import { myCache } from '../structures/Cache';
 
@@ -34,6 +35,7 @@ export type VoiceContext = {
 	hostId: Maybe<MemberId>;
 	attendees: Maybe<Array<MemberId>>;
 	roomId: Maybe<string>;
+	isNotified: Maybe<boolean>;
 };
 
 export type GuildInform = Required<
@@ -135,13 +137,14 @@ export type GuildSettingCache = Record<GuildId, GuildSettingInform>;
 export type BirthdayCache = Record<MemberId, BirthdayInform>;
 
 export function readGuildInform(guildInform: GuildInform, guildId: GuildId): EmbedFieldData[] {
-	let adminInform = {
+	const adminInform = {
 		adminRole: '> -',
 		adminMember: '> -',
 		adminCommand: '> -'
 	};
 
 	const { adminCommands, adminID, adminRoles } = guildInform;
+
 	if (adminCommands.length !== 0) {
 		adminInform.adminCommand = adminCommands.reduce((pre, cur) => {
 			return pre + `> ${cur}\n`;
@@ -160,8 +163,10 @@ export function readGuildInform(guildInform: GuildInform, guildId: GuildId): Emb
 
 	let birthdayChannel = '> -';
 	let forwardChannel = '> -';
+
 	if (myCache.myHas('GuildSettings')) {
 		const guildSettingInform = myCache.myGet('GuildSettings')[guildId];
+
 		if (guildSettingInform?.birthdayChannelId) {
 			birthdayChannel = `> <#${guildSettingInform?.birthdayChannelId}>\n`;
 		}

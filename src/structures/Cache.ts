@@ -1,4 +1,5 @@
 import NodeCache from 'node-cache';
+
 import { CacheType } from '../types/Cache';
 
 class MyCache extends NodeCache {

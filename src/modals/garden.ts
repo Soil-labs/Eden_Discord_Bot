@@ -1,13 +1,14 @@
+import { MessageActionRow, MessageButton, MessageEmbed, TextChannel } from 'discord.js';
+import _ from 'lodash';
+import { sprintf } from 'sprintf-js';
+
+import { GraphQL_CreateProjectUpdateInput } from '../graph/gql/result';
+import { createProjectUpdate } from '../graph/mutation/createProjectUpdate.mutation';
+import { myCache } from '../structures/Cache';
 import { Modal } from '../structures/Modal';
 import { GardenMemberId } from '../types/Cache';
-import { myCache } from '../structures/Cache';
-import { MessageActionRow, MessageButton, MessageEmbed, TextChannel } from 'discord.js';
 import { LINK } from '../utils/const';
-import { GraphQL_CreateProjectUpdateInput } from '../graph/gql/result';
-import { sprintf } from 'sprintf-js';
-import { createProjectUpdate } from '../graph/mutation/createProjectUpdate.mutation';
 import { awaitWrap, checkGardenChannelPermission, getErrorReply } from '../utils/util';
-import _ from 'lodash';
 
 export default new Modal({
 	customId: 'update',
@@ -15,7 +16,8 @@ export default new Modal({
 		const userId = interaction.user.id;
 		const guildId = interaction.guild.id;
 		const gardenUserIndentity: GardenMemberId = `${guildId}_${userId}`;
-		let gardenContext = myCache.myGet('GardenContext');
+		const gardenContext = myCache.myGet('GardenContext');
+
 		if (!gardenContext[gardenUserIndentity])
 			return interaction.reply({
 				content: 'Cannot find your record, please report to the admin.',
@@ -25,7 +27,6 @@ export default new Modal({
 		const content = interaction.fields.getTextInputValue('garden_content').trim();
 
 		const {
-			categoryChannelId,
 			generalChannelId,
 			projectId,
 			memberIds,
@@ -41,10 +42,12 @@ export default new Modal({
 		await interaction.deferReply({ ephemeral: true });
 
 		let generalChannel = interaction.guild.channels.cache.get(generalChannelId) as TextChannel;
+
 		if (!generalChannel) {
 			const { result, error } = await awaitWrap(
 				interaction.guild.channels.fetch(generalChannelId)
 			);
+
 			if (error)
 				return interaction.followUp({
 					content: `Sorry, the general channel for ${teamName} is unfetchable.`
@@ -56,6 +59,7 @@ export default new Modal({
 			generalChannel,
 			interaction.guild.me.id
 		);
+
 		if (permissionCheck)
 			return interaction.followUp({
 				content: permissionCheck,
@@ -67,10 +71,12 @@ export default new Modal({
 			autoArchiveDuration: autoArchiveDuration ?? 1440
 		});
 		let embedDescription = `\u200B\n**Project**: ${projectTitle}\n**Team**: ${teamName}\n**Role**: ${roleName}`;
+
 		if (tokenAmount) embedDescription += `\n**Token Transferred**: \`${tokenAmount}\``;
 		const memberIdsString = _.uniq([...memberIds, userId])
 			.map((value) => `<@${value}>`)
 			.toString();
+
 		await thread.send({
 			content: memberIdsString,
 			embeds: [
@@ -118,7 +124,7 @@ export default new Modal({
 
 		if (tokenAmount) gardenUpdateInform.token = tokenAmount.toString();
 
-		const [result, error] = await createProjectUpdate({
+		const { error } = await createProjectUpdate({
 			fields: gardenUpdateInform
 		});
 
@@ -141,6 +147,7 @@ export default new Modal({
 			const forwardChannel = interaction.guild.channels.cache.get(
 				myCache.myGet('GuildSettings')[guildId].forwardChannelId
 			) as TextChannel;
+
 			if (forwardChannel) {
 				forwardChannel.send({
 					embeds: [

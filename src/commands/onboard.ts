@@ -1,25 +1,17 @@
-import {
-	MessageActionRow,
-	MessageButton,
-	MessageEmbed,
-	VoiceChannel
-} from 'discord.js';
+import { MessageActionRow, MessageButton, MessageEmbed, VoiceChannel } from 'discord.js';
 import { ChannelTypes } from 'discord.js/typings/enums';
+import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
+
 import { GraphQL_AddNewMemberMutation } from '../graph/gql/result';
 import { GraphReturn } from '../graph/graph';
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
 import { createRoom } from '../graph/mutation/createRoom.mutation';
-import { Command } from '../structures/Command';
 import { myCache } from '../structures/Cache';
-import { CONTENT, LINK } from '../utils/const';
-import {
-	checkOnboardPermission,
-	getErrorReply,
-	updateMembersCache
-} from '../utils/util';
-import _ from 'lodash';
+import { Command } from '../structures/Command';
 import { VoiceContext } from '../types/Cache';
+import { CONTENT, LINK } from '../utils/const';
+import { checkOnboardPermission, getErrorReply, updateMembersCache } from '../utils/util';
 
 export default new Command({
 	name: 'onboard',
@@ -81,15 +73,16 @@ export default new Command({
 				});
 
 			let prefix = '';
-			let memberIds = [];
-			let updatePromise: Array<Promise<GraphReturn<GraphQL_AddNewMemberMutation>>> = [];
-			let toBecached: Array<{
+			const memberIds = [];
+			const updatePromise: Array<Promise<GraphReturn<GraphQL_AddNewMemberMutation>>> = [];
+			const toBecached: Array<{
 				userId: string;
 				name: string;
 			}> = [];
 
 			membersString.forEach((value) => {
 				let duplicateValue = value;
+
 				if (duplicateValue.startsWith('<@') && duplicateValue.endsWith('>')) {
 					duplicateValue = duplicateValue.slice(2, -1);
 
@@ -146,6 +139,7 @@ export default new Command({
 
 			if (results.filter((value) => value[1]).length !== 0) {
 				const [sampleResult] = results;
+
 				return interaction.followUp({
 					content: getErrorReply({
 						commandName: interaction.commandName,
@@ -158,6 +152,7 @@ export default new Command({
 			updateMembersCache(toBecached, guildId);
 			let embedTitle: string;
 			let embedDescription: string;
+
 			if (memberIds.length === 1 && memberIds[0] === interaction.user.id) {
 				embedTitle = "Hooray! You're about to join Eden 🌳";
 				embedDescription = sprintf(CONTENT.ONBOARD_SELF, {
@@ -191,6 +186,7 @@ export default new Command({
 			const contexts = myCache.myGet('VoiceContexts');
 			const guildVoiceContext = contexts[guildId] as VoiceContext;
 			// Onboarding is going on
+
 			if (guildVoiceContext?.channelId) {
 				return interaction.reply({
 					embeds: [
@@ -221,7 +217,8 @@ export default new Command({
 			}
 
 			await interaction.deferReply({ ephemeral: true });
-			const [result, error] = await createRoom();
+			const { result, error } = await createRoom();
+
 			if (error)
 				return interaction.followUp({
 					content: getErrorReply({
@@ -232,6 +229,7 @@ export default new Command({
 				});
 
 			let attendeesDescription = `\`00:00:00\` <@${hostId}> started this onboarding call.\n`;
+
 			for (const memberId of selectedMemberIds) {
 				if (memberId !== hostId) {
 					attendeesDescription += `\`00:00:00\` <@${memberId}> joined this onboarding call.\n`;
@@ -284,7 +282,8 @@ export default new Command({
 					timestamp: timestampSec,
 					hostId: hostId,
 					attendees: _.uniq([...selectedMemberIds, hostId]),
-					roomId: result.createRoom._id
+					roomId: result.createRoom._id,
+					isNotified: false
 				}
 			});
 

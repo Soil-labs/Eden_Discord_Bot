@@ -4,20 +4,20 @@ import {
 	GuildMember,
 	Interaction,
 	MessageContextMenuInteraction,
-	UserContextMenuInteraction
 } from 'discord.js';
+import _ from 'lodash';
+import { sprintf } from 'sprintf-js';
+
 import { client } from '..';
+import { myCache } from '../structures/Cache';
 import { Event } from '../structures/Event';
 import { ExtendedButtonInteraction } from '../types/Button';
 import { GuildInform } from '../types/Cache';
 import { ExtendedCommandInteration } from '../types/Command';
-import { ExtendedModalSubmitInteraction } from '../types/Modal';
-import { myCache } from '../structures/Cache';
-import { logger } from '../utils/logger';
-import _ from 'lodash';
-import { sprintf } from 'sprintf-js';
-import { ERROR_REPLY } from '../utils/const';
 import { ExtendedUserContextMenuInteraction } from '../types/ContextMenu';
+import { ExtendedModalSubmitInteraction } from '../types/Modal';
+import { ERROR_REPLY } from '../utils/const';
+import { logger } from '../utils/logger';
 
 export default new Event('interactionCreate', async (interaction: Interaction) => {
 	const errorInform = {
@@ -27,6 +27,7 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 
 	if (interaction.isCommand()) {
 		const command = client.commands.get(interaction.commandName);
+
 		if (!command) {
 			return interaction.reply({
 				content: 'You have used a non exitent command',
@@ -43,6 +44,7 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 		const member = interaction.member as GuildMember;
 		const guildInform: GuildInform = myCache.myGet('Servers')[interaction.guild.id];
 		const { adminCommands, adminID, adminRoles } = guildInform;
+
 		if (adminCommands.includes(interaction.commandName)) {
 			if (
 				!adminID.includes(member.id) &&
@@ -70,6 +72,7 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 				errorMsg: error?.message,
 				errorStack: error?.stack
 			});
+
 			if (interaction.deferred) {
 				logger.error(errorMsg);
 				return interaction.followUp({
@@ -109,6 +112,7 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 				errorMsg: error?.message,
 				errorStack: error?.stack
 			});
+
 			if (interaction.deferred) {
 				logger.error(errorMsg);
 				return interaction.followUp({
@@ -148,6 +152,7 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 				errorMsg: error?.message,
 				errorStack: error?.stack
 			});
+
 			if (interaction.deferred) {
 				logger.error(errorMsg);
 				interaction.followUp({
@@ -218,6 +223,7 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 				errorMsg: error?.message,
 				errorStack: error?.stack
 			});
+
 			if (interaction.deferred) {
 				logger.error(errorMessage);
 				interaction.followUp({

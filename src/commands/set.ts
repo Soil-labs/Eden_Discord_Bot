@@ -1,13 +1,14 @@
 import { GuildTextBasedChannel, MessageEmbed } from 'discord.js';
+import { getApp } from 'firebase/app';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { sprintf } from 'sprintf-js';
+
 import { updateServer } from '../graph/mutation/updateServer.mutation';
+import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
 import { GuildInform, MemberId, readGuildInform } from '../types/Cache';
-import { myCache } from '../structures/Cache';
 import { COMMADN_CHOICES, CONTENT } from '../utils/const';
 import { checkTextChannelPermission, getErrorReply } from '../utils/util';
-import { doc, getFirestore, setDoc } from 'firebase/firestore';
-import { getApp } from 'firebase/app';
-import { sprintf } from 'sprintf-js';
 
 export default new Command({
 	name: 'set',
@@ -147,6 +148,7 @@ export default new Command({
 	execute: async ({ interaction, args }) => {
 		const subCommandName = args.getSubcommand();
 		const guildId = interaction.guild.id;
+
 		if (!myCache.myHas('Servers') || !myCache.myGet('Servers')[guildId])
 			return interaction.reply({
 				content: 'Cannot find server admin information, please contact admin.',
@@ -184,6 +186,7 @@ export default new Command({
 					birthdayChannel,
 					interaction.guild.me.id
 				);
+
 				if (birthdayChannelPermissionCheck) {
 					return interaction.reply({
 						content: sprintf(CONTENT.CHANNEL_SETTING_FAIL_REPLY, {
@@ -302,8 +305,10 @@ export default new Command({
 
 		if (commandGroupName === 'member') {
 			let toBeCachedAdminMember: Array<MemberId>;
+
 			if (subCommandName === 'add') {
 				const member = args.getUser('member');
+
 				if (member.bot)
 					return interaction.reply({
 						content: 'Sorry, you cannot choose a bot.',
@@ -318,6 +323,7 @@ export default new Command({
 				successReply = `\`${member.username}\` has been added to the admin group`;
 			} else {
 				const memberId = args.getString('member');
+
 				if (!adminID.includes(memberId))
 					return interaction.reply({
 						content: 'Please check your input, the member you chose is not in the list',
@@ -325,6 +331,7 @@ export default new Command({
 					});
 				toBeCachedAdminMember = adminID.filter((value) => value !== memberId);
 				const memberObj = interaction.guild.members.cache.get(memberId);
+
 				successReply = `\`${memberObj?.displayName}\` has been removed from the admin group`;
 			}
 			toBeCached = {
@@ -335,8 +342,10 @@ export default new Command({
 
 		if (commandGroupName === 'role') {
 			let toBeCachedAdminRole: Array<string>;
+
 			if (subCommandName === 'add') {
 				const role = args.getRole('role');
+
 				if (adminRoles.includes(role.id))
 					return interaction.reply({
 						content: `\`${role.name}\` has been added to the admin group`,
@@ -346,6 +355,7 @@ export default new Command({
 				successReply = `\`${role.name}\` has been added to the admin group`;
 			} else {
 				const roleId = args.getString('role');
+
 				if (!adminRoles.includes(roleId))
 					return interaction.reply({
 						content: 'Please check your input, the role you chose is not in the list',
@@ -353,6 +363,7 @@ export default new Command({
 					});
 				toBeCachedAdminRole = adminRoles.filter((value) => value !== roleId);
 				const roleObj = interaction.guild.roles.cache.get(roleId);
+
 				successReply = `\`${roleObj?.name}\` has been removed from the admin group`;
 			}
 			toBeCached = {
@@ -364,6 +375,7 @@ export default new Command({
 		if (commandGroupName === 'command') {
 			const commandName = args.getString('command');
 			let toBeCachedAdminCommands: Array<string>;
+
 			if (subCommandName === 'add') {
 				if (adminCommands.includes(commandName))
 					return interaction.reply({
@@ -397,7 +409,7 @@ export default new Command({
 
 		await interaction.deferReply({ ephemeral: true });
 
-		const [result, error] = await updateServer({
+		const { error } = await updateServer({
 			fields: {
 				...toBeCached,
 				_id: guildId,

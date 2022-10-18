@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import { sprintf } from 'sprintf-js';
+
 import { findMember } from '../graph/query/findMember.query';
 import { UserContextMenu } from '../structures/ContextMenu';
 import { LINK, NUMBER } from '../utils/const';
@@ -27,7 +28,7 @@ export default new UserContextMenu({
 			});
 
 		await interaction.deferReply({ ephemeral: true });
-		const [userDetail, error] = await findMember({
+		const { result: userDetail, error } = await findMember({
 			fields: {
 				_id: frenUser.id
 			}
@@ -51,6 +52,7 @@ export default new UserContextMenu({
 			)
 			.slice(0, NUMBER.DISPLAY_SKILL_NUMBER);
 		let topSkills: string;
+
 		if (skillNames.length === 0) topSkills = 'No skill';
 		else topSkills = skillNames.toString();
 
@@ -58,6 +60,7 @@ export default new UserContextMenu({
 			.map((value) => (value.info.title ? `${value.info.title}` : 'Unknown project name '))
 			.slice(0, NUMBER.DISPLAY_SKILL_NUMBER);
 		let projectNames: string;
+
 		if (projects.length === 0) projectNames = 'No project';
 		else projectNames = projects.toString();
 

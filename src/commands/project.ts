@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import { sprintf } from 'sprintf-js';
+
 import { findProject } from '../graph/query/findProject.query';
 import { Command } from '../structures/Command';
 import { LINK } from '../utils/const';
@@ -34,6 +35,7 @@ export default new Command({
 
 		if (subCommandName === 'new') {
 			const launchProjectLink = sprintf(LINK.LAUNCH_PROJECT, guildId);
+
 			return interaction.reply({
 				embeds: [
 					new MessageEmbed()
@@ -48,6 +50,7 @@ export default new Command({
 
 		if (subCommandName === 'project') {
 			const projectId = args.getString('project_name');
+
 			if (!validProject(projectId, guildId))
 				return interaction.reply({
 					content: 'Sorry, we cannot find information of this project.',
@@ -55,9 +58,10 @@ export default new Command({
 				});
 
 			await interaction.deferReply({ ephemeral: true });
-			const [result, error] = await findProject({
+			const { result, error } = await findProject({
 				fields: { _id: projectId }
 			});
+
 			if (error)
 				return interaction.followUp({
 					content: getErrorReply({
@@ -72,10 +76,11 @@ export default new Command({
 			const championMember = interaction.guild.members.cache.get(
 				result.findProject.champion._id
 			);
-			let championName: string;
-			if (!championMember)
-				championName = result.findProject.champion.discordName ?? 'Unknown Champion';
-			else championName = `<@${championMember.id}>`;
+			// let championName: string;
+
+			// if (!championMember)
+			// 	championName = result.findProject.champion.discordName ?? 'Unknown Champion';
+			// else championName = `<@${championMember.id}>`;
 			const projectEmbed = new MessageEmbed()
 				.setTitle(`@${projectName}`)
 				.setDescription(
