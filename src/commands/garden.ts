@@ -5,9 +5,10 @@ import {
 	TextInputComponent,
 	ThreadAutoArchiveDuration
 } from 'discord.js';
+
+import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
 import { GardenInform } from '../types/Cache';
-import { myCache } from '../structures/Cache';
 import { awaitWrap, checkGardenChannelPermission, validGarden } from '../utils/util';
 
 export default new Command({
@@ -75,6 +76,7 @@ export default new Command({
 		];
 
 		const validResult = validGarden(guildId, projectId, teamId, roleId);
+
 		if (typeof validResult === 'string')
 			return interaction.reply({
 				content: validResult,
@@ -91,10 +93,12 @@ export default new Command({
 			validResult;
 
 		let generalChannel = interaction.guild.channels.cache.get(generalChannelId) as TextChannel;
+
 		if (!generalChannel) {
 			const { result, error } = await awaitWrap(
 				interaction.guild.channels.fetch(generalChannelId)
 			);
+
 			if (error)
 				return interaction.reply({
 					content: `Sorry, the general channel for ${teamName} is unfetchable.`,
@@ -106,6 +110,7 @@ export default new Command({
 			generalChannel,
 			interaction.guild.me.id
 		);
+
 		if (permissinChecking)
 			return interaction.reply({
 				content: permissinChecking,
@@ -121,6 +126,7 @@ export default new Command({
 		const members = membersString
 			.map((value) => {
 				let duplicate = value;
+
 				if (duplicate.startsWith('<@') && duplicate.endsWith('>')) {
 					duplicate = duplicate.slice(2, -1);
 
@@ -137,6 +143,7 @@ export default new Command({
 				return null;
 			})
 			.filter((value) => value);
+
 		if (members.length === 0)
 			return interaction.reply({
 				content: 'You need to input at least one member in this guid.',
@@ -165,7 +172,7 @@ export default new Command({
 					.setStyle('PARAGRAPH')
 			)
 		);
-		let userCache: GardenInform = {
+		const userCache: GardenInform = {
 			categoryChannelId: categoryChannelId,
 			generalChannelId: generalChannelId,
 			projectId: projectId,

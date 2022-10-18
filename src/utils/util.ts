@@ -1,5 +1,8 @@
 import { GuildTextBasedChannel, Permissions, VoiceBasedChannel } from 'discord.js';
+import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
+
+import { myCache } from '../structures/Cache';
 import {
 	GuildId,
 	MemberId,
@@ -10,10 +13,8 @@ import {
 	SkillInform,
 	TeamId
 } from '../types/Cache';
-import { myCache } from '../structures/Cache';
-import { ERROR_REPLY, NUMBER, TIMEZONE } from './const';
+import { ERROR_REPLY, NUMBER } from './const';
 import { TimeOutError } from './error';
-import _ from 'lodash';
 export interface awaitWrapType<T> {
 	result: T | null;
 	error: any | null;
@@ -44,6 +45,7 @@ export async function awaitWrapWithTimeout<T>(
 			reject(new TimeOutError());
 		}, ms);
 	});
+
 	return Promise.race([promise, timeout])
 		.then((data) => {
 			return {
@@ -111,6 +113,7 @@ export function checkGardenChannelPermission(
 
 export function validMember(userId: MemberId, guildId: GuildId): MemberInform | null {
 	const result = myCache.myGet('Members')[userId];
+
 	if (!result) return null;
 	return result.serverId.includes(guildId) ? result : null;
 }
@@ -121,18 +124,21 @@ export function validSkill(skillId: SkillId): SkillInform | null {
 
 export function validProject(projectId: ProjectId, guildId: GuildId) {
 	const result = myCache.myGet('Projects')[guildId];
+
 	if (!result) return null;
 	return result[projectId] ?? null;
 }
 
 export function validTeam(teamId: TeamId, guidId: GuildId) {
 	const result = myCache.myGet('Teams')[guidId];
+
 	if (!result) return null;
 	return result[teamId] ?? null;
 }
 
 export function validRole(roleId: RoleId, guidId: GuildId) {
 	const result = myCache.myGet('Roles')[guidId];
+
 	if (!result) return null;
 	return result[roleId] ?? null;
 }
@@ -145,10 +151,13 @@ export function validGarden(
 ) {
 	const result = myCache.myGet('ProjectTeamRole')[guildId];
 	const project = result[projectId];
+
 	if (!project) return 'Please choose a valid project.';
 	const team = project['teams'][teamId];
+
 	if (!team) return 'Please choose a valid team.';
 	const role = team['roles'][roleId];
+
 	if (!role) return 'Please choose a valid role.';
 	return {
 		projectTitle: project.projectTitle,
@@ -162,11 +171,13 @@ export function validGarden(
 export function dateIsValid(month: number, day: number) {
 	const thisYear = new Date().getFullYear();
 	const date = new Date(`${thisYear}-${month}-${day}`);
+
 	if (isNaN(date.getTime())) {
 		const nextYearDate = new Date(`${thisYear + 1}-${month}-${day}`);
+
 		return !isNaN(nextYearDate.getTime());
 	}
-	return true
+	return true;
 }
 
 export function getErrorReply(errorInform: {
@@ -175,6 +186,7 @@ export function getErrorReply(errorInform: {
 	errorMessage: string;
 }) {
 	const { commandName, subCommandName, errorMessage } = errorInform;
+
 	if (subCommandName) {
 		return sprintf(ERROR_REPLY.GRAPHQL, {
 			action: `${commandName} ${subCommandName}`,
@@ -192,6 +204,7 @@ export function updateMemberCache(memberInform: { userId: string; name: string; 
 	const { userId, name, guildId } = memberInform;
 	const cached = myCache.myGet('Members');
 	const currentServers = cached[userId]?.serverId ?? [];
+
 	myCache.mySet('Members', {
 		...cached,
 		[userId]: {
@@ -207,9 +220,11 @@ export function updateMembersCache(
 ) {
 	let toBecached = {};
 	const cached = myCache.myGet('Members');
+
 	membersInform.forEach((memberInform) => {
 		const { userId, name } = memberInform;
 		const currenServers = cached[userId]?.serverId ?? [];
+
 		toBecached = {
 			...toBecached,
 			[userId]: {
@@ -231,7 +246,7 @@ function _padTo2Digits(num: number) {
 export function convertMsToTime(milliseconds: number) {
 	let seconds = Math.floor(milliseconds / 1000);
 	let minutes = Math.floor(seconds / 60);
-	let hours = Math.floor(minutes / 60);
+	const hours = Math.floor(minutes / 60);
 
 	seconds = seconds % 60;
 	minutes = minutes % 60;
@@ -245,6 +260,7 @@ export function getNextBirthday(month: number, day: number, offset: number) {
 	const machineTimezonBirthday = new Date(`${thisYear}-${month}-${day}`).getTime();
 	let utcBirthday = machineTimezonBirthday + date.getTimezoneOffset() * 60000;
 	let offsetBirthday = utcBirthday - 3600000 * offset;
+
 	if (date.getTime() > machineTimezonBirthday) {
 		utcBirthday =
 			new Date(`${thisYear + 1}-${month}-${day}`).getTime() +

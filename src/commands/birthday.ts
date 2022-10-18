@@ -1,5 +1,6 @@
 import { getApp } from 'firebase/app';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
+
 import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
 import { BirthdayInform } from '../types/Cache';
@@ -51,6 +52,7 @@ export default new Command({
 		];
 
 		const userId = interaction.user.id;
+
 		if (!dateIsValid(month, day))
 			return interaction.reply({
 				content: `Your input \`day\` is an invalid date.`,
@@ -74,7 +76,7 @@ export default new Command({
 			offset: offset
 		};
 		const birthdaySnap = doc(getFirestore(getApp()), 'Birthday', userId);
-		const { result, error } = await awaitWrap(setDoc(birthdaySnap, birthdayInform));
+		const { error } = await awaitWrap(setDoc(birthdaySnap, birthdayInform));
 
 		if (error)
 			return interaction.followUp({

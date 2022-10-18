@@ -1,7 +1,8 @@
 import { ApplicationCommandOptionChoiceData } from 'discord.js';
+
 import { Auto } from '../structures/AutoComplete';
-import { ProjectId, TeamId } from '../types/Cache';
 import { myCache } from '../structures/Cache';
+import { ProjectId, TeamId } from '../types/Cache';
 import { NUMBER } from '../utils/const';
 
 export default new Auto({
@@ -9,6 +10,7 @@ export default new Auto({
 	execute: ({ interaction }) => {
 		const guildId = interaction.guild.id;
 		const { name, value } = interaction.options.getFocused(true);
+
 		if (!myCache.myHas('ProjectTeamRole') || !myCache.myGet('ProjectTeamRole')[guildId])
 			return interaction.respond([]);
 
@@ -40,6 +42,7 @@ export default new Auto({
 
 		if (name === 'team') {
 			const teams = projectTeamRoleInGuild?.[resolvedProject]?.teams;
+
 			if (!teams) return interaction.respond([]);
 
 			const teamFilter: Array<ApplicationCommandOptionChoiceData> = Object.keys(teams)
@@ -63,6 +66,7 @@ export default new Auto({
 		if (name === 'role') {
 			const roles =
 				projectTeamRoleInGuild?.[resolvedProject]?.['teams']?.[resolvedTeam]?.['roles'];
+
 			if (!roles) return interaction.respond([]);
 			const roleFilter: Array<ApplicationCommandOptionChoiceData> = Object.keys(roles)
 				.filter((roleId) => {
@@ -75,6 +79,7 @@ export default new Auto({
 					};
 				})
 				.slice(0, NUMBER.AUTOCOMPLETE_OPTION_LENGTH);
+
 			if (roleFilter.length === 0) {
 				return interaction.respond([]);
 			} else {

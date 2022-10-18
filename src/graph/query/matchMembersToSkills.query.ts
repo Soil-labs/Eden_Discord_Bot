@@ -1,7 +1,8 @@
 import { gql } from 'graphql-request';
+
 import {
-	GraphQL_MatchMembersToSkillsQueryVariables,
-	GraphQL_MatchMembersToSkillsQuery
+	GraphQL_MatchMembersToSkillsQuery,
+	GraphQL_MatchMembersToSkillsQueryVariables
 } from '../gql/result';
 import { myQuery } from '../graph';
 

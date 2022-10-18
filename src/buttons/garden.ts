@@ -1,4 +1,5 @@
 import { MessageEmbed } from 'discord.js';
+
 import { Button } from '../structures/Button';
 
 export default new Button({
@@ -6,6 +7,7 @@ export default new Button({
 	execute: async ({ interaction }) => {
 		const { customId, message } = interaction;
 		const thread = interaction.channel;
+
 		message.components[0].components[0].disabled = true;
 		message.components[0].components[1].disabled = true;
 
@@ -29,6 +31,7 @@ export default new Button({
 					interaction.component.label.match(/\s\d{1}\s/)[0].slice(1)
 				);
 				const archiveDuration = archiveDays === 3 ? 4320 : 10080;
+
 				thread.setAutoArchiveDuration(archiveDuration);
 				return interaction.reply({
 					embeds: [

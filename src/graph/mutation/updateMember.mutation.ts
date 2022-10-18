@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import { GraphQL_UpdateMemberMutation, GraphQL_UpdateMemberMutationVariables } from '../gql/result';
 import { myMutation } from '../graph';
 

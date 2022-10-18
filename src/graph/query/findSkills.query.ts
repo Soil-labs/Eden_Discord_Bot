@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
-import { SkillsCache } from '../../types/Cache';
+
 import { myCache } from '../../structures/Cache';
+import { SkillsCache } from '../../types/Cache';
 import {
 	GraphQL_ApprovedSkillEnum,
 	GraphQL_FindSkillsQuery,
@@ -19,7 +20,7 @@ const request = gql`
 `;
 
 export async function findSkills() {
-	const [result, error] = await myQuery<
+	const { result, error } = await myQuery<
 		GraphQL_FindSkillsQueryVariables,
 		GraphQL_FindSkillsQuery
 	>({
@@ -32,6 +33,7 @@ export async function findSkills() {
 	if (error) return error;
 	else {
 		const toBeCached: SkillsCache = {};
+
 		result.findSkills.forEach((skill) => {
 			if (skill.state === GraphQL_ApprovedSkillEnum.Approved) {
 				toBeCached[skill._id] = {
@@ -40,6 +42,6 @@ export async function findSkills() {
 			}
 		});
 		myCache.mySet('Skills', toBeCached);
-		return true
+		return true;
 	}
 }

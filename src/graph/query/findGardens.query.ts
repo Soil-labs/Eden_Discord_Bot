@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import {
 	GraphQL_FindProjectUpdatesQuery,
 	GraphQL_FindProjectUpdatesQueryVariables

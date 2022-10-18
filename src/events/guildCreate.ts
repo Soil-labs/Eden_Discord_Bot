@@ -1,6 +1,7 @@
 import { Guild } from 'discord.js';
 import { getApp } from 'firebase/app';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
+
 import { updateServer } from '../graph/mutation/updateServer.mutation';
 import { myCache } from '../structures/Cache';
 import { Event } from '../structures/Event';
@@ -13,14 +14,16 @@ export default new Event('guildCreate', async (newGuild: Guild) => {
 		if (newGuild.available && myCache.myHas('Servers')) {
 			const guildId = newGuild.id;
 			const guildInform = myCache.myGet('Servers')[guildId];
+
 			if (!guildInform) {
-				const [result, error] = await updateServer({
+				const { error } = await updateServer({
 					fields: {
 						...templateGuildInform,
 						_id: guildId,
-						name: newGuild.name,
+						name: newGuild.name
 					}
 				});
+
 				if (error) {
 					return logger.error(
 						`${newGuild.name} was created, but cannot upload its permission information. Reason: ${error}`
@@ -47,6 +50,8 @@ export default new Event('guildCreate', async (newGuild: Guild) => {
 			}
 		}
 	} catch (error) {
-		logger.error(`Error occurs when event \`guildCreate\`. Error Detail: ${error?.message}. Error Stack: ${error?.stack}`)
+		logger.error(
+			`Error occurs when event \`guildCreate\`. Error Detail: ${error?.message}. Error Stack: ${error?.stack}`
+		);
 	}
 });

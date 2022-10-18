@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import { GraphQL_FindEpicQuery, GraphQL_FindEpicQueryVariables } from '../gql/result';
 import { myQuery } from '../graph';
 

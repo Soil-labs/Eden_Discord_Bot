@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import { sprintf } from 'sprintf-js';
+
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
 import { updateMember } from '../graph/mutation/updateMember.mutation';
 import { Command } from '../structures/Command';
@@ -20,10 +21,11 @@ export default new Command({
 			discriminator: user.discriminator,
 			discordAvatar: user.displayAvatarURL()
 		};
+
 		await interaction.deferReply({ ephemeral: true });
 
 		if (validResult) {
-			const [result, error] = await updateMember({
+			const { error } = await updateMember({
 				fields: inform
 			});
 
@@ -35,7 +37,7 @@ export default new Command({
 					})
 				});
 		} else {
-			const [result, error] = await addNewMember({
+			const { error } = await addNewMember({
 				fields: {
 					...inform,
 					invitedBy: user.id,
@@ -60,9 +62,7 @@ export default new Command({
 
 		const replyEmbed = new MessageEmbed()
 			.setTitle("Hooray! You're about to join Eden 🌳")
-			.setDescription(
-				sprintf(CONTENT.ONBOARD_SELF, { onboardLink: LINK.SIGNUP })
-			);
+			.setDescription(sprintf(CONTENT.ONBOARD_SELF, { onboardLink: LINK.SIGNUP }));
 
 		return interaction.followUp({
 			embeds: [replyEmbed]

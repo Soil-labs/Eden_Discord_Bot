@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
-import { MembersCache } from '../../types/Cache';
+
 import { myCache } from '../../structures/Cache';
+import { MembersCache } from '../../types/Cache';
 import { GraphQL_FindMembersQuery, GraphQL_FindMembersQueryVariables } from '../gql/result';
 import { myQuery } from '../graph';
 
@@ -15,21 +16,23 @@ const request = gql`
 `;
 
 export async function findMembers() {
-	const [result, error] = await myQuery<
+	const { result, error } = await myQuery<
 		GraphQL_FindMembersQueryVariables,
 		GraphQL_FindMembersQuery
 	>({
 		request: request,
 		variable: { fields: {} }
 	});
+
 	if (error) return error;
-	else{
+	else {
 		const toBeCached: MembersCache = {};
+
 		result.findMembers.forEach((member) => {
 			toBeCached[member._id] = {
 				discordName: member.discordName,
 				serverId: member.serverID
-			}
+			};
 		});
 		myCache.mySet('Members', toBeCached);
 		return true;

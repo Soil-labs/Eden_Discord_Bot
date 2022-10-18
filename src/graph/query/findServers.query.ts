@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
-import { GuildInformCache } from '../../types/Cache';
+
 import { myCache } from '../../structures/Cache';
+import { GuildInformCache } from '../../types/Cache';
 import { GraphQL_FindServersQuery, GraphQL_FindServersQueryVariables } from '../gql/result';
 import { myQuery } from '../graph';
 
@@ -12,11 +13,11 @@ const request = gql`
 			adminRoles
 			adminCommands
 		}
-		}
+	}
 `;
 
 export async function findServers() {
-	const [result, error] = await myQuery<
+	const { result, error } = await myQuery<
 		GraphQL_FindServersQueryVariables,
 		GraphQL_FindServersQuery
 	>({
@@ -25,15 +26,17 @@ export async function findServers() {
 			fields: {}
 		}
 	});
+
 	if (error) return error;
 	else {
 		const toBeCached: GuildInformCache = {};
+
 		result.findServers.forEach((server) => {
 			toBeCached[server._id] = {
 				adminCommands: server.adminCommands,
 				adminID: server.adminID,
 				adminRoles: server.adminRoles
-			}
+			};
 		});
 		myCache.mySet('Servers', toBeCached);
 		return true;

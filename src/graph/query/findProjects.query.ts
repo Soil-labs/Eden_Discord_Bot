@@ -1,4 +1,6 @@
 import { gql } from 'graphql-request';
+
+import { myCache } from '../../structures/Cache';
 import {
 	ProjectsCache,
 	ProjectTeamRoleCache,
@@ -9,7 +11,6 @@ import {
 	TeamsCache,
 	TeamValueType
 } from '../../types/Cache';
-import { myCache } from '../../structures/Cache';
 import { GraphQL_FindProjectsQuery, GraphQL_FindProjectsQueryVariables } from '../gql/result';
 import { myQuery } from '../graph';
 
@@ -36,7 +37,7 @@ const request = gql`
 
 // todo reasonable return value
 export async function findProjects() {
-	const [result, error] = await myQuery<
+	const { result, error } = await myQuery<
 		GraphQL_FindProjectsQueryVariables,
 		GraphQL_FindProjectsQuery
 	>({
@@ -45,12 +46,14 @@ export async function findProjects() {
 			fields: {}
 		}
 	});
+
 	if (error) return error;
 	else {
-		let projectCached: ProjectsCache = {};
-		let projectTeamRoleCached: ProjectTeamRoleCache = {};
-		let teamCached: TeamsCache = {};
-		let roleCached: RolesCache = {};
+		const projectCached: ProjectsCache = {};
+		const projectTeamRoleCached: ProjectTeamRoleCache = {};
+		const teamCached: TeamsCache = {};
+		const roleCached: RolesCache = {};
+
 		result.findProjects.forEach((value) => {
 			const {
 				serverID: servers,
@@ -59,6 +62,7 @@ export async function findProjects() {
 				garden_teams: teams,
 				gardenServerID: gardenServerId
 			} = value;
+
 			if (servers.length === 0) return;
 
 			let ptrTeamCache: TeamValueType = {};
@@ -75,11 +79,14 @@ export async function findProjects() {
 						categoryDiscordlD,
 						channelGeneralDiscordID
 					} = team;
+
 					if (roles.length === 0) return;
 					let _internalRolesCache: RoleValueType = {};
+
 					roles.forEach((role) => {
 						const roleId = role._id;
 						const roleName = role.name;
+
 						_internalRolesCache = {
 							..._internalRolesCache,
 							[roleId]: {

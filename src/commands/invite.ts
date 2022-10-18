@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import { sprintf } from 'sprintf-js';
+
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
 import { Command } from '../structures/Command';
 import { CONTENT, LINK } from '../utils/const';
@@ -39,10 +40,11 @@ export default new Command({
 				ephemeral: true
 			});
 		const isNewInviter = validMember(inviter.id, guildId);
+
 		if (!isNewInviter) {
 			await interaction.deferReply({ ephemeral: true });
 
-			const [_, inviteError] = await addNewMember({
+			const { error: inviteError } = await addNewMember({
 				fields: {
 					_id: inviter.id,
 					discordName: inviter.username,
@@ -70,7 +72,7 @@ export default new Command({
 
 		if (!interaction.deferred) await interaction.deferReply({ ephemeral: true });
 
-		const [result, error] = await addNewMember({
+		const { error } = await addNewMember({
 			fields: {
 				_id: invitee.id,
 				discordName: invitee.username,
@@ -95,7 +97,8 @@ export default new Command({
 			guildId: guildId
 		});
 
-		let embedContent = new MessageEmbed().setTitle("You've been invited to join Eden 🌳");
+		const embedContent = new MessageEmbed().setTitle("You've been invited to join Eden 🌳");
+
 		if (process.env.PM2_MODE === 'prod' && process.env.PM2_DMDISABLED) {
 			// const { result, error } = await awaitWrap(interaction.channel.send({
 			//     content: `<@${inviter.id}> has invited <@${invitee.id}> to join Eden 🌳! BIG WAGMI ENERGY!⚡`,
@@ -116,7 +119,7 @@ export default new Command({
 		}
 		const DMchannel = await invitee.createDM();
 
-		const { result: dmResult, error: dmError } = await awaitWrap(
+		const { error: dmError } = await awaitWrap(
 			DMchannel.send({
 				embeds: [
 					embedContent.setDescription(
@@ -134,6 +137,7 @@ export default new Command({
 				interaction.channel,
 				interaction.guild.me.id
 			);
+
 			if (!permissionCheck) {
 				await interaction.channel.send({
 					content: `<@${inviter.id}> has invited <@${invitee.id}> to join Eden 🌳! BIG WAGMI ENERGY!⚡`,
@@ -155,8 +159,7 @@ export default new Command({
 				});
 			} else {
 				return interaction.followUp({
-					content:
-						`Invitee does not open the DM and I cannot send the invite link to this channel: ${permissionCheck}`
+					content: `Invitee does not open the DM and I cannot send the invite link to this channel: ${permissionCheck}`
 				});
 			}
 		}

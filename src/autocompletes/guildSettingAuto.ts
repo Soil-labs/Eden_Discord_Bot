@@ -1,4 +1,5 @@
 import { ApplicationCommandOptionChoiceData } from 'discord.js';
+
 import { Auto } from '../structures/AutoComplete';
 import { myCache } from '../structures/Cache';
 
@@ -7,13 +8,17 @@ export default new Auto({
 	execute: ({ interaction }) => {
 		const guildId = interaction.guild.id;
 		const { name, value } = interaction.options.getFocused(true);
-		if (!myCache.myHas('Servers') || !myCache.myGet('Servers')[guildId]) return interaction.respond([]);
+
+		if (!myCache.myHas('Servers') || !myCache.myGet('Servers')[guildId])
+			return interaction.respond([]);
 		const guildInform = myCache.myGet('Servers')[guildId];
 
 		let filter: Array<ApplicationCommandOptionChoiceData> = [];
+
 		switch (name) {
 			case 'role': {
 				const currentRoles = guildInform.adminRoles;
+
 				filter = currentRoles
 					.map((roleId) => ({
 						name: interaction.guild.roles.cache.get(roleId)?.name,
@@ -24,6 +29,7 @@ export default new Auto({
 			}
 			case 'member': {
 				const currentMembers = guildInform.adminID;
+
 				filter = currentMembers
 					.map((memberId) => ({
 						name: interaction.guild.members.cache.get(memberId)?.displayName,
@@ -34,6 +40,7 @@ export default new Auto({
 			}
 			case 'command': {
 				const currentCommands = guildInform.adminCommands;
+
 				filter = currentCommands
 					.filter((command) => command.includes(value.toString()))
 					.map((command) => ({

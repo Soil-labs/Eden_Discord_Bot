@@ -1,5 +1,9 @@
 import { gql } from 'graphql-request';
-import { GraphQL_CreateProjectUpdateMutation, GraphQL_CreateProjectUpdateMutationVariables } from '../gql/result';
+
+import {
+	GraphQL_CreateProjectUpdateMutation,
+	GraphQL_CreateProjectUpdateMutationVariables
+} from '../gql/result';
 import { myMutation } from '../graph';
 
 const request = gql`
@@ -11,8 +15,11 @@ const request = gql`
 `;
 
 export async function createProjectUpdate(variable: GraphQL_CreateProjectUpdateMutationVariables) {
-    return myMutation<GraphQL_CreateProjectUpdateMutationVariables, GraphQL_CreateProjectUpdateMutation>({
-        request: request,
-        variable: variable
-    });
+	return myMutation<
+		GraphQL_CreateProjectUpdateMutationVariables,
+		GraphQL_CreateProjectUpdateMutation
+	>({
+		request: request,
+		variable: variable
+	});
 }

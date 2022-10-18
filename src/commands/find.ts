@@ -1,12 +1,13 @@
 import { EmbedFieldData, MessageEmbed } from 'discord.js';
+import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
+
 import { findMember } from '../graph/query/findMember.query';
 import { recommendProjectsToMember } from '../graph/query/findProjects_RecommendedToUser.query';
+import { matchMemberToSkills } from '../graph/query/matchMembersToSkills.query';
 import { Command } from '../structures/Command';
 import { CONTENT, EMBED_COLOR, ERROR_REPLY, LINK, NUMBER } from '../utils/const';
 import { getErrorReply, validMember, validSkill } from '../utils/util';
-import _ from 'lodash';
-import { matchMemberToSkills } from '../graph/query/matchMembersToSkills.query';
 
 export default new Command({
 	name: 'find',
@@ -69,7 +70,7 @@ export default new Command({
 		if (subCommandName === 'project') {
 			await interaction.deferReply({ ephemeral: true });
 
-			const [matchResult, error] = await recommendProjectsToMember({
+			const { result: matchResult, error } = await recommendProjectsToMember({
 				fields: {
 					memberID: interaction.user.id,
 					serverID: [guildId]
@@ -98,6 +99,7 @@ export default new Command({
 							.slice(0, NUMBER.DISPLAY_SKILL_NUMBER)
 							.map((value) => `${value.skillData.name} `)
 							.toString();
+
 						pre.skillField += sprintf('%s: %s', match.role.title, skillNames);
 						return pre;
 					},
@@ -108,8 +110,9 @@ export default new Command({
 					}
 				);
 			let embedDescription: string;
-			let fields = [];
+			const fields = [];
 			// todo contents for non-matching
+
 			if (!fieldContents.matchField) {
 				embedDescription = sprintf(CONTENT.MATCH_PROJECT, LINK.PROJECT_ALL);
 			} else {
@@ -133,6 +136,7 @@ export default new Command({
 				);
 			}
 			const authorName = `@${interaction.user.username} - Project Matching Results`;
+
 			return interaction.followUp({
 				embeds: [
 					new MessageEmbed()
@@ -163,7 +167,7 @@ export default new Command({
 				});
 
 			await interaction.deferReply({ ephemeral: true });
-			const [userDetail, error] = await findMember({
+			const { result: userDetail, error } = await findMember({
 				fields: {
 					_id: frenUser.id
 				}
@@ -188,6 +192,7 @@ export default new Command({
 				)
 				.slice(0, NUMBER.DISPLAY_SKILL_NUMBER);
 			let topSkills: string;
+
 			if (skillNames.length === 0) topSkills = 'No skill';
 			else topSkills = skillNames.toString();
 
@@ -197,6 +202,7 @@ export default new Command({
 				)
 				.slice(0, NUMBER.DISPLAY_SKILL_NUMBER);
 			let projectNames: string;
+
 			if (projects.length === 0) projectNames = 'No project';
 			else projectNames = projects.toString();
 
@@ -236,7 +242,7 @@ export default new Command({
 				ephemeral: true
 			});
 
-			let [matchResult, error] = await matchMemberToSkills({
+			const { result: matchResult, error } = await matchMemberToSkills({
 				fields: {
 					serverID: [guildId],
 					skillsID: skills
@@ -266,9 +272,10 @@ export default new Command({
 				.reduce(
 					(pre, skill) => {
 						const memberInGuild = interaction.guild.members.cache.get(skill.member._id);
-						pre.nameField += (memberInGuild
-							? `<@${skill.member._id}>`
-							: skill.member.discordName) + '\n';
+
+						pre.nameField +=
+							(memberInGuild ? `<@${skill.member._id}>` : skill.member.discordName) +
+							'\n';
 						pre.matchField +=
 							(memberInGuild
 								? sprintf(
@@ -281,6 +288,7 @@ export default new Command({
 							.map((value) => value.name + ' ')
 							.splice(0, NUMBER.DISPLAY_COMMON_SKILL_NUMBER);
 						// todo how to handle no common skill? I mean contents
+
 						pre.skillField +=
 							(topSkill.length ? topSkill.toString() : 'No common skill') + '\n';
 
@@ -292,7 +300,8 @@ export default new Command({
 						skillField: ''
 					}
 				);
-			let fields: Array<EmbedFieldData> = [];
+			const fields: Array<EmbedFieldData> = [];
+
 			if (fieldContents.matchField) {
 				fields.push(
 					{

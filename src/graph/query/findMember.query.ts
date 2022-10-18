@@ -1,8 +1,6 @@
 import { gql } from 'graphql-request';
-import {
-	GraphQL_FindMemberQuery,
-	GraphQL_FindMemberQueryVariables
-} from '../gql/result';
+
+import { GraphQL_FindMemberQuery, GraphQL_FindMemberQueryVariables } from '../gql/result';
 import { myQuery } from '../graph';
 
 const request = gql`

@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 import {
 	GraphQL_FindProjects_RecommendedToUserQuery,
 	GraphQL_FindProjects_RecommendedToUserQueryVariables
@@ -32,7 +33,7 @@ export async function recommendProjectsToMember(
 		GraphQL_FindProjects_RecommendedToUserQueryVariables,
 		GraphQL_FindProjects_RecommendedToUserQuery
 	>({
-        variable: variable,
-        request: request
-    });
+		variable: variable,
+		request: request
+	});
 }

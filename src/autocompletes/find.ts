@@ -1,4 +1,5 @@
 import { ApplicationCommandOptionChoiceData } from 'discord.js';
+
 import { Auto } from '../structures/AutoComplete';
 import { myCache } from '../structures/Cache';
 import { NUMBER } from '../utils/const';
@@ -9,10 +10,12 @@ export default new Auto({
 		const guildId = interaction.guild.id;
 		const { name, value } = interaction.options.getFocused(true);
 		let filter: Array<ApplicationCommandOptionChoiceData> = [];
+
 		switch (name) {
 			case 'project': {
 				if (!myCache.myHas('Projects')) return interaction.respond([]);
 				const projectInform = myCache.myGet('Projects')[guildId];
+
 				filter = Object.keys(projectInform)
 					.filter((projectId) =>
 						projectInform[projectId].title
@@ -32,6 +35,7 @@ export default new Auto({
 			case 'skill_4': {
 				if (!myCache.myHas('Skills')) return interaction.respond([]);
 				const skillCache = myCache.myGet('Skills');
+
 				filter = Object.keys(skillCache)
 					.filter((skillId) =>
 						skillCache[skillId].name
