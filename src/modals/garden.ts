@@ -98,7 +98,12 @@ export default new Modal({
 						.setLabel('Garden Graph')
 						.setEmoji('🔗')
 						.setStyle('LINK')
-						.setURL(LINK.GARDEN_GRAPH)
+						.setURL(LINK.GARDEN_GRAPH),
+					new MessageButton()
+						.setCustomId('expired')
+						.setLabel('Archive this thread')
+						.setStyle('DANGER')
+						.setEmoji('🗃️')
 				)
 			]
 		});

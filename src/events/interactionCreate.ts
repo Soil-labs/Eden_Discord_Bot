@@ -3,7 +3,7 @@ import {
 	CommandInteractionOptionResolver,
 	GuildMember,
 	Interaction,
-	MessageContextMenuInteraction,
+	MessageContextMenuInteraction
 } from 'discord.js';
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
@@ -25,6 +25,19 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 		guildName: interaction?.guild?.name
 	};
 
+
+	if (myCache.myHasAll()){
+		if (interaction.isAutocomplete()){
+			return interaction.respond([]);
+		}
+		if (interaction.isCommand() || interaction.isButton() || interaction.isModalSubmit() || interaction.isContextMenu()){
+			return interaction.reply({
+				content: 'System is initing, please try again later',
+				ephemeral: true
+			})
+		}
+	}
+
 	if (interaction.isCommand()) {
 		const command = client.commands.get(interaction.commandName);
 
@@ -34,12 +47,6 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 				ephemeral: true
 			});
 		}
-
-		if (!myCache.myHas('Servers') || !myCache.myHas(`GuildSettings`))
-			return interaction.reply({
-				content: 'Command is initing, please try again later.',
-				ephemeral: true
-			});
 
 		const member = interaction.member as GuildMember;
 		const guildInform: GuildInform = myCache.myGet('Servers')[interaction.guild.id];

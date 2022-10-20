@@ -367,7 +367,7 @@ export class MyClient extends Client {
 			const autoArchiveDay = autoArchiveDuration / (24 * 60);
 
 			if (autoArchiveDay === 3 || autoArchiveDay === 7) {
-				// todo remember to change it to the normal value
+
 				const oneDayInMil = 24 * 60 * 60 * 1000;
 
 				if (
@@ -381,7 +381,7 @@ export class MyClient extends Client {
 							new MessageActionRow().addComponents([
 								new MessageButton()
 									.setCustomId('expired')
-									.setLabel('Archive this thread Now')
+									.setLabel('Archive this thread')
 									.setStyle('DANGER')
 									.setEmoji('🗃️'),
 								new MessageButton()

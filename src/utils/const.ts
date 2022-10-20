@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionChoiceData, HexColorString } from 'discord.js';
 
-import { VoiceContext } from '../types/Cache';
+import { CacheType, VoiceContext } from '../types/Cache';
 import { CommandNameEmun } from '../types/Command';
 
 type NumericalProperty =
@@ -97,6 +97,20 @@ export const ERROR_REPLY: InternalError = {
 	AUTO: 'User: %(userName)s Guild: %(guildName)s Error: %(errorName)s occurs when interacting %(commandName)s auto. Msg: %(errorMsg)s Stack: %(errorStack)s.',
 	MODAL: 'User: %(userName)s Guild: %(guildName)s Error: %(errorName)s occurs when interacting %(customId)s modal. Msg: %(errorMsg)s Stack: %(errorStack)s.',
 	MENU: 'User: %(userName)s Guild: %(guildName)s Error: %(errorName)s occurs when executing %(menuName)s menu. Msg: %(errorMsg)s Stack: %(errorStack)s.'
+};
+
+type CacheKeys = keyof CacheType;
+export const CACHE_KEYS: Readonly<Record<CacheKeys, CacheKeys>> = {
+	Projects: 'Projects',
+	Skills: 'Skills',
+	Members: 'Members',
+	Servers: 'Servers',
+	VoiceContexts: 'VoiceContexts',
+	ProjectTeamRole: 'ProjectTeamRole',
+	Teams: 'Teams',
+	Roles: 'Roles',
+	GardenContext: 'GardenContext',
+	GuildSettings: 'GuildSettings'
 };
 
 export const EMBED_COLOR: Readonly<HexColorString> = '#74FA6D';

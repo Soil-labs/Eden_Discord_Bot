@@ -1,6 +1,7 @@
 import NodeCache from 'node-cache';
 
 import { CacheType } from '../types/Cache';
+import { CACHE_KEYS } from '../utils/const';
 
 class MyCache extends NodeCache {
 	public constructor(options = {}) {
@@ -23,6 +24,12 @@ class MyCache extends NodeCache {
 
 	public myHas<Key extends keyof CacheType>(key: Key) {
 		return super.has(key);
+	}
+
+	public myHasAll() {
+		return Object.keys(CACHE_KEYS).reduce((pre, cur) => {
+			return pre && super.has(cur);
+		}, true);
 	}
 }
 
