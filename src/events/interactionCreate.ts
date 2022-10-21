@@ -26,7 +26,7 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 	};
 
 
-	if (myCache.myHasAll()){
+	if (!myCache.myHasAll()){
 		if (interaction.isAutocomplete()){
 			return interaction.respond([]);
 		}

@@ -303,6 +303,7 @@ export class MyClient extends Client {
 		});
 		myCache.mySet('Servers', cachedGuildInform);
 		myCache.mySet('VoiceContexts', voiceContexts);
+		myCache.mySet('GardenContext', {});
 
 		if (exitFlag) {
 			// todo change colors to red
