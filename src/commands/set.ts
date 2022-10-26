@@ -1,4 +1,4 @@
-import { GuildTextBasedChannel, MessageEmbed } from 'discord.js';
+import { MessageEmbed, TextChannel } from 'discord.js';
 import { getApp } from 'firebase/app';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { sprintf } from 'sprintf-js';
@@ -6,8 +6,15 @@ import { sprintf } from 'sprintf-js';
 import { updateServer } from '../graph/mutation/updateServer.mutation';
 import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
-import { GuildInform, MemberId, readGuildInform } from '../types/Cache';
-import { COMMADN_CHOICES, CONTENT } from '../utils/const';
+import { GuildInform, GuildSettingInform, MemberId, readGuildInform } from '../types/Cache';
+import {
+	COMMADN_CHOICES,
+	CONTENT,
+	FirestoneChannelOptionName,
+	FirestoneChanneOptionNameToDbPropery,
+	GraphQLChannelOptionName,
+	GraphQLChanneOptionNameToDbPropery
+} from '../utils/const';
 import { checkTextChannelPermission, getErrorReply } from '../utils/util';
 
 export default new Command({
@@ -126,15 +133,22 @@ export default new Command({
 			options: [
 				{
 					type: 'CHANNEL',
-					name: 'birthday',
+					name: FirestoneChannelOptionName.Birthday,
 					description: 'Choose a text channel for birthday notification.',
 					channelTypes: ['GUILD_TEXT']
 				},
 				{
 					type: 'CHANNEL',
-					name: 'forward_garden',
+					name: FirestoneChannelOptionName.GardenForward,
 					description:
 						'Choose a text channel, where people receive the latest news from Garden.',
+					channelTypes: ['GUILD_TEXT']
+				},
+				{
+					type: 'CHANNEL',
+					name: GraphQLChannelOptionName.Chat,
+					description:
+						'Choose a channel for talent discussion, where champions talk with .',
 					channelTypes: ['GUILD_TEXT']
 				}
 			]
@@ -168,134 +182,103 @@ export default new Command({
 		}
 
 		if (subCommandName === 'channel') {
-			// todo follow discord-partner-bot implementation and remove duplication
-			const birthdayChannel = args.getChannel('birthday') as GuildTextBasedChannel;
-			const forwardCahnnel = args.getChannel('forward_garden') as GuildTextBasedChannel;
+			const channelOptions = args.data[0].options;
 
-			if (!birthdayChannel && !forwardCahnnel) {
+			if (channelOptions.length === 0) {
 				return interaction.reply({
-					content: 'You have to choose at least one channel option.',
+					content: 'Sorry, you have to choose at least one options.',
 					ephemeral: true
 				});
 			}
+			await interaction.deferReply({ ephemeral: true });
+			const failReplyArray: Array<string> = [];
+			const successReplyArray: Array<string> = [];
+			const botId = interaction.guild.me.id;
 
-			const db = getFirestore(getApp());
+			const firestoneTobeUpdated: GuildSettingInform =
+				myCache.myGet('GuildSettings')[guildId];
+			let firestoneTobeUpdatedFlag = false;
+			const graphqlTobeUpdated = myCache.myGet('Servers')[guildId];
+			let graphqlTobeUpdatedFlag = false;
 
-			if (birthdayChannel) {
-				const birthdayChannelPermissionCheck = checkTextChannelPermission(
-					birthdayChannel,
-					interaction.guild.me.id
-				);
+			for (const option of channelOptions) {
+				const { name: channelOptionName } = option;
+				const targetChannel = option.channel as TextChannel;
+				const { id: channelId } = targetChannel;
+				const permissinChecking = checkTextChannelPermission(targetChannel, botId);
 
-				if (birthdayChannelPermissionCheck) {
-					return interaction.reply({
-						content: sprintf(CONTENT.CHANNEL_SETTING_FAIL_REPLY, {
-							targetChannelId: birthdayChannel.id,
+				if (permissinChecking) {
+					failReplyArray.push(
+						sprintf(CONTENT.CHANNEL_SETTING_FAIL_REPLY, {
+							targetChannelId: channelId,
 							setChannelName: 'birthday',
-							reason: birthdayChannelPermissionCheck
-						}),
-						ephemeral: true
-					});
+							reason: permissinChecking
+						})
+					);
+					continue;
+				}
+				const firestoenProperty = FirestoneChanneOptionNameToDbPropery[channelOptionName];
+				const graphqlProperty = GraphQLChanneOptionNameToDbPropery[channelOptionName];
+
+				if (firestoenProperty) {
+					firestoneTobeUpdated[firestoenProperty] = channelId;
+					firestoneTobeUpdatedFlag = true;
+				} else {
+					graphqlTobeUpdated[graphqlProperty] = channelId;
+					graphqlTobeUpdatedFlag = true;
 				}
 
-				if (
-					myCache.myGet('GuildSettings')?.[guildId]?.birthdayChannelId ===
-					birthdayChannel.id
-				) {
-					return interaction.reply({
-						content: sprintf(CONTENT.CHANNEL_SETTING_SUCCESS_REPLY, {
-							targetChannelId: birthdayChannel.id,
-							setChannelName: 'birthday'
-						}),
-						ephemeral: true
-					});
-				}
-
-				await interaction.deferReply({ ephemeral: true });
-				await setDoc(
-					doc(db, 'Guilds', guildId),
-					{
-						birthdayChannelId: birthdayChannel.id
-					},
-					{
-						merge: true
-					}
+				successReplyArray.push(
+					sprintf(CONTENT.CHANNEL_SETTING_SUCCESS_REPLY, {
+						targetChannelId: channelId,
+						setChannelName: targetChannel.name
+					})
 				);
+			}
 
+			if (firestoneTobeUpdatedFlag) {
+				const db = getFirestore(getApp());
+
+				await setDoc(doc(db, 'Guilds', guildId), firestoneTobeUpdated, { merge: true });
 				myCache.mySet('GuildSettings', {
 					...myCache.myGet('GuildSettings'),
-					[guildId]: {
-						birthdayChannelId: birthdayChannel.id,
-						forwardChannelId:
-							myCache.myGet('GuildSettings')?.[guildId]?.forwardChannelId
+					[guildId]: firestoneTobeUpdated
+				});
+			}
+			if (graphqlTobeUpdatedFlag) {
+				console.log(graphqlTobeUpdated);
+				const { error } = await updateServer({
+					fields: {
+						_id: guildId,
+						...graphqlTobeUpdated
 					}
 				});
 
-				return interaction.followUp({
-					content: sprintf(CONTENT.CHANNEL_SETTING_SUCCESS_REPLY, {
-						targetChannelId: birthdayChannel.id,
-						setChannelName: 'birthday'
-					})
+				if (error) {
+					return interaction.followUp({
+						content: getErrorReply({
+							commandName: interaction.commandName,
+							subCommandName: subCommandName,
+							errorMessage: error
+						})
+					});
+				}
+				myCache.mySet('Servers', {
+					...myCache.myGet('Servers'),
+					[guildId]: graphqlTobeUpdated
 				});
 			}
 
-			if (forwardCahnnel) {
-				const forwardChannelPermissionCheck = checkTextChannelPermission(
-					forwardCahnnel,
-					interaction.guild.me.id
-				);
+			const successReply = successReplyArray.reduce((pre, cur) => {
+				return pre + cur + '\n';
+			}, '');
+			const failReply = failReplyArray.reduce((pre, cur) => {
+				return pre + cur + '\n';
+			}, '');
 
-				if (forwardChannelPermissionCheck) {
-					return interaction.reply({
-						content: sprintf(CONTENT.CHANNEL_SETTING_FAIL_REPLY, {
-							targetChannelId: forwardCahnnel.id,
-							setChannelName: 'forward_garden',
-							reason: forwardChannelPermissionCheck
-						}),
-						ephemeral: true
-					});
-				}
-
-				if (
-					myCache.myGet('GuildSettings')?.[guildId]?.forwardChannelId ===
-					forwardCahnnel.id
-				) {
-					return interaction.reply({
-						content: sprintf(CONTENT.CHANNEL_SETTING_SUCCESS_REPLY, {
-							targetChannelId: forwardCahnnel.id,
-							setChannelName: 'forward_garden'
-						}),
-						ephemeral: true
-					});
-				}
-
-				await interaction.deferReply({ ephemeral: true });
-				await setDoc(
-					doc(db, 'Guilds', guildId),
-					{
-						forwardChannelId: forwardCahnnel.id
-					},
-					{
-						merge: true
-					}
-				);
-
-				myCache.mySet('GuildSettings', {
-					...myCache.myGet('GuildSettings'),
-					[guildId]: {
-						forwardChannelId: forwardCahnnel.id,
-						birthdayChannelId:
-							myCache.myGet('GuildSettings')?.[guildId]?.birthdayChannelId
-					}
-				});
-
-				return interaction.followUp({
-					content: sprintf(CONTENT.CHANNEL_SETTING_SUCCESS_REPLY, {
-						targetChannelId: forwardCahnnel.id,
-						setChannelName: 'forward_garden'
-					})
-				});
-			}
+			return interaction.followUp({
+				content: successReply + failReply
+			});
 		}
 
 		const commandGroupName = args.getSubcommandGroup();
@@ -417,7 +400,7 @@ export default new Command({
 			}
 		});
 
-		if (error)
+		if (error) {
 			return interaction.followUp({
 				content: getErrorReply({
 					commandName: interaction.commandName,
@@ -425,6 +408,7 @@ export default new Command({
 					errorMessage: error
 				})
 			});
+		}
 
 		myCache.mySet('Servers', {
 			...myCache.myGet('Servers'),

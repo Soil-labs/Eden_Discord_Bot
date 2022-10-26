@@ -12,6 +12,9 @@ const request = gql`
 			adminID
 			adminRoles
 			adminCommands
+			channel {
+				chatID
+			}
 		}
 	}
 `;
@@ -35,7 +38,8 @@ export async function findServers() {
 			toBeCached[server._id] = {
 				adminCommands: server.adminCommands,
 				adminID: server.adminID,
-				adminRoles: server.adminRoles
+				adminRoles: server.adminRoles,
+				channelChatID: server.channel.chatID
 			};
 		});
 		myCache.mySet('Servers', toBeCached);

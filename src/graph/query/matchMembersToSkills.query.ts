@@ -6,16 +6,24 @@ import {
 } from '../gql/result';
 import { myQuery } from '../graph';
 
+// todo to be changed in the future
 const request = gql`
 	query MatchMembersToSkills($fields: matchMembersToSkillInput) {
 		matchMembersToSkills(fields: $fields) {
-			matchPercentage
+			matchPercentage {
+				totalPercentage
+				realTotalPercentage
+				skillTotalPercentage
+				hoursPercentage
+				budgetPercentage
+			}
 			member {
 				_id
 				discordName
 			}
-			commonSkills {
-				name
+			skillsPercentage {
+				percentage100
+				percentageReal
 			}
 		}
 	}

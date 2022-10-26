@@ -1,6 +1,8 @@
+/* eslint-disable no-unused-vars */
 import { ApplicationCommandOptionChoiceData, HexColorString } from 'discord.js';
 
-import { CacheType, VoiceContext } from '../types/Cache';
+import { GraphQL_UpdateServerInput } from '../graph/gql/result';
+import { CacheType, GuildSettingInform, VoiceContext } from '../types/Cache';
 import { CommandNameEmun } from '../types/Command';
 
 type NumericalProperty =
@@ -110,7 +112,30 @@ export const CACHE_KEYS: Readonly<Record<CacheKeys, CacheKeys>> = {
 	Teams: 'Teams',
 	Roles: 'Roles',
 	GardenContext: 'GardenContext',
-	GuildSettings: 'GuildSettings'
+	GuildSettings: 'GuildSettings',
+	ChatThreads: 'ChatThreads'
+};
+
+export enum FirestoneChannelOptionName {
+	Birthday = 'birthday',
+	GardenForward = 'forward_garden'
+}
+
+export enum GraphQLChannelOptionName {
+	Chat = 'chat'
+}
+
+export const FirestoneChanneOptionNameToDbPropery: Readonly<
+	Record<FirestoneChannelOptionName, keyof GuildSettingInform>
+> = {
+	birthday: 'birthdayChannelId',
+	forward_garden: 'forwardChannelId'
+};
+
+export const GraphQLChanneOptionNameToDbPropery: Readonly<
+	Record<GraphQLChannelOptionName, keyof GraphQL_UpdateServerInput>
+> = {
+	chat: 'channelChatID'
 };
 
 export const EMBED_COLOR: Readonly<HexColorString> = '#74FA6D';

@@ -1,12 +1,11 @@
-import { EmbedFieldData, MessageEmbed } from 'discord.js';
+import { MessageEmbed } from 'discord.js';
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
 
 import { findMember } from '../graph/query/findMember.query';
 import { recommendProjectsToMember } from '../graph/query/findProjects_RecommendedToUser.query';
-import { matchMemberToSkills } from '../graph/query/matchMembersToSkills.query';
 import { Command } from '../structures/Command';
-import { CONTENT, EMBED_COLOR, ERROR_REPLY, LINK, NUMBER } from '../utils/const';
+import { CONTENT, EMBED_COLOR, LINK, NUMBER } from '../utils/const';
 import { getErrorReply, validMember, validSkill } from '../utils/util';
 
 export default new Command({
@@ -238,107 +237,112 @@ export default new Command({
 					ephemeral: true
 				});
 
-			await interaction.deferReply({
+			return interaction.reply({
+				content: 'Work in progress, wait for update from backend.',
 				ephemeral: true
-			});
+			})
 
-			const { result: matchResult, error } = await matchMemberToSkills({
-				fields: {
-					serverID: [guildId],
-					skillsID: skills
-				}
-			});
+			// await interaction.deferReply({
+			// 	ephemeral: true
+			// });
 
-			if (error)
-				return interaction.followUp({
-					content: sprintf(ERROR_REPLY.GRAPHQL, {
-						action: `${interaction.commandName} ${subCommandName}`,
-						errorMessage: `\`${error}\``
-					})
-				});
+			// const { result: matchResult, error } = await matchMemberToSkills({
+			// 	fields: {
+			// 		serverID: [guildId],
+			// 		skillsID: skills
+			// 	}
+			// });
 
-			if (matchResult.matchMembersToSkills.length === 0)
-				return interaction.followUp({
-					content: 'Sorry, I cannot find a member with these skills'
-				});
+			// if (error)
+			// 	return interaction.followUp({
+			// 		content: sprintf(ERROR_REPLY.GRAPHQL, {
+			// 			action: `${interaction.commandName} ${subCommandName}`,
+			// 			errorMessage: `\`${error}\``
+			// 		})
+			// 	});
 
-			// todo shall we exclude myself now?
-			const fieldContents = matchResult.matchMembersToSkills
-				.filter((skill) => skill.member._id !== interaction.user.id)
-				.sort((first, second) => {
-					return second.matchPercentage - first.matchPercentage;
-				})
-				.slice(0, NUMBER.DISPLAY_SKILL_NUMBER)
-				.reduce(
-					(pre, skill) => {
-						const memberInGuild = interaction.guild.members.cache.get(skill.member._id);
+			// if (matchResult.matchMembersToSkills.length === 0)
+			// 	return interaction.followUp({
+			// 		content: 'Sorry, I cannot find a member with these skills'
+			// 	});
 
-						pre.nameField +=
-							(memberInGuild ? `<@${skill.member._id}>` : skill.member.discordName) +
-							'\n';
-						pre.matchField +=
-							(memberInGuild
-								? sprintf(
-										'[%d%%](%s)',
-										skill.matchPercentage,
-										sprintf(LINK.USER, skill.member._id)
-								  )
-								: sprintf('%d%%', skill.matchPercentage)) + `\n`;
-						const topSkill = skill.commonSkills
-							.map((value) => value.name + ' ')
-							.splice(0, NUMBER.DISPLAY_COMMON_SKILL_NUMBER);
-						// todo how to handle no common skill? I mean contents
+			// // todo shall we exclude myself now?
+			// const fieldContents = matchResult.matchMembersToSkills
+			// 	.filter((skill) => skill.member._id !== interaction.user.id)
+			// 	.sort((first, second) => {
+			// 		return second.matchPercentage.totalPercentage - first.matchPercentage.totalPercentage;
+			// 	})
+			// 	.slice(0, NUMBER.DISPLAY_SKILL_NUMBER)
+			// 	.reduce(
+			// 		(pre, skill) => {
+			// 			const memberInGuild = interaction.guild.members.cache.get(skill.member._id);
 
-						pre.skillField +=
-							(topSkill.length ? topSkill.toString() : 'No common skill') + '\n';
+			// 			pre.nameField +=
+			// 				(memberInGuild ? `<@${skill.member._id}>` : skill.member.discordName) +
+			// 				'\n';
+			// 			pre.matchField +=
+			// 				(memberInGuild
+			// 					? sprintf(
+			// 							'[%d%%](%s)',
+			// 							skill.matchPercentage,
+			// 							sprintf(LINK.USER, skill.member._id)
+			// 					  )
+			// 					: sprintf('%d%%', skill.matchPercentage)) + `\n`;
+			// 			const topSkill = skill.commonSkills
+			// 				.map((value) => value.name + ' ')
+			// 				.splice(0, NUMBER.DISPLAY_COMMON_SKILL_NUMBER);
+			// 			// todo how to handle no common skill? I mean contents
 
-						return pre;
-					},
-					{
-						matchField: '',
-						nameField: '',
-						skillField: ''
-					}
-				);
-			const fields: Array<EmbedFieldData> = [];
+			// 			pre.skillField +=
+			// 				(topSkill.length ? topSkill.toString() : 'No common skill') + '\n';
 
-			if (fieldContents.matchField) {
-				fields.push(
-					{
-						name: 'Match 🤝',
-						value: fieldContents.matchField,
-						inline: true
-					},
-					{
-						name: 'Member 🧙',
-						value: fieldContents.nameField,
-						inline: true
-					},
-					{
-						name: 'Skill 🛠️',
-						value: fieldContents.skillField,
-						inline: true
-					}
-				);
-			}
+			// 			return pre;
+			// 		},
+			// 		{
+			// 			matchField: '',
+			// 			nameField: '',
+			// 			skillField: ''
+			// 		}
+			// 	);
+			// const fields: Array<EmbedFieldData> = [];
 
-			const authorName = `@${interaction.user.username} - Skill Matching Results`;
-			const avatarURL = interaction.user.avatarURL();
-			const userId = interaction.user.id;
+			// if (fieldContents.matchField) {
+			// 	fields.push(
+			// 		{
+			// 			name: 'Match 🤝',
+			// 			value: fieldContents.matchField,
+			// 			inline: true
+			// 		},
+			// 		{
+			// 			name: 'Member 🧙',
+			// 			value: fieldContents.nameField,
+			// 			inline: true
+			// 		},
+			// 		{
+			// 			name: 'Skill 🛠️',
+			// 			value: fieldContents.skillField,
+			// 			inline: true
+			// 		}
+			// 	);
+			// }
 
-			return interaction.followUp({
-				embeds: [
-					new MessageEmbed()
-						.setTitle('All the people with your requested skills')
-						.setAuthor({
-							name: authorName,
-							iconURL: avatarURL,
-							url: sprintf(LINK.USER, userId)
-						})
-						.setColor(EMBED_COLOR)
-						.addFields(fields)
-				]
-			});
+			// const authorName = `@${interaction.user.username} - Skill Matching Results`;
+			// const avatarURL = interaction.user.avatarURL();
+			// const userId = interaction.user.id;
+
+			// return interaction.followUp({
+			// 	embeds: [
+			// 		new MessageEmbed()
+			// 			.setTitle('All the people with your requested skills')
+			// 			.setAuthor({
+			// 				name: authorName,
+			// 				iconURL: avatarURL,
+			// 				url: sprintf(LINK.USER, userId)
+			// 			})
+			// 			.setColor(EMBED_COLOR)
+			// 			.addFields(fields)
+			// 	]
+			// });
 		}
 	}
 });

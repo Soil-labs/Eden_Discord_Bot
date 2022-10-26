@@ -26,6 +26,12 @@ class MyCache extends NodeCache {
 		return super.has(key);
 	}
 
+	public myHases<Key extends keyof CacheType>(keys: Array<Key>) {
+		return keys.reduce((pre, cur) => {
+			return pre && super.has(cur);
+		}, true);
+	}
+
 	public myHasAll() {
 		return Object.keys(CACHE_KEYS).reduce((pre, cur) => {
 			return pre && super.has(cur);

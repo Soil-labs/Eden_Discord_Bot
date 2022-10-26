@@ -33,6 +33,7 @@ import { ButtonType } from '../types/Button';
 import {
 	BirthdayInform,
 	CacheType,
+	ChatThreadCache,
 	GuildSettingCache,
 	GuildSettingInform,
 	MemberId,
@@ -270,17 +271,18 @@ export class MyClient extends Client {
 				exitFlag = true;
 			}
 		});
-		const cachedGuildInform = myCache.myGet('Servers');
+		const cachedGuildsInform = myCache.myGet('Servers');
 		const serverToBeUpdated: Array<Promise<GraphReturn<GraphQL_UpdateServerMutation>>> = [];
 		// if (guilds.size === 0) {
 		// 	logger.error('The bot is not running in any guild!');
 		// 	process.exit(1);
 		// }
-		const voiceContexts: VoiceContextCache = {};
+		const voiceContextsCache: VoiceContextCache = {};
+		const chatThreadsCache: ChatThreadCache = {};
 
-		this.guilds.cache.forEach((guild, guildId) => {
-			if (!(guildId in cachedGuildInform)) {
-				cachedGuildInform[guildId] = {
+		for (const [guildId, guild] of this.guilds.cache) {
+			if (!(guildId in cachedGuildsInform)) {
+				cachedGuildsInform[guildId] = {
 					...templateGuildInform
 				};
 				serverToBeUpdated.push(
@@ -293,17 +295,32 @@ export class MyClient extends Client {
 					})
 				);
 			}
-			voiceContexts[guildId] = defaultGuildVoiceContext;
-		});
+			voiceContextsCache[guildId] = defaultGuildVoiceContext;
+			chatThreadsCache[guildId] = [];
+			const chatChannel = guild.channels.cache.get(
+				cachedGuildsInform[guildId].channelChatID
+			) as TextChannel;
+
+			if (!chatChannel) continue;
+
+			while (true) {
+				const { result, error } = await awaitWrap(chatChannel.threads.fetch());
+
+				if (error) break;
+				chatThreadsCache[guildId].push(...result.threads.keys());
+				if (!result.hasMore) break;
+			}
+		}
 		(await Promise.all(serverToBeUpdated)).forEach((result) => {
 			if (!result[1]) {
 				logger.error(`\nUpdate Server Information Error\n${this.table.toString()}`);
 				process.exit(1);
 			}
 		});
-		myCache.mySet('Servers', cachedGuildInform);
-		myCache.mySet('VoiceContexts', voiceContexts);
+		myCache.mySet('Servers', cachedGuildsInform);
+		myCache.mySet('VoiceContexts', voiceContextsCache);
 		myCache.mySet('GardenContext', {});
+		myCache.mySet('ChatThreads', chatThreadsCache);
 
 		if (exitFlag) {
 			// todo change colors to red
@@ -368,7 +385,6 @@ export class MyClient extends Client {
 			const autoArchiveDay = autoArchiveDuration / (24 * 60);
 
 			if (autoArchiveDay === 3 || autoArchiveDay === 7) {
-
 				const oneDayInMil = 24 * 60 * 60 * 1000;
 
 				if (

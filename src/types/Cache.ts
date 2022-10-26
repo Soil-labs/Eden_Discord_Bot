@@ -14,12 +14,14 @@ export interface CacheType {
 	Roles: RolesCache;
 	GardenContext: GardenContextCache;
 	GuildSettings: GuildSettingCache;
+	ChatThreads: ChatThreadCache;
 }
 
 export const templateGuildInform: GuildInform = {
 	adminRoles: [],
 	adminCommands: [],
-	adminID: []
+	adminID: [],
+	channelChatID: null
 };
 
 export const templateGuildSettingInform: GuildSettingInform = {
@@ -39,7 +41,7 @@ export type VoiceContext = {
 };
 
 export type GuildInform = Required<
-	Pick<GraphQL_UpdateServerInput, 'adminCommands' | 'adminID' | 'adminRoles'>
+	Pick<GraphQL_UpdateServerInput, 'adminCommands' | 'adminID' | 'adminRoles' | 'channelChatID'>
 >;
 
 // todo this part will be integrated with GuildInform, once graphql has
@@ -135,6 +137,7 @@ export type ProjectTeamRoleCache = Record<GuildId, ProjectTeamRoleInform>;
 export type GardenContextCache = Record<GardenMemberId, GardenInform>;
 export type GuildSettingCache = Record<GuildId, GuildSettingInform>;
 export type BirthdayCache = Record<MemberId, BirthdayInform>;
+export type ChatThreadCache = Record<GuildId, Array<string>>;
 
 export function readGuildInform(guildInform: GuildInform, guildId: GuildId): EmbedFieldData[] {
 	const adminInform = {
@@ -143,7 +146,7 @@ export function readGuildInform(guildInform: GuildInform, guildId: GuildId): Emb
 		adminCommand: '> -'
 	};
 
-	const { adminCommands, adminID, adminRoles } = guildInform;
+	const { adminCommands, adminID, adminRoles, channelChatID } = guildInform;
 
 	if (adminCommands.length !== 0) {
 		adminInform.adminCommand = adminCommands.reduce((pre, cur) => {
@@ -161,18 +164,31 @@ export function readGuildInform(guildInform: GuildInform, guildId: GuildId): Emb
 		}, '');
 	}
 
-	let birthdayChannel = '> -';
-	let forwardChannel = '> -';
+	let channelInform: {
+		name: string;
+		value: string;
+	} = {
+		name: '',
+		value: ''
+	};
 
-	if (myCache.myHas('GuildSettings')) {
-		const guildSettingInform = myCache.myGet('GuildSettings')[guildId];
+	const GuildSettingInform = myCache.myGet('GuildSettings')[guildId];
 
-		if (guildSettingInform?.birthdayChannelId) {
-			birthdayChannel = `> <#${guildSettingInform?.birthdayChannelId}>\n`;
+	channelInform = Object.keys(GuildSettingInform).reduce((pre, channelName) => {
+		pre.name += `> ${channelName.toUpperCase()}\n`;
+		const channelId = GuildSettingInform[channelName];
+
+		if (channelId) {
+			pre.value += `> <#${channelId}>\n`;
+		} else {
+			pre.value += `> -\n`;
 		}
-		if (guildSettingInform?.forwardChannelId) {
-			forwardChannel = `> <#${guildSettingInform?.forwardChannelId}>\n`;
-		}
+		return pre;
+	}, channelInform);
+
+	if (channelChatID) {
+		channelInform.name += `> ${'channelChatID'.toUpperCase()}\n`;
+		channelInform.value += `> <#${channelChatID}>\n`;
 	}
 
 	return [
@@ -192,13 +208,13 @@ export function readGuildInform(guildInform: GuildInform, guildId: GuildId): Emb
 			inline: true
 		},
 		{
-			name: 'Birthday Channel',
-			value: birthdayChannel,
+			name: 'Channel Configuration',
+			value: channelInform.name,
 			inline: true
 		},
 		{
-			name: 'Gadern Forward Channel',
-			value: forwardChannel,
+			name: 'Target Channel',
+			value: channelInform.value,
 			inline: true
 		}
 	];
