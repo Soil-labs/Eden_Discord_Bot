@@ -246,7 +246,6 @@ export default new Command({
 				});
 			}
 			if (graphqlTobeUpdatedFlag) {
-				console.log(graphqlTobeUpdated);
 				const { error } = await updateServer({
 					fields: {
 						_id: guildId,

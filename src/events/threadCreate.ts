@@ -15,7 +15,7 @@ export default new Event('threadCreate', (newThread: ThreadChannel, newlyCreated
 		if (parentId === chatChannelId) {
 			myCache.mySet('ChatThreads', {
 				...myCache.myGet('ChatThreads'),
-				[guildId]: [...myCache.myGet('ChatThreads')[guildId], chatChannelId]
+				[guildId]: [...myCache.myGet('ChatThreads')[guildId], newThread.id]
 			});
 		}
 	}
