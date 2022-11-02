@@ -13,6 +13,7 @@ export default new Event('threadCreate', (newThread: ThreadChannel, newlyCreated
 
 		if (!chatChannelId) return;
 		if (parentId === chatChannelId) {
+			// todo Warning: Hard to say which event, threadCreate and messageCreate, triggers first. Based on current obervation, threadCreate first, then messageCreate
 			myCache.mySet('ChatThreads', {
 				...myCache.myGet('ChatThreads'),
 				[guildId]: [...myCache.myGet('ChatThreads')[guildId], newThread.id]
