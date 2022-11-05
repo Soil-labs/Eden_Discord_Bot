@@ -28,7 +28,8 @@ type LinkProperty =
 	| 'PROJECT_TWEET'
 	| 'GARDEN_FEED'
 	| 'GARDEN_GRAPH'
-	| 'THREAD';
+	| 'THREAD'
+	| 'ARWEAVE_EXPLORER';
 type ErroProperty = 'COMMON' | 'GRAPHQL' | 'INTERACTION' | 'BUTTON' | 'AUTO' | 'MODAL' | 'MENU';
 type ContentProperty =
 	| 'MATCH_PROJECT'
@@ -71,7 +72,8 @@ export const LINK: Link = {
 	PROJECT_TWEET: _frontend + '/projects/%s/feed',
 	GARDEN_FEED: 'https://eden-garden-front.vercel.app/',
 	GARDEN_GRAPH: 'https://garden-rho.vercel.app/',
-	THREAD: 'https://discord.com/channels/%(guildId)s/%(threadId)s'
+	THREAD: 'https://discord.com/channels/%(guildId)s/%(threadId)s',
+	ARWEAVE_EXPLORER: 'https://viewblock.io/arweave/tx/'
 };
 
 export const CONTENT: Content = {
@@ -284,7 +286,8 @@ export const COMMAND_HELP: Readonly<Record<Exclude<CommandNameEmun, 'help'>, str
 	onboard: '',
 	project: '',
 	signup: '',
-	garden: ''
+	garden: '',
+	endorse: ''
 };
 
 export default {};

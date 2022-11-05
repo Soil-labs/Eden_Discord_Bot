@@ -30,7 +30,8 @@ export type CommandNameEmun =
 	| 'signup'
 	| 'garden'
 	| 'birthday'
-	| 'help';
+	| 'help'
+	| 'endorse';
 export type CommandType = {
 	name: CommandNameEmun;
 	userPermissions?: PermissionResolvable[];
