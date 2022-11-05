@@ -67,7 +67,7 @@ export default new Command({
 		return interaction.followUp({
 			content: `You have successfully endorse ${member.username}!`,
 			embeds: [
-				new MessageEmbed().setTitle('ARWeave Information').setDescription(endorseResults)
+				new MessageEmbed().setTitle(`${member.username} Endorsement Record`).setDescription(endorseResults)
 			]
 		});
 	}
