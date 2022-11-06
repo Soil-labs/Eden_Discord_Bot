@@ -39,9 +39,11 @@ export default new Event('messageCreate', async (message: Message) => {
 		const { error } = await awaitWrap(
 			DMChannel.send({
 				embeds: [
-					new MessageEmbed().setTitle(
-						`You received an invitation to a conversation!`
-					).setDescription(`<@${senderId}> is willing to talk with you about a project.`)
+					new MessageEmbed()
+						.setTitle(`You received an invitation to a conversation!`)
+						.setDescription(
+							`<@${senderId}> is willing to talk with you about a project.`
+						)
 				],
 				components: [
 					new MessageActionRow<MessageButton>().addComponents([
@@ -56,6 +58,32 @@ export default new Event('messageCreate', async (message: Message) => {
 		);
 
 		if (error) return;
+
+		const sender = message.guild.members.cache.get(senderId);
+
+		if (!sender) return;
+		const senderDMChannel = await sender.createDM();
+
+		const { error: senderError } = await awaitWrap(
+			senderDMChannel.send({
+				embeds: [
+					new MessageEmbed()
+						.setTitle(`You successfully invited ${receiver.displayName} to a talk`)
+						.setDescription(`Keep eyes on the channel and happy connect!`)
+				],
+				components: [
+					new MessageActionRow<MessageButton>().addComponents([
+						new MessageButton()
+							.setLabel('Read more')
+							.setStyle('LINK')
+							.setEmoji('🔗')
+							.setURL(threadId)
+					])
+				]
+			})
+		);
+
+		if (senderError) return;
 	}
 
 	const { id: userId } = author;
