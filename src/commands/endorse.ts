@@ -56,7 +56,7 @@ export default new Command({
 		// todo fail to check if this endorser in this guild
 		const endorseResults = result.addEndorsement.endorsements.reduce((pre, cur) => {
 			const endorseInform = `**Endorser**: <@${
-				cur.endorser
+				cur.endorser._id
 			}>\n**ARWeave Credentail**: [Explorer Link](<${
 				LINK.ARWEAVE_EXPLORER + cur.arweaveTransactionID
 			}>)\n`;

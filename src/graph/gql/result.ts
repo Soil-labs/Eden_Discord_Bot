@@ -1006,7 +1006,7 @@ export type GraphQL_Endorsements = {
   __typename?: 'endorsements';
   arweaveTransactionID?: Maybe<Scalars['String']>;
   endorsementMessage?: Maybe<Scalars['String']>;
-  endorser?: Maybe<Scalars['ID']>;
+  endorser?: Maybe<GraphQL_MembersSmallType>;
 };
 
 export type GraphQL_EnterRoomInput = {
@@ -1636,7 +1636,7 @@ export type GraphQL_AddEndorsementMutationVariables = Exact<{
 }>;
 
 
-export type GraphQL_AddEndorsementMutation = { __typename?: 'Mutation', addEndorsement?: { __typename?: 'Members', endorsements?: Array<{ __typename?: 'endorsements', endorser?: string | null, endorsementMessage?: string | null, arweaveTransactionID?: string | null } | null> | null } | null };
+export type GraphQL_AddEndorsementMutation = { __typename?: 'Mutation', addEndorsement?: { __typename?: 'Members', endorsements?: Array<{ __typename?: 'endorsements', endorsementMessage?: string | null, arweaveTransactionID?: string | null, endorser?: { __typename?: 'MembersSmallType', _id?: string | null, discordName?: string | null } | null } | null> | null } | null };
 
 export type GraphQL_AddNewMemberMutationVariables = Exact<{
   fields: GraphQL_AddNewMemberInput;

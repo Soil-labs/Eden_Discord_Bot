@@ -10,7 +10,10 @@ const request = gql`
 	mutation AddEndorsement($fields: addEndorsementInput!) {
 		addEndorsement(fields: $fields) {
 			endorsements {
-				endorser
+				endorser {
+					_id
+					discordName
+				}
 				endorsementMessage
 				arweaveTransactionID
 			}
