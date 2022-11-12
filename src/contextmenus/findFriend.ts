@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { ApplicationCommandType, EmbedBuilder } from 'discord.js';
 import { sprintf } from 'sprintf-js';
 
 import { findMember } from '../graph/query/findMember.query';
@@ -7,7 +7,7 @@ import { LINK, NUMBER } from '../utils/const';
 import { getErrorReply, validMember } from '../utils/util';
 
 export default new UserContextMenu({
-	type: 'USER',
+	type: ApplicationCommandType.User,
 	name: 'Read my profile',
 	execute: async ({ interaction }) => {
 		const frenUser = interaction.targetMember;
@@ -42,7 +42,7 @@ export default new UserContextMenu({
 				})
 			});
 
-		const userEmbed = new MessageEmbed()
+		const userEmbed = new EmbedBuilder()
 			.setTitle(sprintf('@%s - Personal Tagline', frenUser.displayName))
 			.setThumbnail(frenUser.user.avatarURL());
 

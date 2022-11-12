@@ -1,7 +1,6 @@
-import { EmbedFieldData, ThreadAutoArchiveDuration } from 'discord.js';
+import { ThreadAutoArchiveDuration } from 'discord.js';
 
 import { GraphQL_UpdateServerInput, Maybe } from '../graph/gql/result';
-import { myCache } from '../structures/Cache';
 
 export interface CacheType {
 	Projects: ProjectsCache;
@@ -138,93 +137,3 @@ export type GardenContextCache = Record<GardenMemberId, GardenInform>;
 export type GuildSettingCache = Record<GuildId, GuildSettingInform>;
 export type BirthdayCache = Record<MemberId, BirthdayInform>;
 export type ChatThreadCache = Record<GuildId, Array<string>>;
-
-export function readGuildInform(guildInform: GuildInform, guildId: GuildId): EmbedFieldData[] {
-	const adminInform = {
-		adminRole: '> -',
-		adminMember: '> -',
-		adminCommand: '> -'
-	};
-
-	const { adminCommands, adminID, adminRoles, channelChatID } = guildInform;
-
-	if (adminCommands.length !== 0) {
-		adminInform.adminCommand = adminCommands.reduce((pre, cur) => {
-			return pre + `> ${cur}\n`;
-		}, '');
-	}
-	if (adminID.length !== 0) {
-		adminInform.adminMember = adminID.reduce((pre, cur) => {
-			return pre + `> <@${cur}>\n`;
-		}, '');
-	}
-	if (adminRoles.length !== 0) {
-		adminInform.adminRole = adminRoles.reduce((pre, cur) => {
-			return pre + `> <@&${cur}>\n`;
-		}, '');
-	}
-
-	let channelInform: {
-		name: string;
-		value: string;
-	} = {
-		name: '',
-		value: ''
-	};
-
-	const GuildSettingInform = myCache.myGet('GuildSettings')[guildId];
-
-	channelInform = Object.keys(GuildSettingInform).reduce((pre, channelName) => {
-		pre.name += `> ${channelName.toUpperCase()}\n`;
-		const channelId = GuildSettingInform[channelName];
-
-		if (channelId) {
-			pre.value += `> <#${channelId}>\n`;
-		} else {
-			pre.value += `> -\n`;
-		}
-		return pre;
-	}, channelInform);
-
-	if (channelChatID) {
-		channelInform.name += `> ${'channelChatID'.toUpperCase()}\n`;
-		channelInform.value += `> <#${channelChatID}>\n`;
-	}
-
-	return [
-		{
-			name: 'Admin Role',
-			value: adminInform.adminRole,
-			inline: true
-		},
-		{
-			name: 'Admin Member',
-			value: adminInform.adminMember,
-			inline: true
-		},
-		{
-			name: 'Admin Command',
-			value: adminInform.adminCommand,
-			inline: true
-		},
-		{
-			name: 'Channel Configuration',
-			value: channelInform.name,
-			inline: true
-		},
-		{
-			name: 'Target Channel',
-			value: channelInform.value,
-			inline: true
-		}
-	];
-}
-
-export function initGuildInform(guildIds: GuildId[]) {
-	return guildIds.reduce((pre: GuildInformCache, cur) => {
-		return {
-			...pre,
-			[cur]: templateGuildInform
-		};
-	}, {});
-}

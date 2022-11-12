@@ -142,9 +142,9 @@ export const GraphQLChanneOptionNameToDbPropery: Readonly<
 
 export const EMBED_COLOR: Readonly<HexColorString> = '#74FA6D';
 
-type ExtendedApplicationCommandOptionChoiceData = {
+type ExtendedApplicationCommandOptionChoiceData<T extends string| number> = {
 	name: CommandNameEmun;
-} & ApplicationCommandOptionChoiceData;
+} & ApplicationCommandOptionChoiceData<T>;
 
 export const defaultGuildVoiceContext: VoiceContext = {
 	messageId: null,
@@ -157,7 +157,7 @@ export const defaultGuildVoiceContext: VoiceContext = {
 	isNotified: null
 };
 
-export const COMMADN_CHOICES: Array<ExtendedApplicationCommandOptionChoiceData> = [
+export const COMMADN_CHOICES: Array<ExtendedApplicationCommandOptionChoiceData<string>> = [
 	{
 		name: 'set',
 		value: 'set'
@@ -196,7 +196,7 @@ export const COMMADN_CHOICES: Array<ExtendedApplicationCommandOptionChoiceData> 
 	}
 ];
 
-export const MONTH_ENUM: Array<ApplicationCommandOptionChoiceData> = [
+export const MONTH_ENUM: Array<ApplicationCommandOptionChoiceData<string>> = [
 	{
 		name: 'January',
 		value: '1'

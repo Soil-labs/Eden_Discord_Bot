@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { ApplicationCommandOptionType, ApplicationCommandType, EmbedBuilder } from 'discord.js';
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
 
@@ -9,21 +9,22 @@ import { CONTENT, EMBED_COLOR, LINK, NUMBER } from '../utils/const';
 import { getErrorReply, validMember, validSkill } from '../utils/util';
 
 export default new Command({
+	type: ApplicationCommandType.ChatInput,
 	name: 'find',
 	description: 'Find matches for a person with similar skillsets',
 	options: [
 		{
-			type: 'SUB_COMMAND',
+			type: ApplicationCommandOptionType.Subcommand,
 			description: 'Find projects that match your profile',
 			name: 'project'
 		},
 		{
-			type: 'SUB_COMMAND',
+			type: ApplicationCommandOptionType.Subcommand,
 			description: 'Find member profiles in the community',
 			name: 'fren',
 			options: [
 				{
-					type: 'USER',
+					type: ApplicationCommandOptionType.User,
 					description: 'Pick up your fren',
 					name: 'fren',
 					required: true
@@ -31,30 +32,30 @@ export default new Command({
 			]
 		},
 		{
-			type: 'SUB_COMMAND',
+			type: ApplicationCommandOptionType.Subcommand,
 			description: 'Find members with a particular set of skills',
 			name: 'skill',
 			options: [
 				{
-					type: 'STRING',
+					type: ApplicationCommandOptionType.String,
 					description: 'Choose a skill',
 					name: 'skill_1',
 					autocomplete: true
 				},
 				{
-					type: 'STRING',
+					type: ApplicationCommandOptionType.String,
 					description: 'Choose a skill',
 					name: 'skill_2',
 					autocomplete: true
 				},
 				{
-					type: 'STRING',
+					type: ApplicationCommandOptionType.String,
 					description: 'Choose a skill',
 					name: 'skill_3',
 					autocomplete: true
 				},
 				{
-					type: 'STRING',
+					type: ApplicationCommandOptionType.String,
 					description: 'Choose a skill',
 					name: 'skill_4',
 					autocomplete: true
@@ -138,7 +139,7 @@ export default new Command({
 
 			return interaction.followUp({
 				embeds: [
-					new MessageEmbed()
+					new EmbedBuilder()
 						.setTitle('Projects handpicked for you from Eden🪄')
 						.setDescription(embedDescription)
 						.setAuthor({ name: authorName, iconURL: interaction.user.avatarURL() })
@@ -181,7 +182,7 @@ export default new Command({
 					})
 				});
 
-			const userEmbed = new MessageEmbed()
+			const userEmbed = new EmbedBuilder()
 				.setTitle(sprintf('@%s - Personal Tagline', frenUser.username))
 				.setThumbnail(frenUser.avatarURL());
 
@@ -224,10 +225,10 @@ export default new Command({
 		if (subCommandName === 'skill') {
 			const skills = _.uniq(
 				[
-					interaction.options.getString('skill_1'),
-					interaction.options.getString('skill_2'),
-					interaction.options.getString('skill_3'),
-					interaction.options.getString('skill_4')
+					args.getString('skill_1'),
+					args.getString('skill_2'),
+					args.getString('skill_3'),
+					args.getString('skill_4')
 				].filter((value) => validSkill(value))
 			);
 
@@ -240,7 +241,7 @@ export default new Command({
 			return interaction.reply({
 				content: 'Work in progress, wait for update from backend.',
 				ephemeral: true
-			})
+			});
 
 			// await interaction.deferReply({
 			// 	ephemeral: true
@@ -332,7 +333,7 @@ export default new Command({
 
 			// return interaction.followUp({
 			// 	embeds: [
-			// 		new MessageEmbed()
+			// 		new EmbedBuilder()
 			// 			.setTitle('All the people with your requested skills')
 			// 			.setAuthor({
 			// 				name: authorName,

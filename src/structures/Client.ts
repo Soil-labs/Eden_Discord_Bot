@@ -1,14 +1,15 @@
 import AsciiTable from 'ascii-table';
 import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 	ChatInputApplicationCommandData,
 	Client,
 	ClientEvents,
 	Collection,
-	Intents,
-	MessageActionRow,
+	EmbedBuilder,
+	GatewayIntentBits,
 	MessageApplicationCommandData,
-	MessageButton,
-	MessageEmbed,
 	TextChannel,
 	ThreadChannel,
 	UserApplicationCommandData,
@@ -54,24 +55,26 @@ import { Event } from './Event';
 const globPromise = promisify(glob);
 
 export class MyClient extends Client {
-	public commands: Collection<string, CommandType> = new Collection();
+	public commands: Collection<
+		string,
+		CommandType | MessageContextMenuType | UserContextMenuType
+	> = new Collection();
 	public buttons: Collection<string, ButtonType> = new Collection();
 	public modals: Collection<string, ModalType> = new Collection();
 	public autos: Collection<string, AutoType> = new Collection();
-	public menus: Collection<string, MessageContextMenuType | UserContextMenuType> =
-		new Collection();
 
 	private table: any;
 
 	public constructor() {
 		super({
 			intents: [
-				Intents.FLAGS.GUILDS,
-				Intents.FLAGS.GUILD_MESSAGES,
-				Intents.FLAGS.GUILD_MEMBERS,
-				Intents.FLAGS.GUILD_PRESENCES,
-				Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-				Intents.FLAGS.GUILD_VOICE_STATES
+				GatewayIntentBits.Guilds,
+				GatewayIntentBits.MessageContent,
+				GatewayIntentBits.GuildMessages,
+				GatewayIntentBits.GuildMembers,
+				GatewayIntentBits.GuildPresences,
+				GatewayIntentBits.GuildMessageReactions,
+				GatewayIntentBits.GuildVoiceStates
 			]
 		});
 
@@ -163,7 +166,7 @@ export class MyClient extends Client {
 				filePath
 			);
 
-			this.menus.set(menu.name, menu);
+			this.commands.set(menu.name, menu);
 			slashCommands.push(menu);
 		});
 
@@ -395,20 +398,20 @@ export class MyClient extends Client {
 					thread.send({
 						content: `Hi, <@${authorId}>, this thread will be closed in 1 day. Time to make a decision.`,
 						components: [
-							new MessageActionRow().addComponents([
-								new MessageButton()
+							new ActionRowBuilder<ButtonBuilder>().addComponents([
+								new ButtonBuilder()
 									.setCustomId('expired')
 									.setLabel('Archive this thread')
-									.setStyle('DANGER')
+									.setStyle(ButtonStyle.Danger)
 									.setEmoji('🗃️'),
-								new MessageButton()
+								new ButtonBuilder()
 									.setLabel(
 										`Archive this thread in ${
 											autoArchiveDuration / (24 * 60)
 										} days`
 									)
 									.setCustomId('putoffexpire')
-									.setStyle('SUCCESS')
+									.setStyle(ButtonStyle.Success)
 									.setEmoji('💡')
 							])
 						]
@@ -478,7 +481,7 @@ export class MyClient extends Client {
 				channel.send({
 					content: `<@${memberId}>`,
 					embeds: [
-						new MessageEmbed()
+						new EmbedBuilder()
 							.setAuthor({
 								name: `@${member.displayName}`,
 								iconURL: member.user.avatarURL()
@@ -503,32 +506,32 @@ export class MyClient extends Client {
 			) as VoiceChannel;
 
 			if (!voiceChannel) continue;
-			if (checkOnboardPermission(voiceChannel, guild.me.id)) continue;
+			if (checkOnboardPermission(voiceChannel, guild.members.me.id)) continue;
 			if (voiceChannel.members.size === 0) {
 				if (guildVoiceContext.isNotified) {
 					const { hostId, timestamp, messageId } = guildVoiceContext;
 					const targetMsg = await voiceChannel.messages.fetch(messageId);
 
-					const button = targetMsg.components;
+					const buttonJson = targetMsg.components[0].toJSON();
+					const embedJson = targetMsg.embeds[0].toJSON();
 
-					button[0].components[0].disabled = true;
-					button[0].components[1].disabled = true;
+					buttonJson.components[0].disabled = true;
+					buttonJson.components[1].disabled = true;
 
-					const embeds = targetMsg.embeds;
 					const title = `${guild.name} Onboarding Call Ended`;
 
 					const difference = new Date().getTime() - timestamp * 1000;
 
-					embeds[0].description += sprintf(
+					embedJson.description += sprintf(
 						'\n`%s` This onboarding call was auto ended.',
 						convertMsToTime(difference),
 						hostId
 					);
+					embedJson.title = title;
 
-					embeds[0].title = title;
 					await targetMsg.edit({
-						embeds: embeds,
-						components: button
+						embeds: [embedJson],
+						components: [buttonJson]
 					});
 
 					voiceChannel.send({
@@ -542,10 +545,10 @@ export class MyClient extends Client {
 					voiceChannel.send({
 						content: `<@${guildVoiceContext.hostId}>, no member is in this channel now. Do you want to cloes this onboarding call?`,
 						components: [
-							new MessageActionRow().addComponents([
-								new MessageButton()
+							new ActionRowBuilder<ButtonBuilder>().addComponents([
+								new ButtonBuilder()
 									.setLabel('Jump to the Dashboard')
-									.setStyle('LINK')
+									.setStyle(ButtonStyle.Link)
 									.setURL(guildVoiceContext.messageLink)
 							])
 						]

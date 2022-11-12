@@ -1,4 +1,10 @@
-import { MessageActionRow, MessageButton, MessageEmbed, TextChannel } from 'discord.js';
+import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	EmbedBuilder,
+	TextChannel
+} from 'discord.js';
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
 
@@ -57,7 +63,7 @@ export default new Modal({
 
 		const permissionCheck = checkGardenChannelPermission(
 			generalChannel,
-			interaction.guild.me.id
+			interaction.guild.members.me.id
 		);
 
 		if (permissionCheck)
@@ -80,7 +86,7 @@ export default new Modal({
 		await thread.send({
 			content: memberIdsString,
 			embeds: [
-				new MessageEmbed()
+				new EmbedBuilder()
 					.setAuthor({
 						name: `@${interaction.member.displayName} -- Author`,
 						iconURL: interaction.user.avatarURL()
@@ -88,21 +94,21 @@ export default new Modal({
 					.setDescription(embedDescription)
 			],
 			components: [
-				new MessageActionRow().addComponents(
-					new MessageButton()
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder()
 						.setLabel('Garden Feed')
 						.setEmoji('🔗')
-						.setStyle('LINK')
+						.setStyle(ButtonStyle.Link)
 						.setURL(LINK.GARDEN_FEED),
-					new MessageButton()
+					new ButtonBuilder()
 						.setLabel('Garden Graph')
 						.setEmoji('🔗')
-						.setStyle('LINK')
+						.setStyle(ButtonStyle.Link)
 						.setURL(LINK.GARDEN_GRAPH),
-					new MessageButton()
+					new ButtonBuilder()
 						.setCustomId('expired')
 						.setLabel('Archive this thread')
-						.setStyle('DANGER')
+						.setStyle(ButtonStyle.Danger)
 						.setEmoji('🗃️')
 				)
 			]
@@ -156,7 +162,7 @@ export default new Modal({
 			if (forwardChannel) {
 				forwardChannel.send({
 					embeds: [
-						new MessageEmbed()
+						new EmbedBuilder()
 							.setAuthor({
 								name: interaction.member.displayName,
 								iconURL: interaction.user.avatarURL()
@@ -171,10 +177,10 @@ export default new Modal({
 							])
 					],
 					components: [
-						new MessageActionRow().addComponents([
-							new MessageButton()
+						new ActionRowBuilder<ButtonBuilder>().addComponents([
+							new ButtonBuilder()
 								.setLabel('Jump to the thread')
-								.setStyle('LINK')
+								.setStyle(ButtonStyle.Link)
 								.setEmoji('🔗')
 								.setURL(gardenUpdateInform.threadDiscordID)
 						])

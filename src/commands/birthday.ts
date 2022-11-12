@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js';
 import { getApp } from 'firebase/app';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
 
@@ -8,26 +9,27 @@ import { MONTH_ENUM, TIMEZONE } from '../utils/const';
 import { awaitWrap, dateIsValid, getNextBirthday } from '../utils/util';
 
 export default new Command({
+	type: ApplicationCommandType.ChatInput,
 	name: 'birthday',
 	description: 'Tell me your birthday and we celebrate togather!',
 	options: [
 		{
 			name: 'month',
 			description: 'Your birthday month',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			required: true,
 			choices: MONTH_ENUM
 		},
 		{
 			name: 'day',
 			description: 'Your birthday day',
-			type: 'INTEGER',
+			type: ApplicationCommandOptionType.Integer,
 			required: true
 		},
 		{
 			name: 'timezone',
 			description: 'Choose your timezone',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			required: true,
 			autocomplete: true
 		}

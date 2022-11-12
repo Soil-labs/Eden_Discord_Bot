@@ -43,27 +43,27 @@ export default new Button({
 				});
 
 			const message = interaction.message as Message;
-			const button = message.components;
+			const buttonJson = message.components[0].toJSON();
 
-			button[0].components[0].disabled = true;
-			button[0].components[1].disabled = true;
+			buttonJson.components[0].disabled = true;
+			buttonJson.components[1].disabled = true;
 
-			const embeds = message.embeds;
+			const embedsJson = message.embeds[0].toJSON();
 			const title = `${interaction.guild.name} Onboarding Call Ended`;
 
 			const difference = new Date().getTime() - timestamp * 1000;
 
-			embeds[0].description += sprintf(
+			embedsJson.description += sprintf(
 				'\n`%s` <@%s> ended this onboarding call.',
 				convertMsToTime(difference),
 				hostId
 			);
 
-			embeds[0].title = title;
+			embedsJson.title = title;
 
 			await message.edit({
-				embeds: embeds,
-				components: button
+				embeds: [embedsJson],
+				components: [buttonJson]
 			});
 
 			myCache.mySet('VoiceContexts', {

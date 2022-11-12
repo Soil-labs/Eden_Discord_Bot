@@ -1,5 +1,13 @@
-import { MessageActionRow, MessageButton, MessageEmbed, VoiceChannel } from 'discord.js';
-import { ChannelTypes } from 'discord.js/typings/enums';
+import {
+	ActionRowBuilder,
+	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	ButtonBuilder,
+	ButtonStyle,
+	ChannelType,
+	EmbedBuilder,
+	VoiceChannel
+} from 'discord.js';
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
 
@@ -14,16 +22,17 @@ import { CONTENT, LINK } from '../utils/const';
 import { checkOnboardPermission, getErrorReply, updateMembersCache } from '../utils/util';
 
 export default new Command({
+	type: ApplicationCommandType.ChatInput,
 	name: 'onboard',
 	description: 'Find & be found for opportunity',
 	options: [
 		{
-			type: 'SUB_COMMAND',
+			type: ApplicationCommandOptionType.Subcommand,
 			description: 'Onboard multiple new frens into Eden 🌳',
 			name: 'member',
 			options: [
 				{
-					type: 'STRING',
+					type: ApplicationCommandOptionType.String,
 					description: "Member you'd like to onboard",
 					required: true,
 					name: 'frens'
@@ -31,30 +40,30 @@ export default new Command({
 			]
 		},
 		{
-			type: 'SUB_COMMAND',
+			type: ApplicationCommandOptionType.Subcommand,
 			description: 'Automatically onboard members in a voice call',
 			name: 'auto',
 			options: [
 				{
-					type: 'CHANNEL',
+					type: ApplicationCommandOptionType.Channel,
 					description: 'Onboarding voice channel',
 					required: true,
 					name: 'channel',
-					channel_types: [ChannelTypes.GUILD_VOICE]
+					channelTypes: [ChannelType.GuildVoice]
 				}
 			]
 		},
 		{
-			type: 'SUB_COMMAND',
+			type: ApplicationCommandOptionType.Subcommand,
 			description: 'Set up a channel to self-onboard.',
 			name: 'room',
 			options: [
 				{
-					type: 'CHANNEL',
+					type: ApplicationCommandOptionType.Channel,
 					description: 'Choose a channel',
 					required: true,
 					name: 'channel',
-					channel_types: [ChannelTypes.GUILD_TEXT]
+					channelTypes: [ChannelType.GuildText]
 				}
 			]
 		}
@@ -64,7 +73,7 @@ export default new Command({
 		const guildId: string = interaction.guild.id;
 
 		if (subCommandName === 'member') {
-			const membersString = interaction.options.getString('frens').match(/<@!?[0-9]*?>/g);
+			const membersString = args.getString('frens').match(/<@!?[0-9]*?>/g);
 
 			if (!membersString)
 				return interaction.reply({
@@ -166,7 +175,7 @@ export default new Command({
 			}
 
 			return interaction.followUp({
-				embeds: [new MessageEmbed().setTitle(embedTitle).setDescription(embedDescription)]
+				embeds: [new EmbedBuilder().setTitle(embedTitle).setDescription(embedDescription)]
 			});
 		}
 
@@ -190,24 +199,27 @@ export default new Command({
 			if (guildVoiceContext?.channelId) {
 				return interaction.reply({
 					embeds: [
-						new MessageEmbed()
+						new EmbedBuilder()
 							.setTitle('Onboarding Call is going on')
 							.setDescription(
 								`Sorry, an onboarding call has started in <#${guildVoiceContext.channelId}>, hosted by <@${guildVoiceContext.hostId}>, at <t:${guildVoiceContext.timestamp}:f>.\nPlease wait for its end or cancel it through its dashboard.`
 							)
 					],
 					components: [
-						new MessageActionRow().addComponents([
-							new MessageButton()
+						new ActionRowBuilder<ButtonBuilder>().addComponents([
+							new ButtonBuilder()
 								.setLabel('Jump to the Dashboard')
-								.setStyle('LINK')
+								.setStyle(ButtonStyle.Link)
 								.setURL(guildVoiceContext.messageLink)
 						])
 					],
 					ephemeral: true
 				});
 			}
-			const permissionCheck = checkOnboardPermission(voiceChannel, interaction.guild.me.id);
+			const permissionCheck = checkOnboardPermission(
+				voiceChannel,
+				interaction.guild.members.me.id
+			);
 
 			if (permissionCheck) {
 				return interaction.reply({
@@ -239,7 +251,7 @@ export default new Command({
 			const timestampSec = Math.floor(new Date().getTime() / 1000);
 			const message = await voiceChannel.send({
 				embeds: [
-					new MessageEmbed()
+					new EmbedBuilder()
 						.setAuthor({
 							name: `Onboarding Call Host - ${interaction.user.username}`,
 							iconURL: interaction.user.avatarURL()
@@ -249,9 +261,9 @@ export default new Command({
 						)
 				],
 				components: [
-					new MessageActionRow().addComponents([
-						new MessageButton()
-							.setStyle('LINK')
+					new ActionRowBuilder<ButtonBuilder>().addComponents([
+						new ButtonBuilder()
+							.setStyle(ButtonStyle.Link)
 							.setLabel('Get Party Ticket')
 							.setURL(
 								sprintf(LINK.ROOM, {
@@ -259,9 +271,9 @@ export default new Command({
 								})
 							)
 							.setEmoji('🎟️'),
-						new MessageButton()
+						new ButtonBuilder()
 							.setCustomId('end')
-							.setStyle('SECONDARY')
+							.setStyle(ButtonStyle.Secondary)
 							.setLabel('End Party')
 					])
 				]
@@ -291,9 +303,9 @@ export default new Command({
 				content: `Auto onboarding has started in <#${voiceChannel.id}>`,
 				ephemeral: true,
 				components: [
-					new MessageActionRow().addComponents([
-						new MessageButton()
-							.setStyle('LINK')
+					new ActionRowBuilder<ButtonBuilder>().addComponents([
+						new ButtonBuilder()
+							.setStyle(ButtonStyle.Link)
 							.setLabel('Jump to the dashboard')
 							.setEmoji('🔗')
 							.setURL(msgLink)

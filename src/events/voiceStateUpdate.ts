@@ -1,7 +1,8 @@
 import {
-	MessageActionRow,
-	MessageButton,
-	MessageEmbed,
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	EmbedBuilder,
 	VoiceChannel,
 	VoiceState
 } from 'discord.js';
@@ -69,12 +70,12 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 
 			const dashboardMsg = await voiceChannel.messages.fetch(messageId);
 
-			const embeds = dashboardMsg.embeds;
+			const embedsJson = dashboardMsg.embeds[0].toJSON();
 
 			const difference = new Date().getTime() - timestamp * 1000;
 			// description limit: 4096
 
-			embeds[0].description += sprintf(
+			embedsJson.description += sprintf(
 				'\n`%s` <@%s> joined this onboarding call.',
 				convertMsToTime(difference),
 				newState.member.id
@@ -88,7 +89,7 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 				}
 			});
 			dashboardMsg.edit({
-				embeds: embeds,
+				embeds: [embedsJson],
 				components: dashboardMsg.components
 			});
 
@@ -101,7 +102,7 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 				const msg = await voiceChannel.send({
 					content: `Welcome, <@${newMemberId}>`,
 					embeds: [
-						new MessageEmbed()
+						new EmbedBuilder()
 							.setTitle('Join the Party🎊')
 							.setDescription(
 								sprintf(
@@ -113,9 +114,9 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 							)
 					],
 					components: [
-						new MessageActionRow().addComponents([
-							new MessageButton()
-								.setStyle('LINK')
+						new ActionRowBuilder<ButtonBuilder>().addComponents([
+							new ButtonBuilder()
+								.setStyle(ButtonStyle.Link)
 								.setURL(roomLink)
 								.setLabel('Get Party Ticket')
 								.setEmoji('🎟️')
@@ -144,7 +145,7 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 						return awaitWrap(
 							dmChannel.send({
 								embeds: [
-									new MessageEmbed()
+									new EmbedBuilder()
 										.setTitle('Join the Party🎊')
 										.setDescription(
 											sprintf(
@@ -155,9 +156,9 @@ export default new Event('voiceStateUpdate', async (oldState: VoiceState, newSta
 										)
 								],
 								components: [
-									new MessageActionRow().addComponents([
-										new MessageButton()
-											.setStyle('LINK')
+									new ActionRowBuilder<ButtonBuilder>().addComponents([
+										new ButtonBuilder()
+											.setStyle(ButtonStyle.Link)
 											.setURL(roomLink)
 											.setLabel('Get Party Ticket')
 											.setEmoji('🎟️')

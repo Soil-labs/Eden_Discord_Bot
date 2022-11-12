@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { ApplicationCommandOptionType, ApplicationCommandType, EmbedBuilder } from 'discord.js';
 import { sprintf } from 'sprintf-js';
 
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
@@ -13,11 +13,12 @@ import {
 } from '../utils/util';
 
 export default new Command({
+	type: ApplicationCommandType.ChatInput,
 	name: 'invite',
 	description: 'Invite a fren to join Eden 🌳',
 	options: [
 		{
-			type: 'USER',
+			type: ApplicationCommandOptionType.User,
 			description: "The member you'd like to support",
 			name: 'fren',
 			required: true
@@ -97,7 +98,7 @@ export default new Command({
 			guildId: guildId
 		});
 
-		const embedContent = new MessageEmbed().setTitle("You've been invited to join Eden 🌳");
+		const embedContent = new EmbedBuilder().setTitle("You've been invited to join Eden 🌳");
 
 		if (process.env.PM2_MODE === 'prod' && process.env.PM2_DMDISABLED) {
 			// const { result, error } = await awaitWrap(interaction.channel.send({
@@ -135,7 +136,7 @@ export default new Command({
 		if (dmError) {
 			const permissionCheck = checkTextChannelPermission(
 				interaction.channel,
-				interaction.guild.me.id
+				interaction.guild.members.me.id
 			);
 
 			if (!permissionCheck) {
@@ -165,7 +166,7 @@ export default new Command({
 		}
 		return interaction.followUp({
 			embeds: [
-				new MessageEmbed()
+				new EmbedBuilder()
 					.setTitle("We've sent your friend a DM 🌳")
 					.setDescription(
 						'Growing the garden of opportunities is how we are all going to make it.❤️'

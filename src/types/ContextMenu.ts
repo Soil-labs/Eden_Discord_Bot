@@ -1,21 +1,33 @@
 import {
+	ApplicationCommandType,
 	GuildMember,
 	MessageApplicationCommandData,
-	MessageContextMenuInteraction,
+	MessageContextMenuCommandInteraction,
 	PermissionResolvable,
 	UserApplicationCommandData,
-	UserContextMenuInteraction
+	UserContextMenuCommandInteraction
 } from 'discord.js';
 
-export interface ExtendedUserContextMenuInteraction extends UserContextMenuInteraction {
+import { MyClient } from '../structures/Client';
+
+export interface ExtendedUserContextMenuInteraction extends UserContextMenuCommandInteraction {
 	targetMember: GuildMember;
+	member: GuildMember;
+}
+
+export interface ExtendedMessageContextMenuInteraction
+	extends MessageContextMenuCommandInteraction {
+	targetMember: GuildMember;
+	member: GuildMember;
 }
 
 interface MessageContextMenuCommandRunOption {
-	interaction: MessageContextMenuInteraction;
+	client: MyClient;
+	interaction: ExtendedMessageContextMenuInteraction;
 }
 
 interface UserContextMenuCommandRunOption {
+	client: MyClient;
 	interaction: ExtendedUserContextMenuInteraction;
 }
 
@@ -27,12 +39,12 @@ export type UserContextMenuType = {
 	userPermissions?: PermissionResolvable[];
 	execute: UserContextMenuRunFunction;
 	name: ContextMenuNameEnum;
-	type: 'USER';
+	type: ApplicationCommandType.User;
 } & UserApplicationCommandData;
 
 export type MessageContextMenuType = {
 	userPermissions?: PermissionResolvable[];
 	execute: MessageContextMenuRunFunction;
 	name: ContextMenuNameEnum;
-	type: 'MESSAGE';
+	type: ApplicationCommandType.Message;
 } & MessageApplicationCommandData;

@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { ApplicationCommandType, EmbedBuilder } from 'discord.js';
 import { sprintf } from 'sprintf-js';
 
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
@@ -8,6 +8,7 @@ import { CONTENT, LINK } from '../utils/const';
 import { getErrorReply, updateMemberCache, validMember } from '../utils/util';
 
 export default new Command({
+	type: ApplicationCommandType.ChatInput,
 	name: 'signup',
 	description: 'join Eden 🌳 to find projects you love',
 	execute: async ({ interaction }) => {
@@ -60,7 +61,7 @@ export default new Command({
 			guildId: guildId
 		});
 
-		const replyEmbed = new MessageEmbed()
+		const replyEmbed = new EmbedBuilder()
 			.setTitle("Hooray! You're about to join Eden 🌳")
 			.setDescription(sprintf(CONTENT.ONBOARD_SELF, { onboardLink: LINK.SIGNUP }));
 

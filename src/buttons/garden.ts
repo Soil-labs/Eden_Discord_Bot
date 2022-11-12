@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 
 import { Button } from '../structures/Button';
 
@@ -8,19 +8,21 @@ export default new Button({
 		const { customId, message } = interaction;
 		const thread = interaction.channel;
 
-		message.components[0].components[0].disabled = true;
-		message.components[0].components[1].disabled = true;
+		const buttonJson = message.components[0].toJSON();
+
+		buttonJson.components[0].disabled = true;
+		buttonJson.components[1].disabled = true;
 
 		await interaction.message.edit({
 			content: message.content,
-			components: message.components
+			components: [buttonJson]
 		});
 
 		if (thread.isThread()) {
 			if (customId === 'expired') {
 				await interaction.reply({
 					embeds: [
-						new MessageEmbed().setDescription(
+						new EmbedBuilder().setDescription(
 							`<#${thread.id}> has been archived by <@${interaction.user.id}>.`
 						)
 					]
@@ -35,7 +37,7 @@ export default new Button({
 				thread.setAutoArchiveDuration(archiveDuration);
 				return interaction.reply({
 					embeds: [
-						new MessageEmbed().setDescription(
+						new EmbedBuilder().setDescription(
 							`<#${thread.id}> will be archived in ${archiveDays} days by <@${interaction.user.id}>.`
 						)
 					]

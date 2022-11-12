@@ -1,17 +1,26 @@
-import { GuildTextBasedChannel, Permissions, VoiceBasedChannel } from 'discord.js';
+import {
+	ChannelType,
+	EmbedField,
+	GuildTextBasedChannel,
+	PermissionFlagsBits,
+	VoiceBasedChannel
+} from 'discord.js';
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
 
 import { myCache } from '../structures/Cache';
 import {
 	GuildId,
+	GuildInform,
+	GuildInformCache,
 	MemberId,
 	MemberInform,
 	ProjectId,
 	RoleId,
 	SkillId,
 	SkillInform,
-	TeamId
+	TeamId,
+	templateGuildInform
 } from '../types/Cache';
 import { ERROR_REPLY, NUMBER } from './const';
 import { TimeOutError } from './error';
@@ -62,31 +71,31 @@ export async function awaitWrapWithTimeout<T>(
 }
 
 export function checkTextChannelPermission(channel: GuildTextBasedChannel, userId: string) {
-	if (channel.type === 'GUILD_VOICE') {
-		if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.CONNECT])) {
+	if (channel.type === ChannelType.GuildVoice) {
+		if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.Connect])) {
 			return 'Missing **CONNECT** access.';
 		}
 	}
-	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.VIEW_CHANNEL])) {
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.ViewChannel])) {
 		return 'Missing **VIEW CHANNEL** access.';
 	}
-	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.SEND_MESSAGES])) {
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.SendMessages])) {
 		return 'Missing **SEND MESSAGES** access.';
 	}
 	return false;
 }
 
 export function checkOnboardPermission(channel: VoiceBasedChannel, userId: string) {
-	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.CONNECT])) {
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.Connect])) {
 		return 'Missing **CONNECT** access.';
 	}
-	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.VIEW_CHANNEL])) {
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.ViewChannel])) {
 		return 'Missing **VIEW CHANNEL** access.';
 	}
-	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.SEND_MESSAGES])) {
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.SendMessages])) {
 		return 'Missing **SEND MESSAGES** access.';
 	}
-	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.READ_MESSAGE_HISTORY])) {
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.ReadMessageHistory])) {
 		return 'Missing **READ MESSAGE HISTORY** access.';
 	}
 	return false;
@@ -96,16 +105,16 @@ export function checkGardenChannelPermission(
 	channel: GuildTextBasedChannel | VoiceBasedChannel,
 	userId: string
 ) {
-	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.VIEW_CHANNEL])) {
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.ViewChannel])) {
 		return 'Missing **VIEW CHANNEL** access.';
 	}
-	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.SEND_MESSAGES])) {
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.SendMessages])) {
 		return 'Missing **SEND MESSAGES** access.';
 	}
-	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.CREATE_PUBLIC_THREADS])) {
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.CreatePublicThreads])) {
 		return 'Missing **CREATE PUBLIC THREADS** access.';
 	}
-	if (!channel.permissionsFor(userId, true).has([Permissions.FLAGS.MANAGE_THREADS])) {
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.ManageThreads])) {
 		return 'Missing **MANAGE THREADS** access.';
 	}
 	return false;
@@ -268,4 +277,94 @@ export function getNextBirthday(month: number, day: number, offset: number) {
 		offsetBirthday = utcBirthday - 3600000 * offset;
 	}
 	return Math.floor(offsetBirthday / 1000);
+}
+
+export function readGuildInform(guildInform: GuildInform, guildId: GuildId): EmbedField[] {
+	const adminInform = {
+		adminRole: '> -',
+		adminMember: '> -',
+		adminCommand: '> -'
+	};
+
+	const { adminCommands, adminID, adminRoles, channelChatID } = guildInform;
+
+	if (adminCommands.length !== 0) {
+		adminInform.adminCommand = adminCommands.reduce((pre, cur) => {
+			return pre + `> ${cur}\n`;
+		}, '');
+	}
+	if (adminID.length !== 0) {
+		adminInform.adminMember = adminID.reduce((pre, cur) => {
+			return pre + `> <@${cur}>\n`;
+		}, '');
+	}
+	if (adminRoles.length !== 0) {
+		adminInform.adminRole = adminRoles.reduce((pre, cur) => {
+			return pre + `> <@&${cur}>\n`;
+		}, '');
+	}
+
+	let channelInform: {
+		name: string;
+		value: string;
+	} = {
+		name: '',
+		value: ''
+	};
+
+	const GuildSettingInform = myCache.myGet('GuildSettings')[guildId];
+
+	channelInform = Object.keys(GuildSettingInform).reduce((pre, channelName) => {
+		pre.name += `> ${channelName.toUpperCase()}\n`;
+		const channelId = GuildSettingInform[channelName];
+
+		if (channelId) {
+			pre.value += `> <#${channelId}>\n`;
+		} else {
+			pre.value += `> -\n`;
+		}
+		return pre;
+	}, channelInform);
+
+	if (channelChatID) {
+		channelInform.name += `> ${'channelChatID'.toUpperCase()}\n`;
+		channelInform.value += `> <#${channelChatID}>\n`;
+	}
+
+	return [
+		{
+			name: 'Admin Role',
+			value: adminInform.adminRole,
+			inline: true
+		},
+		{
+			name: 'Admin Member',
+			value: adminInform.adminMember,
+			inline: true
+		},
+		{
+			name: 'Admin Command',
+			value: adminInform.adminCommand,
+			inline: true
+		},
+		{
+			name: 'Channel Configuration',
+			value: channelInform.name,
+			inline: true
+		},
+		{
+			name: 'Target Channel',
+			value: channelInform.value,
+			inline: true
+		}
+	];
+}
+
+export function initGuildInform(guildIds: GuildId[]) {
+	return guildIds.reduce((pre: GuildInformCache, cur) => {
+		return {
+			...pre,
+			[cur]: templateGuildInform
+		};
+	}, {});
 }

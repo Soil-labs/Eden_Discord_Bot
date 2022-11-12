@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { ApplicationCommandOptionType, ApplicationCommandType, EmbedBuilder } from 'discord.js';
 import { sprintf } from 'sprintf-js';
 
 import { findProject } from '../graph/query/findProject.query';
@@ -7,21 +7,22 @@ import { LINK } from '../utils/const';
 import { getErrorReply, validProject } from '../utils/util';
 
 export default new Command({
+	type: ApplicationCommandType.ChatInput,
 	name: 'project',
 	description: 'Explore projects',
 	options: [
 		{
-			type: 'SUB_COMMAND',
+			type: ApplicationCommandOptionType.Subcommand,
 			description: 'Launch a project in the community',
 			name: 'new'
 		},
 		{
-			type: 'SUB_COMMAND',
+			type: ApplicationCommandOptionType.Subcommand,
 			description: 'See key updates of a specific project',
 			name: 'activity',
 			options: [
 				{
-					type: 'STRING',
+					type: ApplicationCommandOptionType.String,
 					description: 'Choose the project you are interested in',
 					required: true,
 					name: 'project_name'
@@ -38,7 +39,7 @@ export default new Command({
 
 			return interaction.reply({
 				embeds: [
-					new MessageEmbed()
+					new EmbedBuilder()
 						.setTitle("Let's BUIDL!🤩")
 						.setDescription(
 							`🚀Click [here](${launchProjectLink}) to launch a new project`
@@ -81,7 +82,7 @@ export default new Command({
 			// if (!championMember)
 			// 	championName = result.findProject.champion.discordName ?? 'Unknown Champion';
 			// else championName = `<@${championMember.id}>`;
-			const projectEmbed = new MessageEmbed()
+			const projectEmbed = new EmbedBuilder()
 				.setTitle(`@${projectName}`)
 				.setDescription(
 					sprintf(

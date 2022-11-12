@@ -1,8 +1,11 @@
 import {
-	MessageActionRow,
-	Modal,
+	ActionRowBuilder,
+	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	ModalBuilder,
 	TextChannel,
-	TextInputComponent,
+	TextInputBuilder,
+	TextInputStyle,
 	ThreadAutoArchiveDuration
 } from 'discord.js';
 
@@ -12,38 +15,39 @@ import { GardenInform } from '../types/Cache';
 import { awaitWrap, checkGardenChannelPermission, validGarden } from '../utils/util';
 
 export default new Command({
+	type: ApplicationCommandType.ChatInput,
 	name: 'garden',
 	description: 'Report your project milestone.',
 	options: [
 		{
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'Choose a project from the list',
 			required: true,
 			autocomplete: true,
 			name: 'project'
 		},
 		{
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'Choose a team from the list',
 			required: true,
 			autocomplete: true,
 			name: 'team'
 		},
 		{
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'Choose a role from the list',
 			required: true,
 			autocomplete: true,
 			name: 'role'
 		},
 		{
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: "Members you'd like to add",
 			required: true,
 			name: 'member'
 		},
 		{
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'How long will this thread exist before being archived',
 			name: 'archive_duration',
 			choices: [
@@ -58,7 +62,7 @@ export default new Command({
 			]
 		},
 		{
-			type: 'NUMBER',
+			type: ApplicationCommandOptionType.Number,
 			description: "Input the amount of token you'd like to send",
 			name: 'token_amount'
 		}
@@ -108,7 +112,7 @@ export default new Command({
 		}
 		const permissinChecking = checkGardenChannelPermission(
 			generalChannel,
-			interaction.guild.me.id
+			interaction.guild.members.me.id
 		);
 
 		if (permissinChecking)
@@ -150,26 +154,26 @@ export default new Command({
 				ephemeral: true
 			});
 
-		const gardenModal = new Modal()
+		const gardenModal = new ModalBuilder()
 			.setCustomId('update')
 			.setTitle(`Share news to the secret garden!`);
 
 		gardenModal.addComponents(
-			new MessageActionRow<TextInputComponent>().addComponents(
-				new TextInputComponent()
+			new ActionRowBuilder<TextInputBuilder>().addComponents(
+				new TextInputBuilder()
 					.setCustomId('garden_title')
 					.setRequired(true)
 					.setPlaceholder('Enter title here')
 					.setLabel('GARDERN TITLE')
-					.setStyle('SHORT')
+					.setStyle(TextInputStyle.Short)
 			),
-			new MessageActionRow<TextInputComponent>().addComponents(
-				new TextInputComponent()
+			new ActionRowBuilder<TextInputBuilder>().addComponents(
+				new TextInputBuilder()
 					.setCustomId('garden_content')
 					.setRequired(true)
 					.setPlaceholder('Enter content here')
 					.setLabel('GARDERN CONTENT')
-					.setStyle('PARAGRAPH')
+					.setStyle(TextInputStyle.Paragraph)
 			)
 		);
 		const userCache: GardenInform = {

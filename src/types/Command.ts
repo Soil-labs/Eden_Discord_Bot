@@ -1,4 +1,5 @@
 import {
+	ApplicationCommandType,
 	ChatInputApplicationCommandData,
 	CommandInteraction,
 	CommandInteractionOptionResolver,
@@ -35,5 +36,6 @@ export type CommandNameEmun =
 export type CommandType = {
 	name: CommandNameEmun;
 	userPermissions?: PermissionResolvable[];
+	type: ApplicationCommandType.ChatInput,
 	execute: RunFunction;
 } & ChatInputApplicationCommandData;

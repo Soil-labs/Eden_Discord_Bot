@@ -1,4 +1,4 @@
-import { Message, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Message } from 'discord.js';
 import { sprintf } from 'sprintf-js';
 
 import { updateChatReply } from '../graph/mutation/updateChatReply.mutation';
@@ -39,17 +39,17 @@ export default new Event('messageCreate', async (message: Message) => {
 		const { error } = await awaitWrap(
 			DMChannel.send({
 				embeds: [
-					new MessageEmbed()
+					new EmbedBuilder()
 						.setTitle(`You received an invitation to a conversation!`)
 						.setDescription(
 							`<@${senderId}> is willing to talk with you about a project.`
 						)
 				],
 				components: [
-					new MessageActionRow<MessageButton>().addComponents([
-						new MessageButton()
+					new ActionRowBuilder<ButtonBuilder>().addComponents([
+						new ButtonBuilder()
 							.setLabel('Read more')
-							.setStyle('LINK')
+							.setStyle(ButtonStyle.Link)
 							.setEmoji('🔗')
 							.setURL(threadId)
 					])
@@ -67,15 +67,15 @@ export default new Event('messageCreate', async (message: Message) => {
 		const { error: senderError } = await awaitWrap(
 			senderDMChannel.send({
 				embeds: [
-					new MessageEmbed()
+					new EmbedBuilder()
 						.setTitle(`You successfully invited ${receiver.displayName} to a talk`)
 						.setDescription(`Keep eyes on the channel and happy connect!`)
 				],
 				components: [
-					new MessageActionRow<MessageButton>().addComponents([
-						new MessageButton()
+					new ActionRowBuilder<ButtonBuilder>().addComponents([
+						new ButtonBuilder()
 							.setLabel('Read more')
-							.setStyle('LINK')
+							.setStyle(ButtonStyle.Link)
 							.setEmoji('🔗')
 							.setURL(threadId)
 					])

@@ -1,9 +1,9 @@
 import {
+	ApplicationCommandType,
 	AutocompleteInteraction,
 	CommandInteractionOptionResolver,
 	GuildMember,
 	Interaction,
-	MessageContextMenuInteraction
 } from 'discord.js';
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
@@ -14,7 +14,7 @@ import { Event } from '../structures/Event';
 import { ExtendedButtonInteraction } from '../types/Button';
 import { GuildInform } from '../types/Cache';
 import { ExtendedCommandInteration } from '../types/Command';
-import { ExtendedUserContextMenuInteraction } from '../types/ContextMenu';
+import { ExtendedMessageContextMenuInteraction, ExtendedUserContextMenuInteraction } from '../types/ContextMenu';
 import { ExtendedModalSubmitInteraction } from '../types/Modal';
 import { ERROR_REPLY } from '../utils/const';
 import { logger } from '../utils/logger';
@@ -25,16 +25,14 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 		guildName: interaction?.guild?.name
 	};
 
-
-	if (!myCache.myHasAll()){
-		if (interaction.isAutocomplete()){
+	if (!myCache.myHasAll()) {
+		if (interaction.isAutocomplete()) {
 			return interaction.respond([]);
-		}
-		if (interaction.isCommand() || interaction.isButton() || interaction.isModalSubmit() || interaction.isContextMenu()){
+		} else {
 			return interaction.reply({
 				content: 'System is initing, please try again later',
 				ephemeral: true
-			})
+			});
 		}
 	}
 
@@ -47,30 +45,47 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 				ephemeral: true
 			});
 		}
-
-		const member = interaction.member as GuildMember;
-		const guildInform: GuildInform = myCache.myGet('Servers')[interaction.guild.id];
-		const { adminCommands, adminID, adminRoles } = guildInform;
-
-		if (adminCommands.includes(interaction.commandName)) {
-			if (
-				!adminID.includes(member.id) &&
-				_.intersection(Array.from(member.roles.cache.keys()), adminRoles).length === 0
-			) {
-				return interaction.reply({
-					content: "Sorry, you don't have permission to run this command.",
-					ephemeral: true
-				});
-			}
-		}
-
 		try {
-			// todo without await, catch cannot grab the error, because catch will be invalid after this command starts
-			await command.execute({
-				client: client,
-				interaction: interaction as ExtendedCommandInteration,
-				args: interaction.options as CommandInteractionOptionResolver
-			});
+			switch (command.type) {
+				case ApplicationCommandType.ChatInput: {
+					const member = interaction.member as GuildMember;
+					const guildInform: GuildInform = myCache.myGet('Servers')[interaction.guild.id];
+					const { adminCommands, adminID, adminRoles } = guildInform;
+
+					if (adminCommands.includes(interaction.commandName)) {
+						if (
+							!adminID.includes(member.id) &&
+							_.intersection(Array.from(member.roles.cache.keys()), adminRoles)
+								.length === 0
+						) {
+							return interaction.reply({
+								content: "Sorry, you don't have permission to run this command.",
+								ephemeral: true
+							});
+						}
+					}
+					await command.execute({
+						client: client,
+						interaction: interaction as ExtendedCommandInteration,
+						args: interaction.options as CommandInteractionOptionResolver
+					});
+					break;
+				}
+				case ApplicationCommandType.Message: {
+					await command.execute({
+						client: client,
+						interaction: interaction as ExtendedMessageContextMenuInteraction
+					});
+					break;
+				}
+				case ApplicationCommandType.User: {
+					await command.execute({
+						client: client,
+						interaction: interaction as ExtendedUserContextMenuInteraction
+					});
+					break;
+				}
+			}
 		} catch (error) {
 			const errorMsg = sprintf(ERROR_REPLY.INTERACTION, {
 				...errorInform,
@@ -199,51 +214,6 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 					errorStack: error?.stack
 				})
 			);
-		}
-	}
-
-	if (interaction.isContextMenu()) {
-		const menu = client.menus.get(interaction.commandName);
-
-		if (!menu) {
-			return interaction.reply({
-				content: `A non exitent context menu is triggered: ${interaction.commandName}`,
-				ephemeral: true
-			});
-		}
-
-		try {
-			if (menu.type === 'MESSAGE') {
-				await menu.execute({
-					interaction: interaction as MessageContextMenuInteraction
-				});
-			} else {
-				await menu.execute({
-					interaction: interaction as ExtendedUserContextMenuInteraction
-				});
-			}
-		} catch (error) {
-			const errorMessage = sprintf(ERROR_REPLY.MENU, {
-				...errorInform,
-				menuName: interaction.commandName,
-				errorName: error?.name,
-				errorMsg: error?.message,
-				errorStack: error?.stack
-			});
-
-			if (interaction.deferred) {
-				logger.error(errorMessage);
-				interaction.followUp({
-					content: ERROR_REPLY.COMMON
-				});
-			}
-			if (!interaction.replied) {
-				logger.error(errorMessage);
-				interaction.reply({
-					content: ERROR_REPLY.COMMON,
-					ephemeral: true
-				});
-			}
 		}
 	}
 });
