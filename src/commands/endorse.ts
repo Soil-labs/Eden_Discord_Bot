@@ -86,11 +86,12 @@ export default new Command({
 		}
 
 		const endorseResults = result.addEndorsement.endorsements.reduce((pre, cur) => {
-			const endorseInform = `**Endorser**: <@${
-				cur.endorser._id
-			}>\n**ARWeave Credentail**: [Explorer Link](<${
+			if (!cur.endorser) return pre;
+			const endorseInform = `**Endorser**: <@${cur.endorser._id}>\n**Message**: ${
+				cur.endorsementMessage
+			}\n**ARWeave Credential**: [Explorer Link](<${
 				LINK.ARWEAVE_EXPLORER + cur.arweaveTransactionID
-			}>)\n`;
+			}>)\n\n`;
 
 			return pre + endorseInform;
 		}, '');
