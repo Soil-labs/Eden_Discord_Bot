@@ -97,7 +97,9 @@ export default new Command({
 		}, '');
 
 		return interaction.followUp({
-			content: `You have successfully endorse ${member.username}!`,
+			content: `You have successfully endorse ${member.username}!
+			
+			https://eden-alpha-develop.vercel.app/profile/${member.username}`,
 			embeds: [
 				new EmbedBuilder()
 					.setTitle(`${member.username} Endorsement Record`)
