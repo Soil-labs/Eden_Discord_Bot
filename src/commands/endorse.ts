@@ -1,4 +1,11 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, EmbedBuilder } from 'discord.js';
+import {
+	ActionRowBuilder,
+	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	ButtonBuilder,
+	ButtonStyle
+} from 'discord.js';
+import _ from 'lodash';
 
 import { addEndorsement } from '../graph/mutation/addEndorsement.mutation';
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
@@ -85,25 +92,22 @@ export default new Command({
 			});
 		}
 
-		const endorseResults = result.addEndorsement.endorsements.reduce((pre, cur) => {
-			if (!cur.endorser) return pre;
-			const endorseInform = `**Endorser**: <@${cur.endorser._id}>\n**Message**: ${
-				cur.endorsementMessage
-			}\n**ARWeave Credential**: [Explorer Link](<${
-				LINK.ARWEAVE_EXPLORER + cur.arweaveTransactionID
-			}>)\n\n`;
+		let curEndorseArLink = LINK.ARWEAVE_EXPLORER;
+		const curEndorse = _.last(result.addEndorsement.endorsements);
 
-			return pre + endorseInform;
-		}, '');
-
+		if (curEndorse?.arweaveTransactionID) {
+			curEndorseArLink += curEndorse?.arweaveTransactionID;
+		}
 		return interaction.followUp({
-			content: `You have successfully endorse ${member.username}!
-			
-			https://eden-alpha-develop.vercel.app/profile/${member.username}`,
-			embeds: [
-				new EmbedBuilder()
-					.setTitle(`${member.username} Endorsement Record`)
-					.setDescription(endorseResults)
+			content: `You have successfully endorse ${member.username}!\nhttps://eden-alpha-develop.vercel.app/profile/${member.username}`,
+			components: [
+				new ActionRowBuilder<ButtonBuilder>().addComponents([
+					new ButtonBuilder()
+						.setLabel('Check it on Arweave')
+						.setStyle(ButtonStyle.Link)
+						.setEmoji('🔗')
+						.setURL(curEndorseArLink)
+				])
 			]
 		});
 	}
