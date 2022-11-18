@@ -24,7 +24,6 @@ export default new Event('threadCreate', (newThread: ThreadChannel, newlyCreated
 				...myCache.myGet('ChatThreads'),
 				[guildId]: [...myCache.myGet('ChatThreads')[guildId], newThread.id]
 			});
-			console.log(myCache.myGet('ChatThreads'))
 		}
 	}
 });
