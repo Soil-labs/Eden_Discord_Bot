@@ -13,12 +13,14 @@ import { MyClient } from '../structures/Client';
 export interface ExtendedUserContextMenuInteraction extends UserContextMenuCommandInteraction {
 	targetMember: GuildMember;
 	member: GuildMember;
+	commandName: ContextMenuNameEnum;
 }
 
 export interface ExtendedMessageContextMenuInteraction
 	extends MessageContextMenuCommandInteraction {
 	targetMember: GuildMember;
 	member: GuildMember;
+	commandName: ContextMenuNameEnum;
 }
 
 interface MessageContextMenuCommandRunOption {
@@ -34,7 +36,7 @@ interface UserContextMenuCommandRunOption {
 type MessageContextMenuRunFunction = (options: MessageContextMenuCommandRunOption) => any;
 type UserContextMenuRunFunction = (options: UserContextMenuCommandRunOption) => any;
 
-type ContextMenuNameEnum = 'Read my profile';
+export type ContextMenuNameEnum = 'Read my profile';
 export type UserContextMenuType = {
 	userPermissions?: PermissionResolvable[];
 	execute: UserContextMenuRunFunction;

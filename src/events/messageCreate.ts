@@ -95,4 +95,5 @@ export default new Event('messageCreate', async (message: Message) => {
 			replyUserID: userId
 		}
 	});
+	console.log('Updated');
 });

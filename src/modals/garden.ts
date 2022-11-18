@@ -3,7 +3,8 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	EmbedBuilder,
-	TextChannel
+	ForumChannel,
+	ThreadAutoArchiveDuration
 } from 'discord.js';
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
@@ -14,7 +15,7 @@ import { myCache } from '../structures/Cache';
 import { Modal } from '../structures/Modal';
 import { GardenMemberId } from '../types/Cache';
 import { LINK } from '../utils/const';
-import { awaitWrap, checkGardenChannelPermission, getErrorReply } from '../utils/util';
+import { awaitWrap, checkForumPermission, getErrorReply } from '../utils/util';
 
 export default new Modal({
 	customId: 'update',
@@ -33,7 +34,7 @@ export default new Modal({
 		const content = interaction.fields.getTextInputValue('garden_content').trim();
 
 		const {
-			generalChannelId,
+			forumChannelId,
 			projectId,
 			memberIds,
 			teamIds,
@@ -42,40 +43,36 @@ export default new Modal({
 			projectTitle,
 			teamName,
 			roleName,
-			autoArchiveDuration
+			autoArchiveDuration,
+			tagId
 		} = gardenContext[gardenUserIndentity];
 
 		await interaction.deferReply({ ephemeral: true });
 
-		let generalChannel = interaction.guild.channels.cache.get(generalChannelId) as TextChannel;
+		let forumChannel = interaction.guild.channels.cache.get(forumChannelId) as ForumChannel;
 
-		if (!generalChannel) {
+		if (!forumChannel) {
 			const { result, error } = await awaitWrap(
-				interaction.guild.channels.fetch(generalChannelId)
+				interaction.guild.channels.fetch(forumChannelId)
 			);
 
-			if (error)
+			if (error) {
 				return interaction.followUp({
 					content: `Sorry, the general channel for ${teamName} is unfetchable.`
 				});
-			generalChannel = result as TextChannel;
+			}
+			forumChannel = result as ForumChannel;
 		}
 
-		const permissionCheck = checkGardenChannelPermission(
-			generalChannel,
-			interaction.guild.members.me.id
-		);
+		const permissionCheck = checkForumPermission(forumChannel, interaction.guild.members.me.id);
 
-		if (permissionCheck)
+		if (permissionCheck) {
 			return interaction.followUp({
 				content: permissionCheck,
 				ephemeral: true
 			});
+		}
 
-		const thread = await generalChannel.threads.create({
-			name: title,
-			autoArchiveDuration: autoArchiveDuration ?? 1440
-		});
 		let embedDescription = `\u200B\n**Project**: ${projectTitle}\n**Team**: ${teamName}\n**Role**: ${roleName}`;
 
 		if (tokenAmount) embedDescription += `\n**Token Transferred**: \`${tokenAmount}\``;
@@ -83,37 +80,44 @@ export default new Modal({
 			.map((value) => `<@${value}>`)
 			.toString();
 
-		await thread.send({
-			content: memberIdsString,
-			embeds: [
-				new EmbedBuilder()
-					.setAuthor({
-						name: `@${interaction.member.displayName} -- Author`,
-						iconURL: interaction.user.avatarURL()
-					})
-					.setDescription(embedDescription)
-			],
-			components: [
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					new ButtonBuilder()
-						.setLabel('Garden Feed')
-						.setEmoji('🔗')
-						.setStyle(ButtonStyle.Link)
-						.setURL(LINK.GARDEN_FEED),
-					new ButtonBuilder()
-						.setLabel('Garden Graph')
-						.setEmoji('🔗')
-						.setStyle(ButtonStyle.Link)
-						.setURL(LINK.GARDEN_GRAPH),
-					new ButtonBuilder()
-						.setCustomId('expired')
-						.setLabel('Archive this thread')
-						.setStyle(ButtonStyle.Danger)
-						.setEmoji('🗃️')
-				)
-			]
+		const thread = await forumChannel.threads.create({
+			name: title,
+			message: {
+				content: memberIdsString,
+				embeds: [
+					new EmbedBuilder()
+						.setAuthor({
+							name: `@${interaction.member.displayName} -- Author`,
+							iconURL: interaction.user.avatarURL()
+						})
+						.setDescription(embedDescription)
+				],
+				components: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setLabel('Garden Feed')
+							.setEmoji('🔗')
+							.setStyle(ButtonStyle.Link)
+							.setURL(LINK.GARDEN_FEED),
+						new ButtonBuilder()
+							.setLabel('Garden Graph')
+							.setEmoji('🔗')
+							.setStyle(ButtonStyle.Link)
+							.setURL(LINK.GARDEN_GRAPH),
+						new ButtonBuilder()
+							.setCustomId('expired')
+							.setLabel('Archive this thread')
+							.setStyle(ButtonStyle.Danger)
+							.setEmoji('🗃️')
+					)
+				]
+			},
+			appliedTags: [tagId],
+			autoArchiveDuration: autoArchiveDuration,
+			reason: 'Garden Created'
 		});
-		thread.send({
+
+		await thread.send({
 			content: `**Content**: \n${content}`
 		});
 
@@ -140,12 +144,12 @@ export default new Modal({
 		});
 
 		if (error) {
-			thread.delete('GraphQL Error, cannot upload garden information');
+			await thread.delete('GraphQL Error, cannot upload garden information');
 			delete gardenContext[gardenUserIndentity];
 			myCache.mySet('GardenContext', gardenContext);
 			return interaction.followUp({
 				content: getErrorReply({
-					commandName: 'update',
+					commandName: 'garden',
 					errorMessage: error
 				})
 			});
@@ -153,39 +157,135 @@ export default new Modal({
 
 		if (
 			myCache.myHas('GuildSettings') &&
-			myCache.myGet('GuildSettings')[guildId]?.forwardChannelId
+			myCache.myGet('GuildSettings')[guildId]?.forwardForumChannelId
 		) {
-			const forwardChannel = interaction.guild.channels.cache.get(
-				myCache.myGet('GuildSettings')[guildId].forwardChannelId
-			) as TextChannel;
+			let forwardForumChannel = interaction.guild.channels.cache.get(
+				myCache.myGet('GuildSettings')[guildId].forwardForumChannelId
+			) as ForumChannel;
+			const permissinChecking = checkForumPermission(
+				forwardForumChannel,
+				interaction.guild.members.me.id
+			);
 
-			if (forwardChannel) {
-				forwardChannel.send({
-					embeds: [
-						new EmbedBuilder()
-							.setAuthor({
-								name: interaction.member.displayName,
-								iconURL: interaction.user.avatarURL()
-							})
-							.setTitle(title)
-							.setDescription(content)
-							.addFields([
-								{
-									name: 'Members of Garden',
-									value: memberIdsString
-								}
-							])
-					],
-					components: [
-						new ActionRowBuilder<ButtonBuilder>().addComponents([
-							new ButtonBuilder()
-								.setLabel('Jump to the thread')
-								.setStyle(ButtonStyle.Link)
-								.setEmoji('🔗')
-								.setURL(gardenUpdateInform.threadDiscordID)
-						])
-					]
-				});
+			if (forwardForumChannel && !permissinChecking) {
+				const tags = forwardForumChannel.availableTags.filter(
+					(tag) => tag.name === teamName
+				);
+
+				if (tags.length === 0) {
+					forwardForumChannel = await forwardForumChannel.setAvailableTags([
+						{
+							name: teamName
+						}
+					]);
+					const tagId = forwardForumChannel.availableTags.filter(
+						(tag) => tag.name === teamName
+					)[0].id;
+
+					forwardForumChannel.threads.create({
+						name: `${teamName} Updates`,
+						message: {
+							content:
+								'This post is for the team updates. **DO NOT SEND OTHER MESSAGES EXCEPT BOT.**',
+							embeds: [
+								new EmbedBuilder()
+									.setAuthor({
+										name: interaction.member.displayName,
+										iconURL: interaction.user.avatarURL()
+									})
+									.setTitle(title)
+									.setDescription(content)
+									.addFields([
+										{
+											name: 'Members of Garden',
+											value: memberIdsString
+										}
+									])
+							],
+							components: [
+								new ActionRowBuilder<ButtonBuilder>().addComponents([
+									new ButtonBuilder()
+										.setLabel('Join our party')
+										.setStyle(ButtonStyle.Link)
+										.setEmoji('🔗')
+										.setURL(gardenUpdateInform.threadDiscordID)
+								])
+							]
+						},
+						appliedTags: [tagId],
+						autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek
+					});
+				} else {
+					const tagId = tags[0].id;
+					const postsWithTag = forwardForumChannel.threads.cache.filter((post) =>
+						post?.appliedTags?.includes(tagId)
+					);
+
+					if (postsWithTag.size === 0) {
+						forwardForumChannel.threads.create({
+							name: `${teamName} Updates`,
+							message: {
+								content:
+									'This post is for the team updates. **DO NOT SEND OTHER MESSAGES EXCEPT BOT.**',
+								embeds: [
+									new EmbedBuilder()
+										.setAuthor({
+											name: interaction.member.displayName,
+											iconURL: interaction.user.avatarURL()
+										})
+										.setTitle(title)
+										.setDescription(content)
+										.addFields([
+											{
+												name: 'Members of Garden',
+												value: memberIdsString
+											}
+										])
+								],
+								components: [
+									new ActionRowBuilder<ButtonBuilder>().addComponents([
+										new ButtonBuilder()
+											.setLabel('Join our party')
+											.setStyle(ButtonStyle.Link)
+											.setEmoji('🔗')
+											.setURL(gardenUpdateInform.threadDiscordID)
+									])
+								]
+							},
+							appliedTags: [tagId],
+							autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek
+						});
+					} else {
+						const targetPost = postsWithTag.first();
+
+						targetPost.send({
+							embeds: [
+								new EmbedBuilder()
+									.setAuthor({
+										name: interaction.member.displayName,
+										iconURL: interaction.user.avatarURL()
+									})
+									.setTitle(title)
+									.setDescription(content)
+									.addFields([
+										{
+											name: 'Members of Garden',
+											value: memberIdsString
+										}
+									])
+							],
+							components: [
+								new ActionRowBuilder<ButtonBuilder>().addComponents([
+									new ButtonBuilder()
+										.setLabel('Join our party')
+										.setStyle(ButtonStyle.Link)
+										.setEmoji('🔗')
+										.setURL(gardenUpdateInform.threadDiscordID)
+								])
+							]
+						});
+					}
+				}
 			}
 		}
 

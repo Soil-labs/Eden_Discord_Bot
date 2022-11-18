@@ -38,7 +38,8 @@ type ContentProperty =
 	| 'ONBOARD_SELF'
 	| 'GROUP_ONBORAD'
 	| 'CHANNEL_SETTING_FAIL_REPLY'
-	| 'CHANNEL_SETTING_SUCCESS_REPLY';
+	| 'CHANNEL_SETTING_SUCCESS_REPLY'
+	| 'CHAT_TAG_NAME';
 
 type Numerical = Readonly<Record<NumericalProperty, number>>;
 type Link = Readonly<Record<LinkProperty, string>>;
@@ -89,7 +90,8 @@ export const CONTENT: Content = {
 	CHANNEL_SETTING_FAIL_REPLY:
 		'Fail to set <#%(targetChannelId)s> as %(setChannelName)s channel, because of `%(reason)s`.',
 	CHANNEL_SETTING_SUCCESS_REPLY:
-		'Success to set <#%(targetChannelId)s> as %(setChannelName)s channel.'
+		'Success to set <#%(targetChannelId)s> as %(setChannelName)s channel.',
+	CHAT_TAG_NAME: 'Chat'
 };
 
 export const ERROR_REPLY: InternalError = {
@@ -131,7 +133,7 @@ export const FirestoneChanneOptionNameToDbPropery: Readonly<
 	Record<FirestoneChannelOptionName, keyof GuildSettingInform>
 > = {
 	birthday: 'birthdayChannelId',
-	forward_garden: 'forwardChannelId'
+	forward_garden: 'forwardForumChannelId'
 };
 
 export const GraphQLChanneOptionNameToDbPropery: Readonly<
@@ -142,7 +144,7 @@ export const GraphQLChanneOptionNameToDbPropery: Readonly<
 
 export const EMBED_COLOR: Readonly<HexColorString> = '#74FA6D';
 
-type ExtendedApplicationCommandOptionChoiceData<T extends string| number> = {
+type ExtendedApplicationCommandOptionChoiceData<T extends string | number> = {
 	name: CommandNameEmun;
 } & ApplicationCommandOptionChoiceData<T>;
 

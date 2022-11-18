@@ -25,7 +25,7 @@ export const templateGuildInform: GuildInform = {
 
 export const templateGuildSettingInform: GuildSettingInform = {
 	birthdayChannelId: null,
-	forwardChannelId: null
+	forwardForumChannelId: null
 };
 
 export type VoiceContext = {
@@ -46,7 +46,7 @@ export type GuildInform = Required<
 // todo this part will be integrated with GuildInform, once graphql has
 export type GuildSettingInform = {
 	birthdayChannelId: string;
-	forwardChannelId: string;
+	forwardForumChannelId: string;
 };
 
 export type ProjectInform = {
@@ -67,6 +67,7 @@ export type SkillInform = {
 export type TeamInform = {
 	[teamId: TeamId]: {
 		teamName: string;
+		forumChannelId: string;
 	};
 };
 
@@ -85,7 +86,7 @@ export type ProjectTeamRoleInform = {
 
 export type GardenInform = {
 	categoryChannelId: string;
-	generalChannelId: string;
+	forumChannelId: string;
 	projectId: ProjectId;
 	projectTitle: string;
 	memberIds: Array<MemberId>;
@@ -93,6 +94,7 @@ export type GardenInform = {
 	teamName: string;
 	roleIds: Array<RoleId>;
 	roleName: string;
+	tagId: string;
 	autoArchiveDuration: Maybe<ThreadAutoArchiveDuration>;
 	tokenAmount: Maybe<number>;
 };
@@ -113,7 +115,7 @@ export type TeamValueType = {
 	[teamId: string]: {
 		teamName: string;
 		categoryChannelId: string;
-		generalChannelId: string;
+		forumChannelId: string;
 		roles: RoleValueType;
 	};
 };

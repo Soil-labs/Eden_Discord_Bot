@@ -12,6 +12,7 @@ export default new Button({
 
 		buttonJson.components[0].disabled = true;
 		buttonJson.components[1].disabled = true;
+		buttonJson.components[2].disabled = true;
 
 		await interaction.message.edit({
 			content: message.content,

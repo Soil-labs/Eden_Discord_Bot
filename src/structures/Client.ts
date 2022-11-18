@@ -8,9 +8,11 @@ import {
 	ClientEvents,
 	Collection,
 	EmbedBuilder,
+	ForumChannel,
 	GatewayIntentBits,
 	MessageApplicationCommandData,
 	TextChannel,
+	ThreadAutoArchiveDuration,
 	ThreadChannel,
 	UserApplicationCommandData,
 	VoiceChannel
@@ -46,9 +48,15 @@ import { CommandType } from '../types/Command';
 import { RegisterCommandsOptions } from '../types/CommandRegister';
 import { MessageContextMenuType, UserContextMenuType } from '../types/ContextMenu';
 import { ModalType } from '../types/Modal';
-import { defaultGuildVoiceContext, NUMBER } from '../utils/const';
+import { CONTENT, defaultGuildVoiceContext, NUMBER } from '../utils/const';
 import { logger } from '../utils/logger';
-import { awaitWrap, checkOnboardPermission, convertMsToTime, getNextBirthday } from '../utils/util';
+import {
+	awaitWrap,
+	checkOnboardPermission,
+	convertMsToTime,
+	getNextBirthday,
+	validForumTag
+} from '../utils/util';
 import { myCache } from './Cache';
 import { Event } from './Event';
 
@@ -226,7 +234,7 @@ export class MyClient extends Client {
 						...guildsCache,
 						[guildId]: {
 							birthdayChannelId: guildQuery.birthdayChannelId ?? null,
-							forwardChannelId: guildQuery.forwardChannelId ?? null
+							forwardForumChannelId: guildQuery.forwardForumChannelId ?? null
 						}
 					};
 				} else {
@@ -300,18 +308,34 @@ export class MyClient extends Client {
 			}
 			voiceContextsCache[guildId] = defaultGuildVoiceContext;
 			chatThreadsCache[guildId] = [];
-			const chatChannel = guild.channels.cache.get(
-				cachedGuildsInform[guildId].channelChatID
-			) as TextChannel;
+			for (const team of Object.values(myCache.myGet('Teams')[guildId])) {
+				const { forumChannelId } = team;
 
-			if (!chatChannel) continue;
+				if (forumChannelId) {
+					const forumChannel = guild.channels.cache.get(forumChannelId) as ForumChannel;
+					const threads: Array<ThreadChannel> = [];
 
-			while (true) {
-				const { result, error } = await awaitWrap(chatChannel.threads.fetch());
+					if (!forumChannel) continue;
+					const tagId = validForumTag(forumChannel, CONTENT.CHAT_TAG_NAME);
 
-				if (error) break;
-				chatThreadsCache[guildId].push(...result.threads.keys());
-				if (!result.hasMore) break;
+					if (!tagId) return;
+					while (true) {
+						const { result, error } = await awaitWrap(forumChannel.threads.fetch());
+
+						if (error) break;
+						threads.push(...result.threads.values());
+						if (!result.hasMore) break;
+					}
+					chatThreadsCache[guildId].push(
+						...threads
+							.filter(
+								(thread) =>
+									thread?.appliedTags?.filter((tag) => tag === tagId)?.length !==
+									0
+							)
+							.map((thread) => thread.id)
+					);
+				}
 			}
 		}
 		(await Promise.all(serverToBeUpdated)).forEach((result) => {
@@ -387,14 +411,17 @@ export class MyClient extends Client {
 			if (!firstMsg) continue;
 			const autoArchiveDay = autoArchiveDuration / (24 * 60);
 
-			if (autoArchiveDay === 3 || autoArchiveDay === 7) {
+			if (
+				autoArchiveDay === ThreadAutoArchiveDuration.ThreeDays ||
+				autoArchiveDay === ThreadAutoArchiveDuration.OneWeek
+			) {
 				const oneDayInMil = 24 * 60 * 60 * 1000;
 
 				if (
 					firstMsg.createdTimestamp + autoArchiveDuration * 60 * 1000 - current <=
 					oneDayInMil
 				) {
-					thread.setAutoArchiveDuration(1440);
+					thread.setAutoArchiveDuration(ThreadAutoArchiveDuration.OneDay);
 					thread.send({
 						content: `Hi, <@${authorId}>, this thread will be closed in 1 day. Time to make a decision.`,
 						components: [

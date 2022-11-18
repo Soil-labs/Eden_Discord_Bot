@@ -2,8 +2,8 @@ import {
 	ActionRowBuilder,
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
+	ForumChannel,
 	ModalBuilder,
-	TextChannel,
 	TextInputBuilder,
 	TextInputStyle,
 	ThreadAutoArchiveDuration
@@ -12,7 +12,7 @@ import {
 import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
 import { GardenInform } from '../types/Cache';
-import { awaitWrap, checkGardenChannelPermission, validGarden } from '../utils/util';
+import { awaitWrap, checkForumPermission, validGarden } from '../utils/util';
 
 export default new Command({
 	type: ApplicationCommandType.ChatInput,
@@ -52,12 +52,12 @@ export default new Command({
 			name: 'archive_duration',
 			choices: [
 				{
-					name: '3 days',
-					value: '4320'
+					name: '1 days',
+					value: ThreadAutoArchiveDuration.OneDay.toString()
 				},
 				{
 					name: '7 days',
-					value: '10080'
+					value: ThreadAutoArchiveDuration.OneWeek.toString()
 				}
 			]
 		},
@@ -81,26 +81,26 @@ export default new Command({
 
 		const validResult = validGarden(guildId, projectId, teamId, roleId);
 
-		if (typeof validResult === 'string')
+		if (typeof validResult === 'string') {
 			return interaction.reply({
 				content: validResult,
 				ephemeral: true
 			});
-
-		if (!membersString)
+		}
+		if (!membersString) {
 			return interaction.reply({
 				content: 'Please input at least one member in this guild',
 				ephemeral: true
 			});
+		}
 
-		const { roleName, projectTitle, teamName, categoryChannelId, generalChannelId } =
-			validResult;
+		const { roleName, projectTitle, teamName, categoryChannelId, forumChannelId } = validResult;
 
-		let generalChannel = interaction.guild.channels.cache.get(generalChannelId) as TextChannel;
+		let forumChannel = interaction.guild.channels.cache.get(forumChannelId) as ForumChannel;
 
-		if (!generalChannel) {
+		if (!forumChannel) {
 			const { result, error } = await awaitWrap(
-				interaction.guild.channels.fetch(generalChannelId)
+				interaction.guild.channels.fetch(forumChannelId)
 			);
 
 			if (error)
@@ -108,24 +108,34 @@ export default new Command({
 					content: `Sorry, the general channel for ${teamName} is unfetchable.`,
 					ephemeral: true
 				});
-			generalChannel = result as TextChannel;
+			forumChannel = result as ForumChannel;
 		}
-		const permissinChecking = checkGardenChannelPermission(
-			generalChannel,
+		const permissinChecking = checkForumPermission(
+			forumChannel,
 			interaction.guild.members.me.id
 		);
 
-		if (permissinChecking)
+		if (permissinChecking) {
 			return interaction.reply({
 				content: permissinChecking,
 				ephemeral: true
 			});
+		}
+		const tagId = forumChannel.availableTags.filter((tag) => tag.name === roleName)?.[0]?.id;
 
-		if (tokenAmount !== null && tokenAmount < 1)
+		if (!tagId) {
+			return interaction.reply({
+				content: `Sorry, I cannot find the right tag in <#${forumChannelId}>. Please inform our admin.`,
+				ephemeral: true
+			});
+		}
+
+		if (tokenAmount !== null && tokenAmount < 1) {
 			return interaction.reply({
 				content: 'Token amount should be larger than 1',
 				ephemeral: true
 			});
+		}
 
 		const members = membersString
 			.map((value) => {
@@ -148,11 +158,12 @@ export default new Command({
 			})
 			.filter((value) => value);
 
-		if (members.length === 0)
+		if (members.length === 0) {
 			return interaction.reply({
 				content: 'You need to input at least one member in this guid.',
 				ephemeral: true
 			});
+		}
 
 		const gardenModal = new ModalBuilder()
 			.setCustomId('update')
@@ -178,7 +189,7 @@ export default new Command({
 		);
 		const userCache: GardenInform = {
 			categoryChannelId: categoryChannelId,
-			generalChannelId: generalChannelId,
+			forumChannelId: forumChannelId,
 			projectId: projectId,
 			projectTitle: projectTitle,
 			memberIds: members,
@@ -186,14 +197,18 @@ export default new Command({
 			teamName: teamName,
 			roleIds: [roleId],
 			roleName: roleName,
+			tagId: tagId,
 			autoArchiveDuration: null,
 			tokenAmount: null
 		};
 
-		if (autoArchiveDuration)
+		if (autoArchiveDuration) {
 			userCache.autoArchiveDuration = Number(
 				autoArchiveDuration
 			) as ThreadAutoArchiveDuration;
+		} else {
+			userCache.autoArchiveDuration = ThreadAutoArchiveDuration.ThreeDays;
+		}
 		if (tokenAmount) userCache.tokenAmount = tokenAmount;
 
 		myCache.mySet('GardenContext', {
@@ -201,7 +216,6 @@ export default new Command({
 			[`${guildId}_${userId}`]: userCache
 		});
 
-		// todo showModal is a reply
 		await interaction.showModal(gardenModal);
 		return await interaction.followUp({
 			content: 'Please fill in the form to continue',
