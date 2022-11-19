@@ -21,7 +21,7 @@ export default new Command({
 		{
 			type: ApplicationCommandOptionType.Subcommand,
 			description: 'Find member profiles in the community',
-			name: 'fren',
+			name: 'person',
 			options: [
 				{
 					type: ApplicationCommandOptionType.User,
@@ -213,7 +213,7 @@ export default new Command({
 					userDetail.findMember.hoursPerWeek ?? 0,
 					projectNames,
 					sprintf(LINK.USER, frenUser.id),
-					frenUser.username
+					frenUser.id
 				)
 			);
 

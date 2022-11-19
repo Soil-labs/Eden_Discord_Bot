@@ -35,14 +35,12 @@ export default new Command({
 		const guildId = interaction.guild.id;
 
 		if (subCommandName === 'new') {
-			const launchProjectLink = sprintf(LINK.LAUNCH_PROJECT, guildId);
-
 			return interaction.reply({
 				embeds: [
 					new EmbedBuilder()
 						.setTitle("Let's BUIDL!🤩")
 						.setDescription(
-							`🚀Click [here](${launchProjectLink}) to launch a new project`
+							`🚀Click [here](${LINK.LAUNCH_PROJECT}) to launch a new project`
 						)
 				],
 				ephemeral: true
