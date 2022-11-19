@@ -376,73 +376,108 @@ export class MyClient extends Client {
 		const { result: gardens, error: gardenError } = await findProjectUpdates();
 
 		if (gardenError) return;
+		const guildIds = [...client.guilds.cache.keys()];
 		// todo why _id could be null and serverID is []
-		const filteredGardens = gardens.findProjectUpdates
+		const filteredGardens: {
+			[guildId: string]: {
+				gardens: Array<{
+					authorId: string;
+					threadId: string;
+				}>;
+			};
+		} = gardens.findProjectUpdates
 			.filter(
-				(garden) => garden.threadDiscordID && garden.author?._id && garden.serverID.length
+				(garden) =>
+					garden.threadDiscordID &&
+					garden.author?._id &&
+					garden.serverID.length &&
+					guildIds.includes(garden.serverID[0])
 			)
 			.map((garden) => ({
 				serverId: garden.serverID[0],
 				authorId: garden.author._id,
 				threadId: garden.threadDiscordID.match(/\d+$/)[0]
-			}));
+			}))
+			.reduce((pre, cur) => {
+				if (cur.serverId in pre) {
+					pre[cur.serverId].gardens.push({
+						authorId: cur.authorId,
+						threadId: cur.threadId
+					});
+				} else {
+					pre[cur.serverId] = {
+						gardens: [
+							{
+								authorId: cur.authorId,
+								threadId: cur.threadId
+							}
+						]
+					};
+				}
+				return pre;
+			}, {});
 
-		for (const { serverId, authorId, threadId } of filteredGardens) {
-			const guild = client.guilds.cache.get(serverId);
+		for (const [guildId, guild] of client.guilds.cache) {
+			if (!filteredGardens[guildId]) continue;
+			for (const { authorId, threadId } of filteredGardens[guildId].gardens) {
+				if (!guild.available) continue;
+				let thread = guild.channels.cache.get(threadId) as ThreadChannel;
 
-			if (!guild) continue;
-			let thread = guild.channels.cache.get(threadId) as ThreadChannel;
+				if (!thread) {
+					const { result: tmpThread, error: tmpError } = await awaitWrap(
+						guild.channels.fetch(threadId)
+					);
 
-			if (!thread) {
-				const { result: tmpThread, error: tmpError } = await awaitWrap(
-					guild.channels.fetch(threadId)
-				);
+					if (tmpError) continue;
+					if (tmpThread.isThread()) {
+						thread = tmpThread;
+					} else continue;
+				}
+				if (thread.archived || thread.locked) continue;
+				const current = new Date().getTime();
+				const { messages, autoArchiveDuration } = thread;
+				let { lastMessage } = thread;
 
-				if (tmpError) continue;
-				if (tmpThread.isThread()) {
-					thread = tmpThread;
-				} else continue;
-			}
-			if (thread.archived || thread.locked) continue;
-			const current = new Date().getTime();
-			const { messages, autoArchiveDuration } = thread;
-			const firstMsg = (await messages.fetch({ limit: 1 }))?.first();
+				if (!lastMessage) {
+					const lastMsg = (await messages.fetch({ limit: 1 }))?.first();
 
-			if (!firstMsg) continue;
-			const autoArchiveDay = autoArchiveDuration / (24 * 60);
-
-			if (
-				autoArchiveDay === ThreadAutoArchiveDuration.ThreeDays ||
-				autoArchiveDay === ThreadAutoArchiveDuration.OneWeek
-			) {
-				const oneDayInMil = 24 * 60 * 60 * 1000;
+					if (!lastMsg) continue;
+					lastMessage = lastMsg;
+				}
 
 				if (
-					firstMsg.createdTimestamp + autoArchiveDuration * 60 * 1000 - current <=
-					oneDayInMil
+					autoArchiveDuration === ThreadAutoArchiveDuration.ThreeDays ||
+					autoArchiveDuration === ThreadAutoArchiveDuration.OneWeek
 				) {
-					thread.setAutoArchiveDuration(ThreadAutoArchiveDuration.OneDay);
-					thread.send({
-						content: `Hi, <@${authorId}>, this thread will be closed in 1 day. Time to make a decision.`,
-						components: [
-							new ActionRowBuilder<ButtonBuilder>().addComponents([
-								new ButtonBuilder()
-									.setCustomId('expired')
-									.setLabel('Archive this thread')
-									.setStyle(ButtonStyle.Danger)
-									.setEmoji('🗃️'),
-								new ButtonBuilder()
-									.setLabel(
-										`Archive this thread in ${
-											autoArchiveDuration / (24 * 60)
-										} days`
-									)
-									.setCustomId('putoffexpire')
-									.setStyle(ButtonStyle.Success)
-									.setEmoji('💡')
-							])
-						]
-					});
+					const oneDayInMil = 24 * 60 * 60 * 1000;
+
+					if (
+						lastMessage.createdTimestamp + autoArchiveDuration * 60 * 1000 - current <=
+						oneDayInMil
+					) {
+						thread.setAutoArchiveDuration(ThreadAutoArchiveDuration.OneDay);
+						thread.send({
+							content: `Hi, <@${authorId}>, this thread will be closed in 1 day. Time to make a decision.`,
+							components: [
+								new ActionRowBuilder<ButtonBuilder>().addComponents([
+									new ButtonBuilder()
+										.setCustomId('expired')
+										.setLabel('Archive this thread')
+										.setStyle(ButtonStyle.Danger)
+										.setEmoji('🗃️'),
+									new ButtonBuilder()
+										.setLabel(
+											`Archive this thread in ${
+												autoArchiveDuration / (24 * 60)
+											} days`
+										)
+										.setCustomId('putoffexpire')
+										.setStyle(ButtonStyle.Success)
+										.setEmoji('💡')
+								])
+							]
+						});
+					}
 				}
 			}
 		}
