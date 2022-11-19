@@ -75,8 +75,10 @@ export type GraphQL_MatchPercentage = {
 export type GraphQL_MatchType = {
   __typename?: 'MatchType';
   distanceMembers?: Maybe<GraphQL_DistanceType>;
+  distanceProject?: Maybe<GraphQL_DistanceType>;
   distanceProjectRoles?: Maybe<GraphQL_DistanceType>;
   recalculateMembers?: Maybe<Scalars['Boolean']>;
+  recalculateProject?: Maybe<Scalars['Boolean']>;
   recalculateProjectRoles?: Maybe<Scalars['Boolean']>;
 };
 
@@ -131,6 +133,7 @@ export type GraphQL_Mutation = {
   createNewEpic?: Maybe<GraphQL_Epic>;
   createNewRole?: Maybe<GraphQL_Role>;
   createNewTeam?: Maybe<GraphQL_Team>;
+  createNode?: Maybe<GraphQL_Node>;
   createProjectUpdate?: Maybe<GraphQL_ProjectUpdate>;
   createRoom?: Maybe<GraphQL_Rooms>;
   createSkill?: Maybe<GraphQL_Skills>;
@@ -140,6 +143,8 @@ export type GraphQL_Mutation = {
   exitRoom?: Maybe<GraphQL_Rooms>;
   login: GraphQL_User;
   newTweetProject?: Maybe<GraphQL_TweetsProject>;
+  relatedNode?: Maybe<GraphQL_Node>;
+  relatedNode_name?: Maybe<GraphQL_Node>;
   relatedSkills?: Maybe<GraphQL_Skills>;
   updateChatReply?: Maybe<GraphQL_Chats>;
   updateChatResult?: Maybe<GraphQL_Chats>;
@@ -213,6 +218,11 @@ export type GraphQL_MutationCreateNewTeamArgs = {
 };
 
 
+export type GraphQL_MutationCreateNodeArgs = {
+  fields?: InputMaybe<GraphQL_CreateNodeInput>;
+};
+
+
 export type GraphQL_MutationCreateProjectUpdateArgs = {
   fields: GraphQL_CreateProjectUpdateInput;
 };
@@ -255,6 +265,16 @@ export type GraphQL_MutationLoginArgs = {
 
 export type GraphQL_MutationNewTweetProjectArgs = {
   fields: GraphQL_NewTweetProjectInput;
+};
+
+
+export type GraphQL_MutationRelatedNodeArgs = {
+  fields?: InputMaybe<GraphQL_RelatedNodeInput>;
+};
+
+
+export type GraphQL_MutationRelatedNode_NameArgs = {
+  fields?: InputMaybe<GraphQL_RelatedNode_NameInput>;
 };
 
 
@@ -305,6 +325,19 @@ export type GraphQL_MutationUpdateSkillCategoryArgs = {
 
 export type GraphQL_MutationUpdateSkillSubCategoryArgs = {
   fields?: InputMaybe<GraphQL_UpdateSkillSubCategoryInput>;
+};
+
+export type GraphQL_Node = {
+  __typename?: 'Node';
+  _id?: Maybe<Scalars['ID']>;
+  aboveNodes?: Maybe<Array<Maybe<GraphQL_Node>>>;
+  match?: Maybe<GraphQL_MatchType>;
+  name?: Maybe<Scalars['String']>;
+  node?: Maybe<Scalars['String']>;
+  registeredAt?: Maybe<Scalars['String']>;
+  relatedNodes?: Maybe<Array<Maybe<GraphQL_Node>>>;
+  state?: Maybe<GraphQL_StateEnum>;
+  subNodes?: Maybe<Array<Maybe<GraphQL_Node>>>;
 };
 
 export type GraphQL_PageInfo = {
@@ -376,6 +409,8 @@ export type GraphQL_Query = {
   findGarden?: Maybe<Array<Maybe<GraphQL_FindGardenOutput>>>;
   findMember?: Maybe<GraphQL_Members>;
   findMembers?: Maybe<Array<Maybe<GraphQL_Members>>>;
+  findNode?: Maybe<GraphQL_Node>;
+  findNodes?: Maybe<Array<Maybe<GraphQL_Node>>>;
   findProject?: Maybe<GraphQL_Project>;
   findProjectUpdates?: Maybe<Array<Maybe<GraphQL_ProjectUpdate>>>;
   findProjects?: Maybe<Array<Maybe<GraphQL_Project>>>;
@@ -442,6 +477,16 @@ export type GraphQL_QueryFindMemberArgs = {
 
 export type GraphQL_QueryFindMembersArgs = {
   fields?: InputMaybe<GraphQL_FindMembersInput>;
+};
+
+
+export type GraphQL_QueryFindNodeArgs = {
+  fields?: InputMaybe<GraphQL_FindNodeInput>;
+};
+
+
+export type GraphQL_QueryFindNodesArgs = {
+  fields?: InputMaybe<GraphQL_FindNodesInput>;
 };
 
 
@@ -640,6 +685,8 @@ export type GraphQL_ServerTemplate = {
   adminRoles?: Maybe<Array<Maybe<Scalars['String']>>>;
   channel?: Maybe<GraphQL_ChannelOutput>;
   name?: Maybe<Scalars['String']>;
+  serverAvatar?: Maybe<Scalars['String']>;
+  serverType?: Maybe<Scalars['String']>;
 };
 
 export type GraphQL_SkillCategory = {
@@ -733,6 +780,7 @@ export type GraphQL_Team = {
   channelGeneralDiscordID?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   epics?: Maybe<Array<Maybe<GraphQL_Epic>>>;
+  forumDiscordID?: Maybe<Scalars['String']>;
   members?: Maybe<Array<Maybe<GraphQL_Members>>>;
   name?: Maybe<Scalars['String']>;
   projects?: Maybe<GraphQL_Project>;
@@ -928,10 +976,19 @@ export type GraphQL_CreateNewTeamInput = {
   championID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   channelGeneralDiscordID?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
+  forumDiscordID?: InputMaybe<Scalars['String']>;
   memberID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   name?: InputMaybe<Scalars['String']>;
   projectID?: InputMaybe<Scalars['String']>;
   serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_CreateNodeInput = {
+  aboveNodes?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+  name?: InputMaybe<Scalars['String']>;
+  node?: InputMaybe<Scalars['String']>;
+  state?: InputMaybe<GraphQL_StateEnum>;
+  subNodes?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
 };
 
 export type GraphQL_CreateProjectUpdateInput = {
@@ -1063,6 +1120,15 @@ export type GraphQL_FindMemberInput = {
 export type GraphQL_FindMembersInput = {
   _id?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
   serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_FindNodeInput = {
+  _id?: InputMaybe<Scalars['ID']>;
+};
+
+export type GraphQL_FindNodesInput = {
+  _id?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+  node?: InputMaybe<Scalars['String']>;
 };
 
 export type GraphQL_FindProjectInput = {
@@ -1387,6 +1453,16 @@ export type GraphQL_ProjectUserMatchType = {
   skillsMatch?: Maybe<Array<Maybe<GraphQL_Skills>>>;
 };
 
+export type GraphQL_RelatedNodeInput = {
+  _id?: InputMaybe<Scalars['ID']>;
+  relatedNode_id?: InputMaybe<Scalars['ID']>;
+};
+
+export type GraphQL_RelatedNode_NameInput = {
+  name?: InputMaybe<Scalars['String']>;
+  relatedNode_name?: InputMaybe<Scalars['String']>;
+};
+
 export type GraphQL_RelatedSkillsInput = {
   _id?: InputMaybe<Scalars['ID']>;
   relatedSkills_id?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
@@ -1437,6 +1513,12 @@ export type GraphQL_RoleType = {
   title?: Maybe<Scalars['String']>;
 };
 
+export enum GraphQL_ServerTypeEnum {
+  Dao = 'DAO',
+  Hackathon = 'Hackathon',
+  Project = 'Project'
+}
+
 export type GraphQL_SkillInput_Member = {
   id?: InputMaybe<Scalars['ID']>;
   level?: InputMaybe<GraphQL_LevelEnum>;
@@ -1486,6 +1568,12 @@ export type GraphQL_SkillsUpdateMemberInput = {
 export type GraphQL_Skills_AutocompleteInput = {
   search?: InputMaybe<Scalars['String']>;
 };
+
+export enum GraphQL_StateEnum {
+  Approved = 'approved',
+  Rejected = 'rejected',
+  Waiting = 'waiting'
+}
 
 export type GraphQL_TeamInput = {
   memberID?: InputMaybe<Scalars['String']>;
@@ -1609,6 +1697,8 @@ export type GraphQL_UpdateServerInput = {
   adminRoles?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   channelChatID?: InputMaybe<Scalars['ID']>;
   name?: InputMaybe<Scalars['String']>;
+  serverAvatar?: InputMaybe<Scalars['String']>;
+  serverType?: InputMaybe<GraphQL_ServerTypeEnum>;
 };
 
 export type GraphQL_UpdateSkillCategoryInput = {
@@ -1720,7 +1810,7 @@ export type GraphQL_FindProjectsQueryVariables = Exact<{
 }>;
 
 
-export type GraphQL_FindProjectsQuery = { __typename?: 'Query', findProjects?: Array<{ __typename?: 'Project', _id?: string | null, title?: string | null, serverID?: Array<string | null> | null, gardenServerID?: string | null, garden_teams?: Array<{ __typename?: 'Team', _id?: string | null, name?: string | null, categoryDiscordlD?: string | null, channelGeneralDiscordID?: string | null, roles?: Array<{ __typename?: 'Role', _id?: string | null, name?: string | null } | null> | null } | null> | null } | null> | null };
+export type GraphQL_FindProjectsQuery = { __typename?: 'Query', findProjects?: Array<{ __typename?: 'Project', _id?: string | null, title?: string | null, serverID?: Array<string | null> | null, gardenServerID?: string | null, garden_teams?: Array<{ __typename?: 'Team', _id?: string | null, name?: string | null, categoryDiscordlD?: string | null, forumDiscordID?: string | null, roles?: Array<{ __typename?: 'Role', _id?: string | null, name?: string | null } | null> | null } | null> | null } | null> | null };
 
 export type GraphQL_FindProjects_RecommendedToUserQueryVariables = Exact<{
   fields?: InputMaybe<GraphQL_FindProjects_RecommendedToUserInput>;

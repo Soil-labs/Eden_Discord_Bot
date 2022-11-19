@@ -143,7 +143,7 @@ export default new Command({
 					name: FirestoneChannelOptionName.GardenForward,
 					description:
 						'Choose a text channel, where people receive the latest news from Garden.',
-					channelTypes: [ChannelType.GuildText]
+					channelTypes: [ChannelType.GuildForum]
 				},
 				{
 					type: ApplicationCommandOptionType.Channel,

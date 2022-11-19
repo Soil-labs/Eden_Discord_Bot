@@ -8,9 +8,11 @@ import {
 	ClientEvents,
 	Collection,
 	EmbedBuilder,
+	ForumChannel,
 	GatewayIntentBits,
 	MessageApplicationCommandData,
 	TextChannel,
+	ThreadAutoArchiveDuration,
 	ThreadChannel,
 	UserApplicationCommandData,
 	VoiceChannel
@@ -46,9 +48,15 @@ import { CommandType } from '../types/Command';
 import { RegisterCommandsOptions } from '../types/CommandRegister';
 import { MessageContextMenuType, UserContextMenuType } from '../types/ContextMenu';
 import { ModalType } from '../types/Modal';
-import { defaultGuildVoiceContext, NUMBER } from '../utils/const';
+import { CONTENT, defaultGuildVoiceContext, NUMBER } from '../utils/const';
 import { logger } from '../utils/logger';
-import { awaitWrap, checkOnboardPermission, convertMsToTime, getNextBirthday } from '../utils/util';
+import {
+	awaitWrap,
+	checkOnboardPermission,
+	convertMsToTime,
+	getNextBirthday,
+	validForumTag
+} from '../utils/util';
 import { myCache } from './Cache';
 import { Event } from './Event';
 
@@ -226,7 +234,7 @@ export class MyClient extends Client {
 						...guildsCache,
 						[guildId]: {
 							birthdayChannelId: guildQuery.birthdayChannelId ?? null,
-							forwardChannelId: guildQuery.forwardChannelId ?? null
+							forwardForumChannelId: guildQuery.forwardForumChannelId ?? null
 						}
 					};
 				} else {
@@ -300,18 +308,34 @@ export class MyClient extends Client {
 			}
 			voiceContextsCache[guildId] = defaultGuildVoiceContext;
 			chatThreadsCache[guildId] = [];
-			const chatChannel = guild.channels.cache.get(
-				cachedGuildsInform[guildId].channelChatID
-			) as TextChannel;
+			for (const team of Object.values(myCache.myGet('Teams')[guildId])) {
+				const { forumChannelId } = team;
 
-			if (!chatChannel) continue;
+				if (forumChannelId) {
+					const forumChannel = guild.channels.cache.get(forumChannelId) as ForumChannel;
+					const threads: Array<ThreadChannel> = [];
 
-			while (true) {
-				const { result, error } = await awaitWrap(chatChannel.threads.fetch());
+					if (!forumChannel) continue;
+					const tagId = validForumTag(forumChannel, CONTENT.CHAT_TAG_NAME);
 
-				if (error) break;
-				chatThreadsCache[guildId].push(...result.threads.keys());
-				if (!result.hasMore) break;
+					if (!tagId) return;
+					while (true) {
+						const { result, error } = await awaitWrap(forumChannel.threads.fetch());
+
+						if (error) break;
+						threads.push(...result.threads.values());
+						if (!result.hasMore) break;
+					}
+					chatThreadsCache[guildId].push(
+						...threads
+							.filter(
+								(thread) =>
+									thread?.appliedTags?.filter((tag) => tag === tagId)?.length !==
+									0
+							)
+							.map((thread) => thread.id)
+					);
+				}
 			}
 		}
 		(await Promise.all(serverToBeUpdated)).forEach((result) => {
@@ -352,70 +376,108 @@ export class MyClient extends Client {
 		const { result: gardens, error: gardenError } = await findProjectUpdates();
 
 		if (gardenError) return;
+		const guildIds = [...client.guilds.cache.keys()];
 		// todo why _id could be null and serverID is []
-		const filteredGardens = gardens.findProjectUpdates
+		const filteredGardens: {
+			[guildId: string]: {
+				gardens: Array<{
+					authorId: string;
+					threadId: string;
+				}>;
+			};
+		} = gardens.findProjectUpdates
 			.filter(
-				(garden) => garden.threadDiscordID && garden.author?._id && garden.serverID.length
+				(garden) =>
+					garden.threadDiscordID &&
+					garden.author?._id &&
+					garden.serverID.length &&
+					guildIds.includes(garden.serverID[0])
 			)
 			.map((garden) => ({
 				serverId: garden.serverID[0],
 				authorId: garden.author._id,
 				threadId: garden.threadDiscordID.match(/\d+$/)[0]
-			}));
+			}))
+			.reduce((pre, cur) => {
+				if (cur.serverId in pre) {
+					pre[cur.serverId].gardens.push({
+						authorId: cur.authorId,
+						threadId: cur.threadId
+					});
+				} else {
+					pre[cur.serverId] = {
+						gardens: [
+							{
+								authorId: cur.authorId,
+								threadId: cur.threadId
+							}
+						]
+					};
+				}
+				return pre;
+			}, {});
 
-		for (const { serverId, authorId, threadId } of filteredGardens) {
-			const guild = client.guilds.cache.get(serverId);
+		for (const [guildId, guild] of client.guilds.cache) {
+			if (!filteredGardens[guildId]) continue;
+			for (const { authorId, threadId } of filteredGardens[guildId].gardens) {
+				if (!guild.available) continue;
+				let thread = guild.channels.cache.get(threadId) as ThreadChannel;
 
-			if (!guild) continue;
-			let thread = guild.channels.cache.get(threadId) as ThreadChannel;
+				if (!thread) {
+					const { result: tmpThread, error: tmpError } = await awaitWrap(
+						guild.channels.fetch(threadId)
+					);
 
-			if (!thread) {
-				const { result: tmpThread, error: tmpError } = await awaitWrap(
-					guild.channels.fetch(threadId)
-				);
+					if (tmpError) continue;
+					if (tmpThread.isThread()) {
+						thread = tmpThread;
+					} else continue;
+				}
+				if (thread.archived || thread.locked) continue;
+				const current = new Date().getTime();
+				const { messages, autoArchiveDuration } = thread;
+				let { lastMessage } = thread;
 
-				if (tmpError) continue;
-				if (tmpThread.isThread()) {
-					thread = tmpThread;
-				} else continue;
-			}
-			if (thread.archived || thread.locked) continue;
-			const current = new Date().getTime();
-			const { messages, autoArchiveDuration } = thread;
-			const firstMsg = (await messages.fetch({ limit: 1 }))?.first();
+				if (!lastMessage) {
+					const lastMsg = (await messages.fetch({ limit: 1 }))?.first();
 
-			if (!firstMsg) continue;
-			const autoArchiveDay = autoArchiveDuration / (24 * 60);
-
-			if (autoArchiveDay === 3 || autoArchiveDay === 7) {
-				const oneDayInMil = 24 * 60 * 60 * 1000;
+					if (!lastMsg) continue;
+					lastMessage = lastMsg;
+				}
 
 				if (
-					firstMsg.createdTimestamp + autoArchiveDuration * 60 * 1000 - current <=
-					oneDayInMil
+					autoArchiveDuration === ThreadAutoArchiveDuration.ThreeDays ||
+					autoArchiveDuration === ThreadAutoArchiveDuration.OneWeek
 				) {
-					thread.setAutoArchiveDuration(1440);
-					thread.send({
-						content: `Hi, <@${authorId}>, this thread will be closed in 1 day. Time to make a decision.`,
-						components: [
-							new ActionRowBuilder<ButtonBuilder>().addComponents([
-								new ButtonBuilder()
-									.setCustomId('expired')
-									.setLabel('Archive this thread')
-									.setStyle(ButtonStyle.Danger)
-									.setEmoji('🗃️'),
-								new ButtonBuilder()
-									.setLabel(
-										`Archive this thread in ${
-											autoArchiveDuration / (24 * 60)
-										} days`
-									)
-									.setCustomId('putoffexpire')
-									.setStyle(ButtonStyle.Success)
-									.setEmoji('💡')
-							])
-						]
-					});
+					const oneDayInMil = 24 * 60 * 60 * 1000;
+
+					if (
+						lastMessage.createdTimestamp + autoArchiveDuration * 60 * 1000 - current <=
+						oneDayInMil
+					) {
+						thread.setAutoArchiveDuration(ThreadAutoArchiveDuration.OneDay);
+						thread.send({
+							content: `Hi, <@${authorId}>, this thread will be closed in 1 day. Time to make a decision.`,
+							components: [
+								new ActionRowBuilder<ButtonBuilder>().addComponents([
+									new ButtonBuilder()
+										.setCustomId('expired')
+										.setLabel('Archive this thread')
+										.setStyle(ButtonStyle.Danger)
+										.setEmoji('🗃️'),
+									new ButtonBuilder()
+										.setLabel(
+											`Archive this thread in ${
+												autoArchiveDuration / (24 * 60)
+											} days`
+										)
+										.setCustomId('putoffexpire')
+										.setStyle(ButtonStyle.Success)
+										.setEmoji('💡')
+								])
+							]
+						});
+					}
 				}
 			}
 		}

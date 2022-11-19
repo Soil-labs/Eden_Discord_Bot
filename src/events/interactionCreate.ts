@@ -3,7 +3,7 @@ import {
 	AutocompleteInteraction,
 	CommandInteractionOptionResolver,
 	GuildMember,
-	Interaction,
+	Interaction
 } from 'discord.js';
 import _ from 'lodash';
 import { sprintf } from 'sprintf-js';
@@ -14,7 +14,10 @@ import { Event } from '../structures/Event';
 import { ExtendedButtonInteraction } from '../types/Button';
 import { GuildInform } from '../types/Cache';
 import { ExtendedCommandInteration } from '../types/Command';
-import { ExtendedMessageContextMenuInteraction, ExtendedUserContextMenuInteraction } from '../types/ContextMenu';
+import {
+	ExtendedMessageContextMenuInteraction,
+	ExtendedUserContextMenuInteraction
+} from '../types/ContextMenu';
 import { ExtendedModalSubmitInteraction } from '../types/Modal';
 import { ERROR_REPLY } from '../utils/const';
 import { logger } from '../utils/logger';
@@ -177,7 +180,7 @@ export default new Event('interactionCreate', async (interaction: Interaction) =
 
 			if (interaction.deferred) {
 				logger.error(errorMsg);
-				interaction.followUp({
+				return interaction.followUp({
 					content: ERROR_REPLY.COMMON
 				});
 			}

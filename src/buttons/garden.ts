@@ -12,6 +12,7 @@ export default new Button({
 
 		buttonJson.components[0].disabled = true;
 		buttonJson.components[1].disabled = true;
+		buttonJson.components[2].disabled = true;
 
 		await interaction.message.edit({
 			content: message.content,
@@ -20,21 +21,21 @@ export default new Button({
 
 		if (thread.isThread()) {
 			if (customId === 'expired') {
-				await interaction.reply({
+				await thread.setArchived();
+				return interaction.reply({
 					embeds: [
 						new EmbedBuilder().setDescription(
 							`<#${thread.id}> has been archived by <@${interaction.user.id}>.`
 						)
 					]
 				});
-				return thread.setArchived();
 			} else {
 				const archiveDays = Number(
 					interaction.component.label.match(/\s\d{1}\s/)[0].slice(1)
 				);
 				const archiveDuration = archiveDays === 3 ? 4320 : 10080;
 
-				thread.setAutoArchiveDuration(archiveDuration);
+				await thread.setAutoArchiveDuration(archiveDuration);
 				return interaction.reply({
 					embeds: [
 						new EmbedBuilder().setDescription(

@@ -1,6 +1,7 @@
 import {
 	ChannelType,
 	EmbedField,
+	ForumChannel,
 	GuildTextBasedChannel,
 	PermissionFlagsBits,
 	VoiceBasedChannel
@@ -10,6 +11,7 @@ import { sprintf } from 'sprintf-js';
 
 import { myCache } from '../structures/Cache';
 import {
+	GardenInform,
 	GuildId,
 	GuildInform,
 	GuildInformCache,
@@ -22,6 +24,8 @@ import {
 	TeamId,
 	templateGuildInform
 } from '../types/Cache';
+import { CommandNameEmun } from '../types/Command';
+import { ContextMenuNameEnum } from '../types/ContextMenu';
 import { ERROR_REPLY, NUMBER } from './const';
 import { TimeOutError } from './error';
 export interface awaitWrapType<T> {
@@ -101,21 +105,21 @@ export function checkOnboardPermission(channel: VoiceBasedChannel, userId: strin
 	return false;
 }
 
-export function checkGardenChannelPermission(
-	channel: GuildTextBasedChannel | VoiceBasedChannel,
-	userId: string
-) {
+export function checkForumPermission(channel: ForumChannel, userId: string) {
 	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.ViewChannel])) {
 		return 'Missing **VIEW CHANNEL** access.';
 	}
-	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.SendMessages])) {
-		return 'Missing **SEND MESSAGES** access.';
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.ManageChannels])) {
+		return 'Missing **MANAGE CHANNEL** access.';
 	}
-	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.CreatePublicThreads])) {
-		return 'Missing **CREATE PUBLIC THREADS** access.';
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.SendMessages])) {
+		return 'Missing **CREATE POSTS** access.';
+	}
+	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.SendMessagesInThreads])) {
+		return 'Missing **SEND MESSAGES IN POSTS** access.';
 	}
 	if (!channel.permissionsFor(userId, true).has([PermissionFlagsBits.ManageThreads])) {
-		return 'Missing **MANAGE THREADS** access.';
+		return 'Missing **MANAGE POSTS** access.';
 	}
 	return false;
 }
@@ -157,7 +161,12 @@ export function validGarden(
 	projectId: ProjectId,
 	teamId: TeamId,
 	roleId: RoleId
-) {
+):
+	| string
+	| Pick<
+			GardenInform,
+			'projectTitle' | 'teamName' | 'categoryChannelId' | 'forumChannelId' | 'roleName'
+	  > {
 	const result = myCache.myGet('ProjectTeamRole')[guildId];
 	const project = result[projectId];
 
@@ -172,7 +181,7 @@ export function validGarden(
 		projectTitle: project.projectTitle,
 		teamName: team.teamName,
 		categoryChannelId: team.categoryChannelId,
-		generalChannelId: team.generalChannelId,
+		forumChannelId: team.forumChannelId,
 		roleName: role.roleName
 	};
 }
@@ -190,7 +199,7 @@ export function dateIsValid(month: number, day: number) {
 }
 
 export function getErrorReply(errorInform: {
-	commandName: string;
+	commandName: CommandNameEmun | ContextMenuNameEnum;
 	subCommandName?: string;
 	errorMessage: string;
 }) {
@@ -367,4 +376,10 @@ export function initGuildInform(guildIds: GuildId[]) {
 			[cur]: templateGuildInform
 		};
 	}, {});
+}
+
+export function validForumTag(channel: ForumChannel, tagName: string) {
+	const tags = channel.availableTags.filter((tag) => tag.name === tagName);
+
+	return tags.length === 0 ? null : tags[0].id
 }

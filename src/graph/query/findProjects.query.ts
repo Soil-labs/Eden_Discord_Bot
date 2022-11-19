@@ -25,7 +25,7 @@ const request = gql`
 				_id
 				name
 				categoryDiscordlD
-				channelGeneralDiscordID
+				forumDiscordID
 				roles {
 					_id
 					name
@@ -77,7 +77,7 @@ export async function findProjects() {
 						name: teamName,
 						roles,
 						categoryDiscordlD,
-						channelGeneralDiscordID
+						forumDiscordID
 					} = team;
 
 					if (roles.length === 0) return;
@@ -106,7 +106,7 @@ export async function findProjects() {
 						[teamId]: {
 							teamName: teamName,
 							categoryChannelId: categoryDiscordlD,
-							generalChannelId: channelGeneralDiscordID,
+							forumChannelId: forumDiscordID,
 							roles: _internalRolesCache
 						}
 					};
@@ -114,7 +114,8 @@ export async function findProjects() {
 					teamsCache = {
 						...teamsCache,
 						[teamId]: {
-							teamName: teamName
+							teamName: teamName,
+							forumChannelId: forumDiscordID
 						}
 					};
 				});
