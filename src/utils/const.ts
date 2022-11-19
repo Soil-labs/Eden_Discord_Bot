@@ -45,7 +45,7 @@ type Link = Readonly<Record<LinkProperty, string>>;
 type InternalError = Readonly<Record<ErroProperty, string>>;
 type Content = Readonly<Record<ContentProperty, string>>;
 
-const _frontend = process.env.PM2_FRONTEND ?? 'https://eden-develop.vercel.app';
+const _frontend = process.env.PM2_FRONTEND ?? 'https://eden-foundation-develop.vercel.app';
 
 export const NUMBER: Numerical = {
 	AWAIT_TIMEOUT: 15 * 1000,
@@ -61,14 +61,14 @@ export const NUMBER: Numerical = {
 };
 
 export const LINK: Link = {
-	DASHBOARD: _frontend + '/champion-dashboard',
+	DASHBOARD: _frontend + '/champion-board',
 	PROJECT_ALL: _frontend + '/projects?tab=1',
-	USER: 'https://www.soil.xyz/profile/%s/',
-	SIGNUP: _frontend + '/member/ginpsu',
+	USER: _frontend + '/profile/%s',
+	SIGNUP: _frontend + '/signup',
 	STAGING_ONBOARD: _frontend + 'onboard%s',
 	ROOM: 'https://eden-foundation-develop.vercel.app/onboard/party/%(roomId)s',
 	DISCORD_MSG: 'https://discord.com/channels/%(guildId)s/%(channelId)s/%(messageId)s',
-	LAUNCH_PROJECT: _frontend + '/form/%s',
+	LAUNCH_PROJECT: _frontend + '/launch',
 	PROJECT_TWEET: _frontend + '/projects/%s/feed',
 	GARDEN_FEED: 'https://eden-garden-front.vercel.app/',
 	GARDEN_GRAPH: 'https://garden-rho.vercel.app/',
