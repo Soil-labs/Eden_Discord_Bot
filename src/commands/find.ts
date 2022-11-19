@@ -213,7 +213,7 @@ export default new Command({
 					userDetail.findMember.hoursPerWeek ?? 0,
 					projectNames,
 					sprintf(LINK.USER, frenUser.id),
-					frenUser.id
+					frenUser.username
 				)
 			);
 
