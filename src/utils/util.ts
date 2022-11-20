@@ -381,5 +381,5 @@ export function initGuildInform(guildIds: GuildId[]) {
 export function validForumTag(channel: ForumChannel, tagName: string) {
 	const tags = channel.availableTags.filter((tag) => tag.name === tagName);
 
-	return tags.length === 0 ? null : tags[0].id
+	return tags.length === 0 ? null : tags[0].id;
 }

@@ -176,7 +176,8 @@ export default new Modal({
 					forwardForumChannel = await forwardForumChannel.setAvailableTags([
 						{
 							name: teamName
-						}
+						},
+						...forwardForumChannel.availableTags
 					]);
 					const tagId = forwardForumChannel.availableTags.filter(
 						(tag) => tag.name === teamName

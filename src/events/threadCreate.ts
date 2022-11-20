@@ -1,4 +1,4 @@
-import { ForumChannel, ThreadChannel } from 'discord.js';
+import { ChannelType, ForumChannel, ThreadChannel } from 'discord.js';
 
 import { myCache } from '../structures/Cache';
 import { Event } from '../structures/Event';
@@ -10,12 +10,14 @@ export default new Event('threadCreate', (newThread: ThreadChannel, newlyCreated
 		const { guildId, parentId, parent } = newThread;
 
 		if (!parentId || !parent) return;
+		if (parent?.type !== ChannelType.GuildForum) return;
 		const tagId = validForumTag(newThread.parent as ForumChannel, CONTENT.CHAT_TAG_NAME);
 
 		if (!tagId) return;
-		const teamForumChannelIds = Object.values(myCache.myGet('Teams')[guildId]).map(
-			(team) => team.forumChannelId
-		);
+		const teamCache = myCache.myGet('Teams')[guildId];
+
+		if (!teamCache) return;
+		const teamForumChannelIds = Object.values(teamCache).map((team) => team.forumChannelId);
 
 		if (teamForumChannelIds.length === 0) return;
 		if (teamForumChannelIds.includes(parentId)) {
