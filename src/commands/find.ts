@@ -149,7 +149,7 @@ export default new Command({
 			});
 		}
 
-		if (subCommandName === 'fren') {
+		if (subCommandName === 'person') {
 			const frenUser = args.getUser('fren');
 
 			if (frenUser.bot)
@@ -212,7 +212,7 @@ export default new Command({
 					topSkills,
 					userDetail.findMember.hoursPerWeek ?? 0,
 					projectNames,
-					sprintf(LINK.USER, frenUser.id),
+					"https://eden-alpha-develop.vercel.app/test/user",
 					frenUser.id
 				)
 			);

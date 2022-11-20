@@ -308,6 +308,7 @@ export class MyClient extends Client {
 			}
 			voiceContextsCache[guildId] = defaultGuildVoiceContext;
 			chatThreadsCache[guildId] = [];
+			if (!myCache.myGet('Teams')?.[guildId]) return;
 			for (const team of Object.values(myCache.myGet('Teams')[guildId])) {
 				const { forumChannelId } = team;
 

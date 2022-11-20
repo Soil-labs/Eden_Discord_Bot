@@ -10,7 +10,6 @@ import { awaitWrap } from '../utils/util';
 export default new Event('messageCreate', async (message: Message) => {
 	if (!myCache.myHases(['ChatThreads', 'Servers'])) return;
 	const { guildId, author, channelId, content } = message;
-
 	const guildInform = myCache.myGet('ChatThreads')[guildId];
 
 	if (!guildInform.includes(channelId)) return;

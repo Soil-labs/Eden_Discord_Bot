@@ -105,7 +105,7 @@ export default new Modal({
 							.setStyle(ButtonStyle.Link)
 							.setURL(LINK.GARDEN_GRAPH),
 						new ButtonBuilder()
-							.setCustomId('expired')
+							.setCustomId('expired_post')
 							.setLabel('Archive this thread')
 							.setStyle(ButtonStyle.Danger)
 							.setEmoji('🗃️')

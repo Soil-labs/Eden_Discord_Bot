@@ -13,7 +13,7 @@ interface ButtonRunOptions {
 }
 
 type RunFunction = (options: ButtonRunOptions) => any;
-type buttonCustomId = 'end' | 'expired' | 'putoffexpire';
+type buttonCustomId = 'end' | 'expired' | 'putoffexpire' | 'expired_post';
 export interface ButtonType {
 	customIds: Array<buttonCustomId>;
 	execute: RunFunction;
