@@ -11,7 +11,7 @@ import { MyClient } from '../structures/Client';
 
 export interface ExtendedCommandInteration extends CommandInteraction {
 	member: GuildMember;
-	commandName: CommandNameEmun
+	commandName: CommandNameEmun;
 }
 
 interface CommandRunOptions {
@@ -33,10 +33,11 @@ export type CommandNameEmun =
 	| 'garden'
 	| 'birthday'
 	| 'help'
-	| 'endorse';
+	| 'endorse'
+	| 'collab';
 export type CommandType = {
 	name: CommandNameEmun;
 	userPermissions?: PermissionResolvable[];
-	type: ApplicationCommandType.ChatInput,
+	type: ApplicationCommandType.ChatInput;
 	execute: RunFunction;
 } & ChatInputApplicationCommandData;

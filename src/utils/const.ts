@@ -289,7 +289,8 @@ export const COMMAND_HELP: Readonly<Record<Exclude<CommandNameEmun, 'help'>, str
 	project: '',
 	signup: '',
 	garden: '',
-	endorse: ''
+	endorse: '',
+	collab: ''
 };
 
 export default {};
