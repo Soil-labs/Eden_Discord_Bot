@@ -28,7 +28,7 @@ export default new Command({
 		},
 		{
 			name: 'timezone',
-			description: 'Choose your timezone',
+			description: 'Search and choose your city',
 			type: ApplicationCommandOptionType.String,
 			required: true,
 			autocomplete: true
