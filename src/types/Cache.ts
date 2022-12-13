@@ -124,7 +124,7 @@ export type BirthdayInform = {
 	date: number;
 	day: string;
 	month: string;
-	offset: number;
+	offset: string;
 };
 
 export type GuildInformCache = Record<GuildId, GuildInform>;

@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { ApplicationCommandOptionChoiceData, HexColorString } from 'discord.js';
+import list from 'timezones.json';
 
 import { GraphQL_UpdateServerInput } from '../graph/gql/result';
 import { CacheType, GuildSettingInform, VoiceContext } from '../types/Cache';
@@ -249,35 +250,6 @@ export const MONTH_ENUM: Array<ApplicationCommandOptionChoiceData<string>> = [
 	}
 ];
 
-export const TIMEZONE: Array<ApplicationCommandOptionChoiceData> = [
-	{ name: 'UTC-01', value: '-1' },
-	{ name: 'UTC-02', value: '-2' },
-	{ name: 'UTC-03', value: '-3' },
-	{ name: 'UTC-04', value: '-4' },
-	{ name: 'UTC-05', value: '-5' },
-	{ name: 'UTC-06', value: '-6' },
-	{ name: 'UTC-07', value: '-7' },
-	{ name: 'UTC-08', value: '-8' },
-	{ name: 'UTC-09', value: '-9' },
-	{ name: 'UTC-10', value: '-10' },
-	{ name: 'UTC-11', value: '-11' },
-	{ name: 'UTC-12', value: '-12' },
-	{ name: 'UTC+00', value: '0' },
-	{ name: 'UTC+01', value: '1' },
-	{ name: 'UTC+02', value: '2' },
-	{ name: 'UTC+03', value: '3' },
-	{ name: 'UTC+04', value: '4' },
-	{ name: 'UTC+05', value: '5' },
-	{ name: 'UTC+06', value: '6' },
-	{ name: 'UTC+07', value: '7' },
-	{ name: 'UTC+08', value: '8' },
-	{ name: 'UTC+09', value: '9' },
-	{ name: 'UTC+10', value: '10' },
-	{ name: 'UTC+11', value: '11' },
-	{ name: 'UTC+12', value: '12' },
-	{ name: 'UTC+13', value: '13' }
-];
-
 export const COMMAND_HELP: Readonly<Record<Exclude<CommandNameEmun, 'help'>, string>> = {
 	birthday: '**</birthday:>**\nSet up your birthday and celebrate\n',
 	champion: '',
@@ -292,5 +264,12 @@ export const COMMAND_HELP: Readonly<Record<Exclude<CommandNameEmun, 'help'>, str
 	endorse: '',
 	collab: ''
 };
+
+export const TIMEZONELIST: Array<string> = list.reduce((pre, cur) => {
+	pre.push(...cur.utc);
+	return pre;
+}, []);
+
+export const EMPTYSTRING = 'NULL';
 
 export default {};

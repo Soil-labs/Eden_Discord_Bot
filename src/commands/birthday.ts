@@ -5,7 +5,7 @@ import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
 import { BirthdayInform } from '../types/Cache';
-import { MONTH_ENUM, TIMEZONE } from '../utils/const';
+import { EMPTYSTRING, MONTH_ENUM } from '../utils/const';
 import { awaitWrap, dateIsValid, getNextBirthday } from '../utils/util';
 
 export default new Command({
@@ -35,13 +35,7 @@ export default new Command({
 		}
 	],
 	execute: async ({ interaction, args }) => {
-		if (!myCache.myHas('GuildSettings'))
-			return interaction.reply({
-				content: 'Guild is initing, please try again later.',
-				ephemeral: true
-			});
-
-		if (!myCache.myGet('GuildSettings')[interaction.guild.id]?.birthdayChannelId)
+		if (!myCache.myGet('GuildSettings')?.[interaction.guild.id]?.birthdayChannelId)
 			return interaction.reply({
 				content: 'Please set a Birthday Celebrate Channel first.',
 				ephemeral: true
@@ -50,20 +44,20 @@ export default new Command({
 		const [month, day, offset] = [
 			Number(args.getString('month')),
 			args.getInteger('day'),
-			Number(args.getString('timezone'))
+			args.getString('timezone')
 		];
 
 		const userId = interaction.user.id;
 
 		if (!dateIsValid(month, day))
 			return interaction.reply({
-				content: `Your input \`day\` is an invalid date.`,
+				content: `Your input date is invalid.`,
 				ephemeral: true
 			});
 
-		if (TIMEZONE.filter(({ name, value }) => value === offset.toString()).length === 0) {
+		if (offset === EMPTYSTRING) {
 			return interaction.reply({
-				content: `Your input \`timezone\` is invalid.`,
+				content: `Your input timezone is invalid.`,
 				ephemeral: true
 			});
 		}

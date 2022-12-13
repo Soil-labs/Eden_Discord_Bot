@@ -1,3 +1,6 @@
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import {
 	ChannelType,
 	EmbedField,
@@ -28,6 +31,7 @@ import { CommandNameEmun } from '../types/Command';
 import { ContextMenuNameEnum } from '../types/ContextMenu';
 import { ERROR_REPLY, NUMBER } from './const';
 import { TimeOutError } from './error';
+
 export interface awaitWrapType<T> {
 	result: T | null;
 	error: any | null;
@@ -187,15 +191,9 @@ export function validGarden(
 }
 
 export function dateIsValid(month: number, day: number) {
-	const thisYear = new Date().getFullYear();
-	const date = new Date(`${thisYear}-${month}-${day}`);
+	const thisYear = dayjs().year();
 
-	if (isNaN(date.getTime())) {
-		const nextYearDate = new Date(`${thisYear + 1}-${month}-${day}`);
-
-		return !isNaN(nextYearDate.getTime());
-	}
-	return true;
+	return dayjs(`${thisYear}-${month}-${day}`, 'YYYY-MM-DD').isValid();
 }
 
 export function getErrorReply(errorInform: {
@@ -272,20 +270,22 @@ export function convertMsToTime(milliseconds: number) {
 	return `${_padTo2Digits(hours)}:${_padTo2Digits(minutes)}:${_padTo2Digits(seconds)}`;
 }
 
-export function getNextBirthday(month: number, day: number, offset: number) {
-	const date = new Date();
-	const thisYear = new Date().getUTCFullYear();
-	const machineTimezonBirthday = new Date(`${thisYear}-${month}-${day}`).getTime();
-	let utcBirthday = machineTimezonBirthday + date.getTimezoneOffset() * 60000;
-	let offsetBirthday = utcBirthday - 3600000 * offset;
+export function getNextBirthday(month: number, day: number, offset: string) {
+	dayjs.extend(utc);
+	dayjs.extend(timezone);
 
-	if (date.getTime() > machineTimezonBirthday) {
-		utcBirthday =
-			new Date(`${thisYear + 1}-${month}-${day}`).getTime() +
-			date.getTimezoneOffset() * 60000;
-		offsetBirthday = utcBirthday - 3600000 * offset;
+	const thisYear = dayjs().year();
+	let birthday = dayjs.tz(`${thisYear}-${month}-${day}`, 'YYYY-MM-DD', offset).valueOf();
+
+	const current = dayjs().tz(offset).valueOf();
+
+	if (current > birthday) {
+		const nextYear = thisYear + 1;
+
+		birthday = dayjs.tz(`${nextYear}-${month}-${day}`, 'YYYY-MM-DD', offset).valueOf();
 	}
-	return Math.floor(offsetBirthday / 1000);
+
+	return Math.floor(birthday / 1000);
 }
 
 export function readGuildInform(guildInform: GuildInform, guildId: GuildId): EmbedField[] {
