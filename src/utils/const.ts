@@ -30,7 +30,8 @@ type LinkProperty =
 	| 'GARDEN_FEED'
 	| 'GARDEN_GRAPH'
 	| 'THREAD'
-	| 'ARWEAVE_EXPLORER';
+	| 'ARWEAVE_EXPLORER'
+	| 'BIRTHDAY_PIC';
 type ErroProperty = 'COMMON' | 'GRAPHQL' | 'INTERACTION' | 'BUTTON' | 'AUTO' | 'MODAL' | 'MENU';
 type ContentProperty =
 	| 'MATCH_PROJECT'
@@ -58,7 +59,7 @@ export const NUMBER: Numerical = {
 	ONBOARD_REPEAT_CONTEXT: 6 * 60,
 	ONBOARD_AUTO_DELETE: 2 * 60,
 	THREAD_SCAN: 60 * 60 * 1000,
-	BIRTHDAY_SCAN: 60 * 60 * 1000,
+	BIRTHDAY_SCAN: 20 * 1000,
 	ONBOARD_CALL_SCAN: 5 * 60 * 1000
 };
 
@@ -75,7 +76,9 @@ export const LINK: Link = {
 	GARDEN_FEED: 'https://eden-garden-front.vercel.app/',
 	GARDEN_GRAPH: 'https://garden-rho.vercel.app/',
 	THREAD: 'https://discord.com/channels/%(guildId)s/%(threadId)s',
-	ARWEAVE_EXPLORER: 'https://viewblock.io/arweave/tx/'
+	ARWEAVE_EXPLORER: 'https://viewblock.io/arweave/tx/',
+	BIRTHDAY_PIC:
+		'https://cdn.discordapp.com/attachments/1001547980869996665/1052161163720396862/3489352.jpg'
 };
 
 export const CONTENT: Content = {

@@ -10,6 +10,13 @@ import { awaitWrap } from '../utils/util';
 export default new Event('messageCreate', async (message: Message) => {
 	if (!myCache.myHases(['ChatThreads', 'Servers'])) return;
 	const { guildId, author, channelId, content } = message;
+
+	// Happy Time. todo: Delete it when it's done!
+	if (channelId === '1008766555498233986' && Number(content) === 999) {
+		return message.channel.send({
+			content: 'https://tenor.com/view/1000-thousand-ten-number-numeric-gif-17228090'
+		});
+	}
 	const guildInform = myCache.myGet('ChatThreads')[guildId];
 
 	if (!guildInform.includes(channelId)) return;

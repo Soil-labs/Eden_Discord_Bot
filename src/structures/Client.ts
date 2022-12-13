@@ -18,7 +18,16 @@ import {
 	VoiceChannel
 } from 'discord.js';
 import { getApp, initializeApp } from 'firebase/app';
-import { collection, doc, getDocs, getFirestore, query, writeBatch } from 'firebase/firestore';
+import {
+	collection,
+	doc,
+	DocumentReference,
+	getDocs,
+	getFirestore,
+	Query,
+	query,
+	writeBatch
+} from 'firebase/firestore';
 import glob from 'glob';
 import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
@@ -39,7 +48,6 @@ import {
 	ChatThreadCache,
 	GuildSettingCache,
 	GuildSettingInform,
-	MemberId,
 	templateGuildInform,
 	templateGuildSettingInform,
 	VoiceContextCache
@@ -48,7 +56,7 @@ import { CommandType } from '../types/Command';
 import { RegisterCommandsOptions } from '../types/CommandRegister';
 import { MessageContextMenuType, UserContextMenuType } from '../types/ContextMenu';
 import { ModalType } from '../types/Modal';
-import { CONTENT, defaultGuildVoiceContext, NUMBER } from '../utils/const';
+import { CONTENT, defaultGuildVoiceContext, LINK, NUMBER } from '../utils/const';
 import { logger } from '../utils/logger';
 import {
 	awaitWrap,
@@ -485,76 +493,74 @@ export class MyClient extends Client {
 	}
 
 	private async _birthdayScan(client: Client) {
+		if (!myCache.myHas('GuildSettings')) return;
+		const soilGuildId = process.env.GUILDID;
+		const soilGuild = client.guilds.cache.get(soilGuildId);
+
+		if (!soilGuild) return;
+		const soilGuildBirthdayChannelId =
+			myCache.myGet('GuildSettings')[soilGuildId]?.birthdayChannelId;
+		const soilGuildBirthdayChannel = soilGuild.channels.cache.get(
+			soilGuildBirthdayChannelId
+		) as TextChannel;
+
+		if (!soilGuildBirthdayChannel) return;
+
 		const db = getFirestore(getApp());
 		const batch = writeBatch(db);
 
 		const birthdayQuery = query(collection(db, 'Birthday'));
-		const birthdaysSnapshot = await getDocs(birthdayQuery);
-		const birthdayInReadyMembers: Array<{
-			memberId: MemberId;
-			nextBirthday: Number;
-		}> = [];
+		const current = Math.floor(new Date().getTime() / 1000);
+		const nonBirthdayArray = [];
+		const birthdayArray: Array<{ id: string } & BirthdayInform> = (
+			await getDocs<BirthdayInform>(birthdayQuery as Query<BirthdayInform>)
+		).docs
+			.map((doc) => ({
+				id: doc.id,
+				...doc.data()
+			}))
+			.sort((a, b) => a.date - b.date)
+			.reduce((pre, cur) => {
+				const { date, month, offset, day, id: userId } = cur;
 
-		birthdaysSnapshot.forEach((birthday) => {
-			const { id: memberId } = birthday;
-			const birthdayData = birthday.data() as BirthdayInform;
-			const current = Math.floor(new Date().getTime() / 1000);
+				if (current > date) {
+					pre.push(cur);
+					const nextBirthday = getNextBirthday(Number(month), Number(day), offset);
 
-			if (current > birthdayData.date) {
-				const nextBirthday = getNextBirthday(
-					Number(birthdayData.month),
-					Number(birthdayData.day),
-					birthdayData.offset
-				);
-
-				birthdayInReadyMembers.push({
-					memberId: memberId,
-					nextBirthday: nextBirthday
-				});
-				const toBeUpdated: BirthdayInform = {
-					...birthdayData,
-					date: nextBirthday
-				};
-
-				batch.update(doc(db, 'Birthday', memberId), toBeUpdated);
-			}
-		});
-
-		const guildSettingCache = myCache.myGet('GuildSettings');
-
-		for (const guildId of Object.keys(guildSettingCache)) {
-			const birthdayChannelId = guildSettingCache[guildId].birthdayChannelId;
-
-			if (!birthdayChannelId) continue;
-			const guild = client.guilds.cache.get(guildId);
-
-			if (!guild) continue;
-			const channel = guild.channels.cache.get(birthdayChannelId) as TextChannel;
-
-			if (!channel) continue;
-			for (const { memberId, nextBirthday } of birthdayInReadyMembers) {
-				let member = guild.members.cache.get(memberId);
-
-				if (!member) {
-					const { result, error } = await awaitWrap(guild.members.fetch(memberId));
-
-					if (error) continue;
-					member = result;
+					batch.update<BirthdayInform>(
+						doc(db, 'Birthday', userId) as DocumentReference<BirthdayInform>,
+						{
+							date: nextBirthday
+						}
+					);
+				} else {
+					nonBirthdayArray.push(cur.id);
 				}
-				channel.send({
-					content: `<@${memberId}>`,
-					embeds: [
-						new EmbedBuilder()
-							.setAuthor({
-								name: `@${member.displayName}`,
-								iconURL: member.user.avatarURL()
-							})
-							.setTitle('Happy Birthday!🥳')
-							.setDescription(`Next Birthday: <t:${nextBirthday}>`)
-					]
-				});
-			}
+				return pre;
+			}, []);
+
+		if (birthdayArray.length === 0) return;
+
+		let birthdayContent = birthdayArray.reduce((pre, cur) => {
+			const tmp = pre + `<@${cur.id}>`;
+
+			return tmp;
+		}, '');
+
+		birthdayContent += ', today is your birthday! Enjoy your day!';
+
+		const embed = new EmbedBuilder().setTitle('Happy Birthday!🥳').setImage(LINK.BIRTHDAY_PIC);
+
+		if (nonBirthdayArray.length !== 0) {
+			embed.setDescription(`Next superstar is <@${nonBirthdayArray[0]}>!`);
+		} else {
+			embed.setDescription(`Next superstar is <@${birthdayArray[0].id}>!`);
 		}
+
+		await soilGuildBirthdayChannel.send({
+			content: birthdayContent,
+			embeds: [embed]
+		});
 		await batch.commit();
 	}
 

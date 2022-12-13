@@ -20,6 +20,7 @@ export default new Auto({
 				const currentRoles = guildInform.adminRoles;
 
 				filter = currentRoles
+					.filter((roleId) => interaction.guild.roles.cache.get(roleId)?.name)
 					.map((roleId) => ({
 						name: interaction.guild.roles.cache.get(roleId)?.name,
 						value: roleId

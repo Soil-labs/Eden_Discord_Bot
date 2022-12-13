@@ -137,5 +137,4 @@ export type RolesCache = Record<GuildId, RoleInform>;
 export type ProjectTeamRoleCache = Record<GuildId, ProjectTeamRoleInform>;
 export type GardenContextCache = Record<GardenMemberId, GardenInform>;
 export type GuildSettingCache = Record<GuildId, GuildSettingInform>;
-export type BirthdayCache = Record<MemberId, BirthdayInform>;
 export type ChatThreadCache = Record<GuildId, Array<string>>;

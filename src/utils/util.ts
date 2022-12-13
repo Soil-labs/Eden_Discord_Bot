@@ -275,17 +275,17 @@ export function getNextBirthday(month: number, day: number, offset: string) {
 	dayjs.extend(timezone);
 
 	const thisYear = dayjs().year();
-	let birthday = dayjs.tz(`${thisYear}-${month}-${day}`, 'YYYY-MM-DD', offset).valueOf();
+	let birthday = dayjs.tz(`${thisYear}-${month}-${day}`, 'YYYY-MM-DD', offset).unix();
 
 	const current = dayjs().tz(offset).valueOf();
 
 	if (current > birthday) {
 		const nextYear = thisYear + 1;
 
-		birthday = dayjs.tz(`${nextYear}-${month}-${day}`, 'YYYY-MM-DD', offset).valueOf();
+		birthday = dayjs.tz(`${nextYear}-${month}-${day}`, 'YYYY-MM-DD', offset).unix();
 	}
 
-	return Math.floor(birthday / 1000);
+	return birthday;
 }
 
 export function readGuildInform(guildInform: GuildInform, guildId: GuildId): EmbedField[] {
