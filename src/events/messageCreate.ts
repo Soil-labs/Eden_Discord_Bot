@@ -12,7 +12,7 @@ export default new Event('messageCreate', async (message: Message) => {
 	const { guildId, author, channelId, content } = message;
 
 	// Happy Time. todo: Delete it when it's done!
-	if (channelId === '1008766555498233986' && Number(content) === 999) {
+	if (channelId === '1019623710753308692' && Number(content) === 999) {
 		return message.channel.send({
 			content: 'https://tenor.com/view/1000-thousand-ten-number-numeric-gif-17228090'
 		});

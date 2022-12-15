@@ -62,11 +62,18 @@ export default new Command({
 			});
 		}
 
-		const birthdayDateInSec = getNextBirthday(month, day, offset);
+		const result = getNextBirthday(month, day, offset);
+
+		if (result.errorFlag) {
+			return interaction.reply({
+				content: `We cannot find \`${offset}\`, because ${result.errorMsg}.`,
+				ephemeral: true
+			});
+		}
 
 		await interaction.deferReply({ ephemeral: true });
 		const birthdayInform: BirthdayInform = {
-			date: birthdayDateInSec,
+			date: result.birthday,
 			month: month.toString(),
 			day: day.toString(),
 			offset: offset
@@ -80,7 +87,7 @@ export default new Command({
 			});
 
 		return interaction.followUp({
-			content: `Your birthday date has been updated. Next birthday is <t:${birthdayDateInSec}:D>(<t:${birthdayDateInSec}:R>)`
+			content: `Your birthday date has been updated. Next birthday is <t:${result.birthday}:D>(<t:${result.birthday}:R>)`
 		});
 	}
 });

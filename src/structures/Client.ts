@@ -525,12 +525,12 @@ export class MyClient extends Client {
 
 				if (current > date) {
 					pre.push(cur);
-					const nextBirthday = getNextBirthday(Number(month), Number(day), offset);
+					const result = getNextBirthday(Number(month), Number(day), offset);
 
 					batch.update<BirthdayInform>(
 						doc(db, 'Birthday', userId) as DocumentReference<BirthdayInform>,
 						{
-							date: nextBirthday
+							date: result.birthday
 						}
 					);
 				} else {

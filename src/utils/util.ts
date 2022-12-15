@@ -29,6 +29,7 @@ import {
 } from '../types/Cache';
 import { CommandNameEmun } from '../types/Command';
 import { ContextMenuNameEnum } from '../types/ContextMenu';
+import { GetNextBirthday } from '../types/Util';
 import { ERROR_REPLY, NUMBER } from './const';
 import { TimeOutError } from './error';
 
@@ -270,22 +271,32 @@ export function convertMsToTime(milliseconds: number) {
 	return `${_padTo2Digits(hours)}:${_padTo2Digits(minutes)}:${_padTo2Digits(seconds)}`;
 }
 
-export function getNextBirthday(month: number, day: number, offset: string) {
+export function getNextBirthday(month: number, day: number, offset: string): GetNextBirthday {
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	const thisYear = dayjs().year();
-	let birthday = dayjs.tz(`${thisYear}-${month}-${day}`, 'YYYY-MM-DD', offset).unix();
+	try {
+		const thisYear = dayjs().year();
+		let birthday = dayjs.tz(`${thisYear}-${month}-${day}`, 'YYYY-MM-DD', offset).unix();
 
-	const current = dayjs().tz(offset).valueOf();
+		const current = dayjs().tz(offset).valueOf();
 
-	if (current > birthday) {
-		const nextYear = thisYear + 1;
+		if (current > birthday) {
+			const nextYear = thisYear + 1;
 
-		birthday = dayjs.tz(`${nextYear}-${month}-${day}`, 'YYYY-MM-DD', offset).unix();
+			birthday = dayjs.tz(`${nextYear}-${month}-${day}`, 'YYYY-MM-DD', offset).unix();
+		}
+
+		return {
+			errorFlag: false,
+			birthday
+		};
+	} catch (error) {
+		return {
+			errorFlag: true,
+			errorMsg: error?.message ?? 'Unknown reason'
+		};
 	}
-
-	return birthday;
 }
 
 export function readGuildInform(guildInform: GuildInform, guildId: GuildId): EmbedField[] {
