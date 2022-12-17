@@ -5,12 +5,13 @@ import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
 import { BirthdayInform } from '../types/Cache';
+import { CommandNameEmun } from '../types/Command';
 import { EMPTYSTRING, MONTH_ENUM } from '../utils/const';
 import { awaitWrap, dateIsValid, getNextBirthday } from '../utils/util';
 
 export default new Command({
 	type: ApplicationCommandType.ChatInput,
-	name: 'birthday',
+	name: CommandNameEmun.Birthday,
 	description: 'Tell me your birthday and we celebrate togather!',
 	options: [
 		{

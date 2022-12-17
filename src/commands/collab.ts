@@ -1,9 +1,10 @@
 import { ApplicationCommandType } from 'discord.js';
 
 import { Command } from '../structures/Command';
+import { CommandNameEmun } from '../types/Command';
 
 export default new Command({
-	name: 'collab',
+	name: CommandNameEmun.Collab,
 	description: 'Find a right member to coop with you.',
 	type: ApplicationCommandType.ChatInput,
 	execute: ({ interaction }) => {

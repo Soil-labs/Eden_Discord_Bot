@@ -3,10 +3,11 @@ import { ApplicationCommandOptionChoiceData } from 'discord.js';
 import { Auto } from '../structures/AutoComplete';
 import { myCache } from '../structures/Cache';
 import { ProjectId, TeamId } from '../types/Cache';
+import { CommandNameEmun } from '../types/Command';
 import { NUMBER } from '../utils/const';
 
 export default new Auto({
-	correspondingCommandName: 'garden',
+	correspondingCommandName: CommandNameEmun.Garden,
 	execute: ({ interaction }) => {
 		const guildId = interaction.guild.id;
 		const { name, value } = interaction.options.getFocused(true);

@@ -14,6 +14,7 @@ import { createProjectUpdate } from '../graph/mutation/createProjectUpdate.mutat
 import { myCache } from '../structures/Cache';
 import { Modal } from '../structures/Modal';
 import { GardenMemberId } from '../types/Cache';
+import { CommandNameEmun } from '../types/Command';
 import { LINK } from '../utils/const';
 import { awaitWrap, checkForumPermission, getErrorReply } from '../utils/util';
 
@@ -149,7 +150,7 @@ export default new Modal({
 			myCache.mySet('GardenContext', gardenContext);
 			return interaction.followUp({
 				content: getErrorReply({
-					commandName: 'garden',
+					commandName: CommandNameEmun.Garden,
 					errorMessage: error
 				})
 			});

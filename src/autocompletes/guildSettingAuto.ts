@@ -2,9 +2,10 @@ import { ApplicationCommandOptionChoiceData } from 'discord.js';
 
 import { Auto } from '../structures/AutoComplete';
 import { myCache } from '../structures/Cache';
+import { CommandNameEmun } from '../types/Command';
 
 export default new Auto({
-	correspondingCommandName: 'set',
+	correspondingCommandName: CommandNameEmun.Set,
 	execute: ({ interaction }) => {
 		const guildId = interaction.guild.id;
 		const { name, value } = interaction.options.getFocused(true);

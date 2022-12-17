@@ -16,7 +16,8 @@ type NumericalProperty =
 	| 'ONBOARD_AUTO_DELETE'
 	| 'THREAD_SCAN'
 	| 'BIRTHDAY_SCAN'
-	| 'ONBOARD_CALL_SCAN';
+	| 'ONBOARD_CALL_SCAN'
+	| 'USER_SELECT_IN_SEC';
 type LinkProperty =
 	| 'DASHBOARD'
 	| 'PROJECT_ALL'
@@ -60,7 +61,8 @@ export const NUMBER: Numerical = {
 	ONBOARD_AUTO_DELETE: 2 * 60,
 	THREAD_SCAN: 60 * 60 * 1000,
 	BIRTHDAY_SCAN: 60 * 60 * 1000,
-	ONBOARD_CALL_SCAN: 5 * 60 * 1000
+	ONBOARD_CALL_SCAN: 5 * 60 * 1000,
+	USER_SELECT_IN_SEC: 0.2 * 60
 };
 
 export const LINK: Link = {
@@ -165,39 +167,39 @@ export const defaultGuildVoiceContext: VoiceContext = {
 
 export const COMMADN_CHOICES: Array<ExtendedApplicationCommandOptionChoiceData<string>> = [
 	{
-		name: 'set',
+		name: CommandNameEmun.Set,
 		value: 'set'
 	},
 	{
-		name: 'find',
+		name: CommandNameEmun.Find,
 		value: 'find'
 	},
 	{
-		name: 'champion',
+		name: CommandNameEmun.Champion,
 		value: 'champion'
 	},
 	{
-		name: 'invite',
+		name: CommandNameEmun.Invite,
 		value: 'invite'
 	},
 	{
-		name: 'onboard',
+		name: CommandNameEmun.Onboard,
 		value: 'onboard'
 	},
 	{
-		name: 'project',
+		name: CommandNameEmun.Project,
 		value: 'project'
 	},
 	{
-		name: 'signup',
+		name: CommandNameEmun.Signup,
 		value: 'signup'
 	},
 	{
-		name: 'birthday',
+		name: CommandNameEmun.Birthday,
 		value: 'birthday'
 	},
 	{
-		name: 'garden',
+		name: CommandNameEmun.Garden,
 		value: 'garden'
 	}
 ];

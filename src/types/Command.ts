@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
 	ApplicationCommandType,
 	ChatInputApplicationCommandData,
@@ -21,20 +22,22 @@ interface CommandRunOptions {
 }
 
 type RunFunction = (options: CommandRunOptions) => any;
-export type CommandNameEmun =
-	| `set`
-	| 'champion'
-	| 'count'
-	| 'find'
-	| 'invite'
-	| 'onboard'
-	| 'project'
-	| 'signup'
-	| 'garden'
-	| 'birthday'
-	| 'help'
-	| 'endorse'
-	| 'collab';
+export enum CommandNameEmun {
+	Set = 'set',
+	Champion = 'champion',
+	Count ='count',
+	Find = 'find',
+	Invite = 'invite',
+	Onboard = 'onboard',
+	Project = 'project',
+	Signup = 'signup',
+	Garden = 'garden',
+	Birthday = 'birthday',
+	Help = 'help',
+	Endorse = 'endorse',
+	Collab = 'collab',
+}
+
 export type CommandType = {
 	name: CommandNameEmun;
 	userPermissions?: PermissionResolvable[];

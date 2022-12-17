@@ -3,12 +3,13 @@ import { sprintf } from 'sprintf-js';
 
 import { findProject } from '../graph/query/findProject.query';
 import { Command } from '../structures/Command';
+import { CommandNameEmun } from '../types/Command';
 import { LINK } from '../utils/const';
 import { getErrorReply, validProject } from '../utils/util';
 
 export default new Command({
 	type: ApplicationCommandType.ChatInput,
-	name: 'project',
+	name: CommandNameEmun.Project,
 	description: 'Explore projects',
 	options: [
 		{

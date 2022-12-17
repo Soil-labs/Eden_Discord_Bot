@@ -1,8 +1,9 @@
 import { Auto } from '../structures/AutoComplete';
+import { CommandNameEmun } from '../types/Command';
 import { EMPTYSTRING, NUMBER, TIMEZONELIST } from '../utils/const';
 
 export default new Auto({
-	correspondingCommandName: 'birthday',
+	correspondingCommandName: CommandNameEmun.Birthday,
 	execute: ({ interaction }) => {
 		const { value } = interaction.options.getFocused(true);
 

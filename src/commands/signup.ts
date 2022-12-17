@@ -4,12 +4,13 @@ import { sprintf } from 'sprintf-js';
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
 import { updateMember } from '../graph/mutation/updateMember.mutation';
 import { Command } from '../structures/Command';
+import { CommandNameEmun } from '../types/Command';
 import { CONTENT, LINK } from '../utils/const';
 import { getErrorReply, updateMemberCache, validMember } from '../utils/util';
 
 export default new Command({
 	type: ApplicationCommandType.ChatInput,
-	name: 'signup',
+	name: CommandNameEmun.Signup,
 	description: 'join Eden 🌳 to find projects you love',
 	execute: async ({ interaction }) => {
 		const user = interaction.user;

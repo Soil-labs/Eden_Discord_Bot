@@ -1,4 +1,10 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, EmbedBuilder, TextChannel } from 'discord.js';
+import {
+	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	ChannelType,
+	EmbedBuilder,
+	TextChannel
+} from 'discord.js';
 import { getApp } from 'firebase/app';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { sprintf } from 'sprintf-js';
@@ -7,6 +13,7 @@ import { updateServer } from '../graph/mutation/updateServer.mutation';
 import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
 import { GuildInform, GuildSettingInform, MemberId } from '../types/Cache';
+import { CommandNameEmun } from '../types/Command';
 import {
 	COMMADN_CHOICES,
 	CONTENT,
@@ -19,7 +26,7 @@ import { checkTextChannelPermission, getErrorReply, readGuildInform } from '../u
 
 export default new Command({
 	type: ApplicationCommandType.ChatInput,
-	name: 'set',
+	name: CommandNameEmun.Set,
 	description: 'Set Eden',
 	options: [
 		{

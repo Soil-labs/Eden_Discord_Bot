@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
 	ApplicationCommandType,
 	GuildMember,
@@ -36,7 +37,9 @@ interface UserContextMenuCommandRunOption {
 type MessageContextMenuRunFunction = (options: MessageContextMenuCommandRunOption) => any;
 type UserContextMenuRunFunction = (options: UserContextMenuCommandRunOption) => any;
 
-export type ContextMenuNameEnum = 'Read my profile';
+export enum ContextMenuNameEnum {
+	Profile = 'Read my profile'
+}
 export type UserContextMenuType = {
 	userPermissions?: PermissionResolvable[];
 	execute: UserContextMenuRunFunction;

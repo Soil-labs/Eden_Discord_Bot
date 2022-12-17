@@ -3,6 +3,7 @@ import { sprintf } from 'sprintf-js';
 
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
 import { Command } from '../structures/Command';
+import { CommandNameEmun } from '../types/Command';
 import { CONTENT, LINK } from '../utils/const';
 import {
 	awaitWrap,
@@ -14,7 +15,7 @@ import {
 
 export default new Command({
 	type: ApplicationCommandType.ChatInput,
-	name: 'invite',
+	name: CommandNameEmun.Invite,
 	description: 'Invite a fren to join Eden 🌳',
 	options: [
 		{

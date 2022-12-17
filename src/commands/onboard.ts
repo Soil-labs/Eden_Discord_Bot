@@ -18,12 +18,13 @@ import { createRoom } from '../graph/mutation/createRoom.mutation';
 import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
 import { VoiceContext } from '../types/Cache';
+import { CommandNameEmun } from '../types/Command';
 import { CONTENT, LINK } from '../utils/const';
 import { checkOnboardPermission, getErrorReply, updateMembersCache } from '../utils/util';
 
 export default new Command({
 	type: ApplicationCommandType.ChatInput,
-	name: 'onboard',
+	name: CommandNameEmun.Onboard,
 	description: 'Find & be found for opportunity',
 	options: [
 		{

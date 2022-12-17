@@ -3,12 +3,13 @@ import { sprintf } from 'sprintf-js';
 
 import { findMember } from '../graph/query/findMember.query';
 import { UserContextMenu } from '../structures/ContextMenu';
+import { ContextMenuNameEnum } from '../types/ContextMenu';
 import { LINK, NUMBER } from '../utils/const';
 import { getErrorReply, validMember } from '../utils/util';
 
 export default new UserContextMenu({
 	type: ApplicationCommandType.User,
-	name: 'Read my profile',
+	name: ContextMenuNameEnum.Profile,
 	execute: async ({ interaction }) => {
 		const frenUser = interaction.targetMember;
 		const guildId = interaction.guild.id;

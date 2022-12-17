@@ -5,12 +5,13 @@ import { sprintf } from 'sprintf-js';
 import { findMember } from '../graph/query/findMember.query';
 import { recommendProjectsToMember } from '../graph/query/findProjects_RecommendedToUser.query';
 import { Command } from '../structures/Command';
+import { CommandNameEmun } from '../types/Command';
 import { CONTENT, EMBED_COLOR, LINK, NUMBER } from '../utils/const';
 import { getErrorReply, validMember, validSkill } from '../utils/util';
 
 export default new Command({
 	type: ApplicationCommandType.ChatInput,
-	name: 'find',
+	name: CommandNameEmun.Find,
 	description: 'Find matches for a person with similar skillsets',
 	options: [
 		{
@@ -212,7 +213,7 @@ export default new Command({
 					topSkills,
 					userDetail.findMember.hoursPerWeek ?? 0,
 					projectNames,
-					"https://eden-alpha-develop.vercel.app/test/user",
+					'https://eden-alpha-develop.vercel.app/test/user',
 					frenUser.id
 				)
 			);

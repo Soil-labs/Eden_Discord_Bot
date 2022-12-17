@@ -10,12 +10,13 @@ import _ from 'lodash';
 import { addEndorsement } from '../graph/mutation/addEndorsement.mutation';
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
 import { Command } from '../structures/Command';
+import { CommandNameEmun } from '../types/Command';
 import { LINK } from '../utils/const';
 import { getErrorReply, updateMemberCache, validMember } from '../utils/util';
 
 export default new Command({
 	type: ApplicationCommandType.ChatInput,
-	name: 'endorse',
+	name: CommandNameEmun.Endorse,
 	description: 'Endorse you friends, help them grow up and find a good match.',
 	options: [
 		{
@@ -86,7 +87,7 @@ export default new Command({
 		if (error) {
 			return interaction.followUp({
 				content: getErrorReply({
-					commandName: 'endorse',
+					commandName: interaction.commandName,
 					errorMessage: error
 				})
 			});

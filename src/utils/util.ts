@@ -5,6 +5,7 @@ import {
 	ChannelType,
 	EmbedField,
 	ForumChannel,
+	Guild,
 	GuildTextBasedChannel,
 	PermissionFlagsBits,
 	VoiceBasedChannel
@@ -393,4 +394,19 @@ export function validForumTag(channel: ForumChannel, tagName: string) {
 	const tags = channel.availableTags.filter((tag) => tag.name === tagName);
 
 	return tags.length === 0 ? null : tags[0].id;
+}
+
+export function fetchCommandId(commandName: CommandNameEmun, guild: Guild) {
+	if (process.env.mode === 'dev' || process.env.PM2_MODE === 'dev') {
+		return (
+			guild.commands.cache.filter((command) => command.name === commandName)?.first()?.id ??
+			'123456789'
+		);
+	} else {
+		return (
+			guild.client.application.commands.cache
+				.filter((command) => command.name === commandName)
+				?.first()?.id ?? '123456789'
+		);
+	}
 }
