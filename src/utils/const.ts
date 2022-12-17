@@ -62,7 +62,7 @@ export const NUMBER: Numerical = {
 	THREAD_SCAN: 60 * 60 * 1000,
 	BIRTHDAY_SCAN: 60 * 60 * 1000,
 	ONBOARD_CALL_SCAN: 5 * 60 * 1000,
-	USER_SELECT_IN_SEC: 0.2 * 60
+	USER_SELECT_IN_SEC: 2 * 60
 };
 
 export const LINK: Link = {
