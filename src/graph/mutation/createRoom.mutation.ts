@@ -13,7 +13,7 @@ const request = gql`
 
 export async function createRoom() {
 	return myMutation<GraphQL_CreateRoomMutationVariables, GraphQL_CreateRoomMutation>({
-		request: request,
+		request,
 		variable: {
 			fields: {}
 		}

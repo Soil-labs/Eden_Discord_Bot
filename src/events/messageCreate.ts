@@ -1,6 +1,15 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Message } from 'discord.js';
+import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	EmbedBuilder,
+	Message,
+	MessageType
+} from 'discord.js';
 import { sprintf } from 'sprintf-js';
 
+import { GraphQL_AddMessageInput } from '../graph/gql/result';
+import { addMessage } from '../graph/mutation/addMessage.mutation';
 import { updateChatReply } from '../graph/mutation/updateChatReply.mutation';
 import { myCache } from '../structures/Cache';
 import { Event } from '../structures/Event';
@@ -11,11 +20,26 @@ export default new Event('messageCreate', async (message: Message) => {
 	if (!myCache.myHases(['ChatThreads', 'Servers'])) return;
 	const { guildId, author, channelId, content } = message;
 
-	// Happy Time. todo: Delete it when it's done!
-	if (channelId === '1019623710753308692' && Number(content) === 999) {
-		return message.channel.send({
-			content: 'https://tenor.com/view/1000-thousand-ten-number-numeric-gif-17228090'
-		});
+	if (
+		!author.bot &&
+		(message.type === MessageType.Default || message.type === MessageType.Reply)
+	) {
+		if (content) {
+			const mentionedMembers = message.mentions.members;
+			const fields: GraphQL_AddMessageInput = {
+				creator: author.id,
+				mentioned: [],
+				message: content
+			};
+
+			if (mentionedMembers.size !== 0) {
+				fields.mentioned = mentionedMembers.map((m) => m.id);
+			}
+
+			await addMessage({
+				fields
+			});
+		}
 	}
 	const guildInform = myCache.myGet('ChatThreads')[guildId];
 

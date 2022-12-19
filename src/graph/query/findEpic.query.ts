@@ -28,7 +28,7 @@ const request = gql`
 
 export async function findEpic() {
 	return myQuery<GraphQL_FindEpicQueryVariables, GraphQL_FindEpicQuery>({
-		request: request,
+		request,
 		variable: {
 			fields: {}
 		}

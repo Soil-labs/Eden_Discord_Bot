@@ -13,7 +13,7 @@ const request = gql`
 
 export async function addNewMember(variable: GraphQL_AddNewMemberMutationVariables) {
 	return myMutation<GraphQL_AddNewMemberMutationVariables, GraphQL_AddNewMemberMutation>({
-		variable: variable,
-		request: request
+		request,
+		variable
 	});
 }

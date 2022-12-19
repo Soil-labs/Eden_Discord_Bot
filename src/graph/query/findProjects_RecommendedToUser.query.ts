@@ -33,7 +33,7 @@ export async function recommendProjectsToMember(
 		GraphQL_FindProjects_RecommendedToUserQueryVariables,
 		GraphQL_FindProjects_RecommendedToUserQuery
 	>({
-		variable: variable,
-		request: request
+		variable,
+		request
 	});
 }

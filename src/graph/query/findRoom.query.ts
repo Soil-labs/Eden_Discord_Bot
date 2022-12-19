@@ -15,7 +15,7 @@ const request = gql`
 
 export async function findRoom(variable: GraphQL_FindRoomQueryVariables) {
 	return myQuery<GraphQL_FindRoomQueryVariables, GraphQL_FindRoomQuery>({
-		request: request,
-		variable: variable
+		variable,
+		request
 	});
 }

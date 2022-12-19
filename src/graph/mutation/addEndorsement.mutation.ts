@@ -23,7 +23,7 @@ const request = gql`
 
 export async function addEndorsement(variable: GraphQL_AddEndorsementMutationVariables) {
 	return myMutation<GraphQL_AddEndorsementMutationVariables, GraphQL_AddEndorsementMutation>({
-		variable: variable,
-		request: request
+		request,
+		variable
 	});
 }

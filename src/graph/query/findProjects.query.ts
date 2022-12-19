@@ -41,7 +41,7 @@ export async function findProjects() {
 		GraphQL_FindProjectsQueryVariables,
 		GraphQL_FindProjectsQuery
 	>({
-		request: request,
+		request,
 		variable: {
 			fields: {}
 		}

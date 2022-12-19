@@ -21,7 +21,7 @@ const request = gql`
 
 export async function findProject(variable: GraphQL_FindProjectQueryVariables) {
 	return myQuery<GraphQL_FindProjectQueryVariables, GraphQL_FindProjectQuery>({
-		request: request,
-		variable: variable
+		request,
+		variable
 	});
 }

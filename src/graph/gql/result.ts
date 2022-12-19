@@ -12,6 +12,15 @@ export type Scalars = {
   Float: number;
 };
 
+export type GraphQL_Ai = {
+  __typename?: 'AI';
+  _id?: Maybe<Scalars['ID']>;
+  creator?: Maybe<Scalars['ID']>;
+  edenAI?: Maybe<GraphQL_EdenAi>;
+  mentioned?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  message?: Maybe<Scalars['String']>;
+};
+
 export type GraphQL_Chats = {
   __typename?: 'Chats';
   _id?: Maybe<Scalars['ID']>;
@@ -32,6 +41,12 @@ export type GraphQL_DistanceType = {
   hop1?: Maybe<Array<Maybe<Scalars['ID']>>>;
   hop2?: Maybe<Array<Maybe<Scalars['ID']>>>;
   hop3?: Maybe<Array<Maybe<Scalars['ID']>>>;
+};
+
+export type GraphQL_EdenAi = {
+  __typename?: 'EdenAI';
+  keywords?: Maybe<Array<Maybe<GraphQL_Keyword>>>;
+  nodes?: Maybe<Array<Maybe<Scalars['ID']>>>;
 };
 
 export type GraphQL_Epic = {
@@ -61,6 +76,32 @@ export type GraphQL_ErrorLog = {
   name?: Maybe<Scalars['String']>;
   stacktrace?: Maybe<Array<Maybe<Scalars['String']>>>;
   user?: Maybe<GraphQL_User>;
+};
+
+export type GraphQL_GrantTemplate = {
+  __typename?: 'GrantTemplate';
+  _id?: Maybe<Scalars['ID']>;
+  amount?: Maybe<Scalars['String']>;
+  applicationProcess?: Maybe<Array<Maybe<Scalars['String']>>>;
+  avatar?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  difficulty?: Maybe<Scalars['String']>;
+  distributed?: Maybe<Scalars['Int']>;
+  maxDistributed?: Maybe<Scalars['Int']>;
+  membersApplied?: Maybe<Array<Maybe<GraphQL_Members>>>;
+  name?: Maybe<Scalars['String']>;
+  nodes?: Maybe<Array<Maybe<GraphQL_NodesType>>>;
+  requirments?: Maybe<Array<Maybe<Scalars['String']>>>;
+  resources?: Maybe<Array<Maybe<GraphQL_ResourcesType>>>;
+  serverID?: Maybe<Array<Maybe<Scalars['String']>>>;
+  smallDescription?: Maybe<Scalars['String']>;
+  tags?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type GraphQL_Keyword = {
+  __typename?: 'Keyword';
+  embedding?: Maybe<Array<Maybe<Scalars['String']>>>;
+  keywords?: Maybe<Scalars['String']>;
 };
 
 export type GraphQL_MatchPercentage = {
@@ -101,6 +142,7 @@ export type GraphQL_Members = {
   links?: Maybe<Array<Maybe<GraphQL_LinkType>>>;
   memberRole?: Maybe<GraphQL_RoleTemplate>;
   network?: Maybe<Array<Maybe<GraphQL_Members>>>;
+  nodes?: Maybe<Array<Maybe<GraphQL_NodesType>>>;
   onbording?: Maybe<GraphQL_OnboardingType>;
   previusProjects?: Maybe<Array<Maybe<GraphQL_PreviusProjectsType>>>;
   projects?: Maybe<Array<Maybe<GraphQL_ProjectMemberType>>>;
@@ -123,9 +165,17 @@ export type GraphQL_Mutation = {
   __typename?: 'Mutation';
   addEndorsement?: Maybe<GraphQL_Members>;
   addFavoriteProject?: Maybe<GraphQL_Members>;
+  addMessage?: Maybe<GraphQL_Ai>;
+  addMessages?: Maybe<Array<Maybe<GraphQL_Ai>>>;
   addNewChat?: Maybe<GraphQL_Chats>;
   addNewMember?: Maybe<GraphQL_Members>;
+  addNodesToGrant?: Maybe<GraphQL_GrantTemplate>;
+  addNodesToMember?: Maybe<GraphQL_Members>;
+  addNodesToMemberInRoom?: Maybe<GraphQL_Members>;
+  addNodesToProjectRole?: Maybe<GraphQL_Project>;
+  addProjectRole?: Maybe<GraphQL_Project>;
   addSkillToMember?: Maybe<GraphQL_Members>;
+  applyGrant?: Maybe<GraphQL_GrantTemplate>;
   approveOrRejectSkill?: Maybe<GraphQL_Skills>;
   approveTweet?: Maybe<GraphQL_Project>;
   changeTeamMember_Phase_Project?: Maybe<GraphQL_Project>;
@@ -138,6 +188,10 @@ export type GraphQL_Mutation = {
   createRoom?: Maybe<GraphQL_Rooms>;
   createSkill?: Maybe<GraphQL_Skills>;
   createSkills?: Maybe<Array<Maybe<GraphQL_Skills>>>;
+  deleteMember?: Maybe<GraphQL_Members>;
+  deleteNodesFromMember?: Maybe<GraphQL_Members>;
+  deleteNodesFromMemberInRoom?: Maybe<GraphQL_Members>;
+  deleteNodesToProjectRole?: Maybe<GraphQL_Project>;
   endorseAttribute?: Maybe<GraphQL_Members>;
   enterRoom?: Maybe<GraphQL_Rooms>;
   exitRoom?: Maybe<GraphQL_Rooms>;
@@ -148,6 +202,7 @@ export type GraphQL_Mutation = {
   relatedSkills?: Maybe<GraphQL_Skills>;
   updateChatReply?: Maybe<GraphQL_Chats>;
   updateChatResult?: Maybe<GraphQL_Chats>;
+  updateGrant?: Maybe<GraphQL_GrantTemplate>;
   updateMember?: Maybe<GraphQL_Members>;
   updateMemberInRoom?: Maybe<GraphQL_Members>;
   updateProject?: Maybe<GraphQL_Project>;
@@ -168,6 +223,16 @@ export type GraphQL_MutationAddFavoriteProjectArgs = {
 };
 
 
+export type GraphQL_MutationAddMessageArgs = {
+  fields?: InputMaybe<GraphQL_AddMessageInput>;
+};
+
+
+export type GraphQL_MutationAddMessagesArgs = {
+  fields?: InputMaybe<GraphQL_AddMessagesInput>;
+};
+
+
 export type GraphQL_MutationAddNewChatArgs = {
   fields?: InputMaybe<GraphQL_AddNewChatInput>;
 };
@@ -178,8 +243,38 @@ export type GraphQL_MutationAddNewMemberArgs = {
 };
 
 
+export type GraphQL_MutationAddNodesToGrantArgs = {
+  fields?: InputMaybe<GraphQL_AddNodesToGrantInput>;
+};
+
+
+export type GraphQL_MutationAddNodesToMemberArgs = {
+  fields: GraphQL_AddNodesToMemberInput;
+};
+
+
+export type GraphQL_MutationAddNodesToMemberInRoomArgs = {
+  fields?: InputMaybe<GraphQL_AddNodesToMemberInRoomInput>;
+};
+
+
+export type GraphQL_MutationAddNodesToProjectRoleArgs = {
+  fields: GraphQL_AddNodesToProjectRoleInput;
+};
+
+
+export type GraphQL_MutationAddProjectRoleArgs = {
+  fields: GraphQL_AddProjectRoleInput;
+};
+
+
 export type GraphQL_MutationAddSkillToMemberArgs = {
   fields: GraphQL_AddSkillToMember_Input;
+};
+
+
+export type GraphQL_MutationApplyGrantArgs = {
+  fields?: InputMaybe<GraphQL_ApplyGrantInput>;
 };
 
 
@@ -243,6 +338,26 @@ export type GraphQL_MutationCreateSkillsArgs = {
 };
 
 
+export type GraphQL_MutationDeleteMemberArgs = {
+  fields: GraphQL_DeleteMemberInput;
+};
+
+
+export type GraphQL_MutationDeleteNodesFromMemberArgs = {
+  fields: GraphQL_DeleteNodesFromMemberInput;
+};
+
+
+export type GraphQL_MutationDeleteNodesFromMemberInRoomArgs = {
+  fields?: InputMaybe<GraphQL_DeleteNodesFromMemberInRoomInput>;
+};
+
+
+export type GraphQL_MutationDeleteNodesToProjectRoleArgs = {
+  fields: GraphQL_DeleteNodesToProjectRoleInput;
+};
+
+
 export type GraphQL_MutationEndorseAttributeArgs = {
   fields: GraphQL_EndorseAttributeInput;
 };
@@ -293,6 +408,11 @@ export type GraphQL_MutationUpdateChatResultArgs = {
 };
 
 
+export type GraphQL_MutationUpdateGrantArgs = {
+  fields?: InputMaybe<GraphQL_UpdateGrantInput>;
+};
+
+
 export type GraphQL_MutationUpdateMemberArgs = {
   fields: GraphQL_UpdateMemberInput;
 };
@@ -332,6 +452,8 @@ export type GraphQL_Node = {
   _id?: Maybe<Scalars['ID']>;
   aboveNodes?: Maybe<Array<Maybe<GraphQL_Node>>>;
   match?: Maybe<GraphQL_MatchType>;
+  matchByServer?: Maybe<Array<Maybe<GraphQL_MatchByServerType>>>;
+  matchByServer_update?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
   node?: Maybe<Scalars['String']>;
   registeredAt?: Maybe<Scalars['String']>;
@@ -407,6 +529,7 @@ export type GraphQL_Query = {
   findChat?: Maybe<GraphQL_Chats>;
   findEpic?: Maybe<Array<Maybe<GraphQL_Epic>>>;
   findGarden?: Maybe<Array<Maybe<GraphQL_FindGardenOutput>>>;
+  findGrants?: Maybe<Array<Maybe<GraphQL_GrantTemplate>>>;
   findMember?: Maybe<GraphQL_Members>;
   findMembers?: Maybe<Array<Maybe<GraphQL_Members>>>;
   findNode?: Maybe<GraphQL_Node>;
@@ -432,6 +555,9 @@ export type GraphQL_Query = {
   matchMembersToProjectRole?: Maybe<Array<Maybe<GraphQL_MatchMembersToProjectRoleOutput>>>;
   matchMembersToSkills?: Maybe<Array<Maybe<GraphQL_MatchMembersToSkillOutput>>>;
   matchMembersToUser?: Maybe<Array<Maybe<GraphQL_MatchMembersToUserOutput>>>;
+  matchNodesToMembers?: Maybe<Array<Maybe<GraphQL_MatchMembersToSkillOutput>>>;
+  matchNodesToProjectRoles?: Maybe<Array<Maybe<GraphQL_MatchSkillsToProjectsOutput>>>;
+  matchPrepareNode?: Maybe<GraphQL_Node>;
   matchPrepareSkillToMembers?: Maybe<GraphQL_Skills>;
   matchPrepareSkillToProjectRoles?: Maybe<GraphQL_Skills>;
   matchProjectsToMember?: Maybe<Array<Maybe<GraphQL_Project>>>;
@@ -467,6 +593,11 @@ export type GraphQL_QueryFindEpicArgs = {
 
 export type GraphQL_QueryFindGardenArgs = {
   fields?: InputMaybe<GraphQL_FindGardenInput>;
+};
+
+
+export type GraphQL_QueryFindGrantsArgs = {
+  fields?: InputMaybe<GraphQL_FindGrantsInput>;
 };
 
 
@@ -592,6 +723,21 @@ export type GraphQL_QueryMatchMembersToSkillsArgs = {
 
 export type GraphQL_QueryMatchMembersToUserArgs = {
   fields?: InputMaybe<GraphQL_MatchMembersToUserInput>;
+};
+
+
+export type GraphQL_QueryMatchNodesToMembersArgs = {
+  fields?: InputMaybe<GraphQL_MatchNodesToMembersInput>;
+};
+
+
+export type GraphQL_QueryMatchNodesToProjectRolesArgs = {
+  fields?: InputMaybe<GraphQL_MatchNodesToProjectRolesInput>;
+};
+
+
+export type GraphQL_QueryMatchPrepareNodeArgs = {
+  fields?: InputMaybe<GraphQL_MatchPrepareNodeInput>;
 };
 
 
@@ -813,6 +959,16 @@ export type GraphQL_AddFavoriteProjectInput = {
   projectID?: InputMaybe<Scalars['ID']>;
 };
 
+export type GraphQL_AddMessageInput = {
+  creator?: InputMaybe<Scalars['ID']>;
+  mentioned?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+  message?: InputMaybe<Scalars['String']>;
+};
+
+export type GraphQL_AddMessagesInput = {
+  data?: InputMaybe<Array<InputMaybe<GraphQL_AddMessageInput>>>;
+};
+
 export type GraphQL_AddNewChatInput = {
   message: Scalars['String'];
   projectID: Scalars['ID'];
@@ -835,11 +991,43 @@ export type GraphQL_AddNewMemberInput = {
   serverID?: InputMaybe<Scalars['String']>;
 };
 
+export type GraphQL_AddNodesToGrantInput = {
+  grantID?: InputMaybe<Scalars['ID']>;
+  nodesID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_AddNodesToMemberInRoomInput = {
+  RoomID?: InputMaybe<Scalars['ID']>;
+  memberID?: InputMaybe<Scalars['ID']>;
+  nodesID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_AddNodesToMemberInput = {
+  memberID?: InputMaybe<Scalars['ID']>;
+  nodesID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_AddNodesToProjectRoleInput = {
+  nodesID?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+  projectRoleID?: InputMaybe<Scalars['ID']>;
+};
+
+export type GraphQL_AddProjectRoleInput = {
+  description?: InputMaybe<Scalars['String']>;
+  projectID?: InputMaybe<Scalars['ID']>;
+  title?: InputMaybe<Scalars['String']>;
+};
+
 export type GraphQL_AddSkillToMember_Input = {
   authorID?: InputMaybe<Scalars['ID']>;
   memberID?: InputMaybe<Scalars['ID']>;
   serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   skillID?: InputMaybe<Scalars['ID']>;
+};
+
+export type GraphQL_ApplyGrantInput = {
+  grantID?: InputMaybe<Scalars['ID']>;
+  memberID?: InputMaybe<Scalars['ID']>;
 };
 
 export type GraphQL_ApproveOrRejectSkillInput = {
@@ -1049,6 +1237,26 @@ export type GraphQL_DatesType = {
   kickOff?: Maybe<Scalars['String']>;
 };
 
+export type GraphQL_DeleteMemberInput = {
+  memberID?: InputMaybe<Scalars['ID']>;
+};
+
+export type GraphQL_DeleteNodesFromMemberInRoomInput = {
+  RoomID?: InputMaybe<Scalars['ID']>;
+  memberID?: InputMaybe<Scalars['ID']>;
+  nodesID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_DeleteNodesFromMemberInput = {
+  memberID?: InputMaybe<Scalars['ID']>;
+  nodesID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_DeleteNodesToProjectRoleInput = {
+  nodesID?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+  projectRoleID?: InputMaybe<Scalars['ID']>;
+};
+
 export type GraphQL_EndorcmentInput = {
   registeredAt?: InputMaybe<Scalars['String']>;
   skillID?: InputMaybe<Scalars['ID']>;
@@ -1090,6 +1298,12 @@ export type GraphQL_FindChatInput = {
   threadID?: InputMaybe<Scalars['ID']>;
 };
 
+export enum GraphQL_FindEnum {
+  Member = 'Member',
+  Project = 'Project',
+  Role = 'Role'
+}
+
 export type GraphQL_FindEpicInput = {
   _id?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
   projectID?: InputMaybe<Scalars['ID']>;
@@ -1111,6 +1325,10 @@ export type GraphQL_FindGardenOutput = {
   team?: Maybe<Array<Maybe<GraphQL_TeamsType_Garden>>>;
 };
 
+export type GraphQL_FindGrantsInput = {
+  _id?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+};
+
 export type GraphQL_FindMemberInput = {
   _id?: InputMaybe<Scalars['ID']>;
   discordName?: InputMaybe<Scalars['ID']>;
@@ -1128,7 +1346,10 @@ export type GraphQL_FindNodeInput = {
 
 export type GraphQL_FindNodesInput = {
   _id?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+  matchByServer_update?: InputMaybe<Scalars['Boolean']>;
   node?: InputMaybe<Scalars['String']>;
+  recalculateMembers?: InputMaybe<Scalars['Boolean']>;
+  recalculateProjectRoles?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type GraphQL_FindProjectInput = {
@@ -1259,6 +1480,12 @@ export type GraphQL_LoginInput = {
   password?: InputMaybe<Scalars['String']>;
 };
 
+export type GraphQL_MatchByServerType = {
+  __typename?: 'matchByServerType';
+  match?: Maybe<GraphQL_MatchType>;
+  serverID?: Maybe<Scalars['String']>;
+};
+
 export type GraphQL_MatchMembersToProjectInput = {
   projectID?: InputMaybe<Scalars['ID']>;
   serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
@@ -1305,6 +1532,28 @@ export type GraphQL_MatchMembersToUserOutput = {
   commonSkills?: Maybe<Array<Maybe<GraphQL_Skills>>>;
   matchPercentage?: Maybe<Scalars['Float']>;
   member?: Maybe<GraphQL_Members>;
+};
+
+export type GraphQL_MatchNodesToMembersInput = {
+  budgetAmount?: InputMaybe<Scalars['Float']>;
+  hoursPerWeek?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+  nodesID?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+  page?: InputMaybe<Scalars['Int']>;
+  serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_MatchNodesToProjectRolesInput = {
+  limit?: InputMaybe<Scalars['Int']>;
+  nodesID?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+  page?: InputMaybe<Scalars['Int']>;
+  serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_MatchPrepareNodeInput = {
+  find?: InputMaybe<GraphQL_FindEnum>;
+  nodeID?: InputMaybe<Scalars['ID']>;
+  serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
 };
 
 export type GraphQL_MatchPrepareSkillToMembersInput = {
@@ -1382,6 +1631,11 @@ export type GraphQL_NewTweetProjectInput = {
   content?: InputMaybe<Scalars['String']>;
   projectID?: InputMaybe<Scalars['ID']>;
   title?: InputMaybe<Scalars['String']>;
+};
+
+export type GraphQL_NodesType = {
+  __typename?: 'nodesType';
+  nodeData?: Maybe<GraphQL_Node>;
 };
 
 export type GraphQL_OnboardingInput = {
@@ -1479,6 +1733,17 @@ export type GraphQL_ReplyType = {
   sender?: Maybe<Scalars['Boolean']>;
 };
 
+export type GraphQL_ResourcesInput = {
+  name?: InputMaybe<Scalars['String']>;
+  url?: InputMaybe<Scalars['String']>;
+};
+
+export type GraphQL_ResourcesType = {
+  __typename?: 'resourcesType';
+  name?: Maybe<Scalars['String']>;
+  url?: Maybe<Scalars['String']>;
+};
+
 export enum GraphQL_ResultEnum {
   Successful = 'successful',
   Unsuccesful = 'unsuccesful'
@@ -1508,6 +1773,7 @@ export type GraphQL_RoleType = {
   description?: Maybe<Scalars['String']>;
   hoursPerWeek?: Maybe<Scalars['Int']>;
   keyRosponsibilities?: Maybe<Scalars['String']>;
+  nodes?: Maybe<Array<Maybe<GraphQL_NodesType>>>;
   openPositions?: Maybe<Scalars['Int']>;
   skills?: Maybe<Array<Maybe<GraphQL_SkillRoleType>>>;
   title?: Maybe<Scalars['String']>;
@@ -1635,6 +1901,23 @@ export type GraphQL_UpdateChatResultInput = {
   threadID?: InputMaybe<Scalars['ID']>;
 };
 
+export type GraphQL_UpdateGrantInput = {
+  _id?: InputMaybe<Scalars['ID']>;
+  amount?: InputMaybe<Scalars['String']>;
+  applicationProcess?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  avatar?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  difficulty?: InputMaybe<Scalars['String']>;
+  distributed?: InputMaybe<Scalars['Int']>;
+  maxDistributed?: InputMaybe<Scalars['Int']>;
+  name?: InputMaybe<Scalars['String']>;
+  requirments?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  resources?: InputMaybe<Array<InputMaybe<GraphQL_ResourcesInput>>>;
+  serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  smallDescription?: InputMaybe<Scalars['String']>;
+  tags?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
 export type GraphQL_UpdateMemberInRoomInput = {
   bio?: InputMaybe<Scalars['String']>;
   content?: InputMaybe<GraphQL_ContentInput>;
@@ -1667,7 +1950,7 @@ export type GraphQL_UpdateMemberInput = {
   memberRole?: InputMaybe<Scalars['ID']>;
   onbording?: InputMaybe<GraphQL_OnboardingInput>;
   previusProjects?: InputMaybe<Array<InputMaybe<GraphQL_PreviusProjectsInput>>>;
-  serverID?: InputMaybe<Scalars['String']>;
+  serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   skills?: InputMaybe<Array<InputMaybe<GraphQL_SkillInput_Member>>>;
   timeZone?: InputMaybe<Scalars['String']>;
 };
@@ -1727,6 +2010,20 @@ export type GraphQL_AddEndorsementMutationVariables = Exact<{
 
 
 export type GraphQL_AddEndorsementMutation = { __typename?: 'Mutation', addEndorsement?: { __typename?: 'Members', endorsements?: Array<{ __typename?: 'endorsements', endorsementMessage?: string | null, arweaveTransactionID?: string | null, endorser?: { __typename?: 'MembersSmallType', _id?: string | null, discordName?: string | null } | null } | null> | null } | null };
+
+export type GraphQL_AddMessageMutationVariables = Exact<{
+  fields?: InputMaybe<GraphQL_AddMessageInput>;
+}>;
+
+
+export type GraphQL_AddMessageMutation = { __typename?: 'Mutation', addMessage?: { __typename?: 'AI', _id?: string | null } | null };
+
+export type GraphQL_AddMessagesMutationVariables = Exact<{
+  fields?: InputMaybe<GraphQL_AddMessagesInput>;
+}>;
+
+
+export type GraphQL_AddMessagesMutation = { __typename?: 'Mutation', addMessages?: Array<{ __typename?: 'AI', _id?: string | null } | null> | null };
 
 export type GraphQL_AddNewMemberMutationVariables = Exact<{
   fields: GraphQL_AddNewMemberInput;

@@ -24,7 +24,7 @@ export async function findSkills() {
 		GraphQL_FindSkillsQueryVariables,
 		GraphQL_FindSkillsQuery
 	>({
-		request: request,
+		request,
 		variable: {
 			fields: {}
 		}

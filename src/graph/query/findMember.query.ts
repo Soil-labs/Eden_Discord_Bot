@@ -26,7 +26,7 @@ const request = gql`
 
 export async function findMember(variable: GraphQL_FindMemberQueryVariables) {
 	return myQuery<GraphQL_FindMemberQueryVariables, GraphQL_FindMemberQuery>({
-		request: request,
+		request,
 		variable: variable
 	});
 }

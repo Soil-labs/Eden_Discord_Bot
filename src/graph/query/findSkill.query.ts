@@ -16,7 +16,7 @@ const request = gql`
 
 export async function findSkill(variable: GraphQL_FindSkillQueryVariables) {
 	return myQuery<GraphQL_FindSkillQueryVariables, GraphQL_FindSkillQuery>({
-		request: request,
-		variable: variable
+		variable,
+		request
 	});
 }

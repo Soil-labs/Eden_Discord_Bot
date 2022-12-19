@@ -20,7 +20,7 @@ const request = gql`
 
 export async function findProjectUpdates() {
 	return myQuery<GraphQL_FindProjectUpdatesQueryVariables, GraphQL_FindProjectUpdatesQuery>({
-		request: request,
+		request,
 		variable: {
 			fields: {}
 		}

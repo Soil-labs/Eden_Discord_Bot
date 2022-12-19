@@ -19,7 +19,7 @@ export async function createProjectUpdate(variable: GraphQL_CreateProjectUpdateM
 		GraphQL_CreateProjectUpdateMutationVariables,
 		GraphQL_CreateProjectUpdateMutation
 	>({
-		request: request,
-		variable: variable
+		request,
+		variable
 	});
 }

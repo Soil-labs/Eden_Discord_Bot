@@ -20,7 +20,7 @@ export async function findMembers() {
 		GraphQL_FindMembersQueryVariables,
 		GraphQL_FindMembersQuery
 	>({
-		request: request,
+		request,
 		variable: { fields: {} }
 	});
 

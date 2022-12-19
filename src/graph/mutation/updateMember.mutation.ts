@@ -13,7 +13,7 @@ const request = gql`
 
 export async function updateMember(variable: GraphQL_UpdateMemberMutationVariables) {
 	return myMutation<GraphQL_UpdateMemberMutationVariables, GraphQL_UpdateMemberMutation>({
-		request: request,
-		variable: variable
+		request,
+		variable
 	});
 }

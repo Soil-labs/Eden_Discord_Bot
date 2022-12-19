@@ -31,7 +31,7 @@ const request = gql`
 
 export async function matchMemberToSkills(variable: GraphQL_MatchMembersToSkillsQueryVariables) {
 	return myQuery<GraphQL_MatchMembersToSkillsQueryVariables, GraphQL_MatchMembersToSkillsQuery>({
-		variable: variable,
-		request: request
+		variable,
+		request
 	});
 }

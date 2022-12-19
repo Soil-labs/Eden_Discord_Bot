@@ -24,7 +24,7 @@ export async function findServers() {
 		GraphQL_FindServersQueryVariables,
 		GraphQL_FindServersQuery
 	>({
-		request: request,
+		request,
 		variable: {
 			fields: {}
 		}

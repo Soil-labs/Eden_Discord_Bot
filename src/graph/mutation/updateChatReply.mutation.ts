@@ -16,7 +16,7 @@ const request = gql`
 
 export async function updateChatReply(variable: GraphQL_UpdateChatReplyMutationVariables) {
 	return myMutation<GraphQL_UpdateChatReplyMutationVariables, GraphQL_UpdateChatReplyMutation>({
-		request: request,
-		variable: variable
+		request,
+		variable
 	});
 }
