@@ -27,7 +27,7 @@ export default new Event('messageCreate', async (message: Message) => {
 		if (content) {
 			const mentionedMembers = message.mentions.members;
 			const fields: GraphQL_AddMessageInput = {
-				creator: author.id,
+				creator: guildId,
 				mentioned: [],
 				message: content
 			};
