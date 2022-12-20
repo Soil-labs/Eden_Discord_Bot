@@ -19,6 +19,7 @@ export type GraphQL_Ai = {
   edenAI?: Maybe<GraphQL_EdenAi>;
   mentioned?: Maybe<Array<Maybe<Scalars['ID']>>>;
   message?: Maybe<Scalars['String']>;
+  serverID?: Maybe<Scalars['String']>;
 };
 
 export type GraphQL_Chats = {
@@ -47,6 +48,11 @@ export type GraphQL_EdenAi = {
   __typename?: 'EdenAI';
   keywords?: Maybe<Array<Maybe<GraphQL_Keyword>>>;
   nodes?: Maybe<Array<Maybe<Scalars['ID']>>>;
+};
+
+export type GraphQL_EdenAiInput = {
+  keywords?: InputMaybe<Array<InputMaybe<GraphQL_KeywordInput>>>;
+  nodes?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
 };
 
 export type GraphQL_Epic = {
@@ -100,8 +106,13 @@ export type GraphQL_GrantTemplate = {
 
 export type GraphQL_Keyword = {
   __typename?: 'Keyword';
-  embedding?: Maybe<Array<Maybe<Scalars['String']>>>;
+  embedding?: Maybe<Array<Maybe<Scalars['Float']>>>;
   keywords?: Maybe<Scalars['String']>;
+};
+
+export type GraphQL_KeywordInput = {
+  embedding?: InputMaybe<Array<InputMaybe<Scalars['Float']>>>;
+  keywords?: InputMaybe<Scalars['String']>;
 };
 
 export type GraphQL_MatchPercentage = {
@@ -205,6 +216,7 @@ export type GraphQL_Mutation = {
   updateGrant?: Maybe<GraphQL_GrantTemplate>;
   updateMember?: Maybe<GraphQL_Members>;
   updateMemberInRoom?: Maybe<GraphQL_Members>;
+  updateMessage?: Maybe<GraphQL_Ai>;
   updateProject?: Maybe<GraphQL_Project>;
   updateRoleTemplate?: Maybe<GraphQL_RoleTemplate>;
   updateServer?: Maybe<GraphQL_ServerTemplate>;
@@ -423,6 +435,11 @@ export type GraphQL_MutationUpdateMemberInRoomArgs = {
 };
 
 
+export type GraphQL_MutationUpdateMessageArgs = {
+  fields?: InputMaybe<GraphQL_UpdateMessageInput>;
+};
+
+
 export type GraphQL_MutationUpdateProjectArgs = {
   fields: GraphQL_UpdateProjectInput;
 };
@@ -532,6 +549,7 @@ export type GraphQL_Query = {
   findGrants?: Maybe<Array<Maybe<GraphQL_GrantTemplate>>>;
   findMember?: Maybe<GraphQL_Members>;
   findMembers?: Maybe<Array<Maybe<GraphQL_Members>>>;
+  findMessage?: Maybe<Array<Maybe<GraphQL_Ai>>>;
   findNode?: Maybe<GraphQL_Node>;
   findNodes?: Maybe<Array<Maybe<GraphQL_Node>>>;
   findProject?: Maybe<GraphQL_Project>;
@@ -608,6 +626,11 @@ export type GraphQL_QueryFindMemberArgs = {
 
 export type GraphQL_QueryFindMembersArgs = {
   fields?: InputMaybe<GraphQL_FindMembersInput>;
+};
+
+
+export type GraphQL_QueryFindMessageArgs = {
+  fields?: InputMaybe<GraphQL_FindMessageInput>;
 };
 
 
@@ -963,6 +986,7 @@ export type GraphQL_AddMessageInput = {
   creator?: InputMaybe<Scalars['ID']>;
   mentioned?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
   message?: InputMaybe<Scalars['String']>;
+  serverID?: InputMaybe<Scalars['String']>;
 };
 
 export type GraphQL_AddMessagesInput = {
@@ -1338,6 +1362,11 @@ export type GraphQL_FindMemberInput = {
 export type GraphQL_FindMembersInput = {
   _id?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
   serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+export type GraphQL_FindMessageInput = {
+  discordID?: InputMaybe<Scalars['ID']>;
+  serverID?: InputMaybe<Scalars['ID']>;
 };
 
 export type GraphQL_FindNodeInput = {
@@ -1953,6 +1982,11 @@ export type GraphQL_UpdateMemberInput = {
   serverID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   skills?: InputMaybe<Array<InputMaybe<GraphQL_SkillInput_Member>>>;
   timeZone?: InputMaybe<Scalars['String']>;
+};
+
+export type GraphQL_UpdateMessageInput = {
+  edenAI?: InputMaybe<GraphQL_EdenAiInput>;
+  messageID?: InputMaybe<Scalars['ID']>;
 };
 
 export type GraphQL_UpdateProjectInput = {
