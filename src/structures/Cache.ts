@@ -39,4 +39,4 @@ class MyCache extends NodeCache {
 	}
 }
 
-export const myCache = new MyCache({ stdTTL: 30, checkperiod: 60, deleteOnExpire: false });
+export const myCache = new MyCache({ stdTTL: 60, checkperiod: 120, deleteOnExpire: false });

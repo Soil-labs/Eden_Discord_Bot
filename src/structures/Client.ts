@@ -340,7 +340,7 @@ export class MyClient extends Client {
 							.filter(
 								(thread) =>
 									thread?.appliedTags?.filter((tag) => tag === tagId)?.length !==
-									0
+									0  
 							)
 							.map((thread) => thread.id)
 					);
@@ -359,7 +359,6 @@ export class MyClient extends Client {
 		myCache.mySet('ChatThreads', chatThreadsCache);
 
 		if (exitFlag) {
-			// todo change colors to red
 			logger.error(`\nFetching Data Error!\n${this.table.toString()}`);
 			process.exit(1);
 		} else {
@@ -373,9 +372,6 @@ export class MyClient extends Client {
 					break;
 				case 'Projects':
 					await findProjects();
-					break;
-				case 'Skills':
-					await findSkills();
 					break;
 			}
 		});
