@@ -73,7 +73,7 @@ export const LINK: Link = {
 	USER: _frontend + '/profile/%s',
 	SIGNUP: _frontend + '/signup',
 	STAGING_ONBOARD: _frontend + 'onboard%s',
-	ROOM: 'https://eden-alpha-develop.vercel.app/party/onboard/%(roomId)s',
+	ROOM: _frontend + '/party/onboard/%(roomId)s',
 	DISCORD_MSG: 'https://discord.com/channels/%(guildId)s/%(channelId)s/%(messageId)s',
 	LAUNCH_PROJECT: _frontend + '/launch',
 	PROJECT_TWEET: _frontend + '/projects/%s/feed',
