@@ -10,8 +10,8 @@ module.exports = {
 			out_file: '~/.pm2/logs/oasis-out.log',
 			ignore_watch: ['node_modules', 'src'],
 			env: {
-				PM2_ENDPOINT: 'https://oasis-botdevelopment.up.railway.app/graphql',
-				PM2_FRONTEND: 'https://eden-develop.vercel.app',
+				PM2_ENDPOINT: 'https://soil-api-backend-botdevelopai2.up.railway.app/graphql',
+				PM2_FRONTEND: 'https://eden-foundation-develop.vercel.app',
 				PM2_MODE: 'prod'
 				// Undefined DMDISABLED means false
 				// PM2_DMDISABLED: false,
@@ -19,8 +19,8 @@ module.exports = {
 				// PM2_ALLOWCOMMANDS: [],
 			},
 			env_dev: {
-				PM2_ENDPOINT: 'https://oasis-botdevelopment.up.railway.app/graphql',
-				PM2_FRONTEND: 'https://eden-develop.vercel.app',
+				PM2_ENDPOINT: 'https://soil-api-backend-botdevelopai2.up.railway.app/graphql',
+				PM2_FRONTEND: 'https://eden-foundation-develop.vercel.app',
 				PM2_MODE: 'dev'
 			}
 		}

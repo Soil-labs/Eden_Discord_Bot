@@ -10,7 +10,7 @@ module.exports = {
 			out_file: '~/.pm2/logs/eden-out.log',
 			ignore_watch: ['node_modules', 'src'],
 			env: {
-				PM2_ENDPOINT: 'https://eden-production.up.railway.app/graphql',
+				PM2_ENDPOINT: 'https://soil-api-backend-botproductionai2.up.railway.app/graphql',
 				PM2_FRONTEND: 'https://edenprotocol.app',
 				PM2_MODE: 'prod'
 				// PM2_DMDISABLED: true,

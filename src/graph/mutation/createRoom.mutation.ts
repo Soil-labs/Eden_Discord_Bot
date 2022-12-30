@@ -11,11 +11,9 @@ const request = gql`
 	}
 `;
 
-export async function createRoom() {
+export async function createRoom(variable: GraphQL_CreateRoomMutationVariables) {
 	return myMutation<GraphQL_CreateRoomMutationVariables, GraphQL_CreateRoomMutation>({
 		request,
-		variable: {
-			fields: {}
-		}
+		variable
 	});
 }

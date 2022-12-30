@@ -71,7 +71,8 @@ export default new Command({
 	],
 	execute: async ({ interaction, args }) => {
 		const subCommandName = args.getSubcommand();
-		const guildId: string = interaction.guild.id;
+		const guild = interaction.guild;
+		const guildId: string = guild.id;
 
 		if (subCommandName === 'member') {
 			const membersString = args.getString('frens').match(/<@!?[0-9]*?>/g);
@@ -102,7 +103,7 @@ export default new Command({
 
 					if (memberIds.includes(duplicateValue)) return;
 
-					const member = interaction.guild.members.cache.get(duplicateValue);
+					const member = guild.members.cache.get(duplicateValue);
 
 					if (member) {
 						if (member.user.bot) return;
@@ -217,10 +218,7 @@ export default new Command({
 					ephemeral: true
 				});
 			}
-			const permissionCheck = checkOnboardPermission(
-				voiceChannel,
-				interaction.guild.members.me.id
-			);
+			const permissionCheck = checkOnboardPermission(voiceChannel, guild.members.me.id);
 
 			if (permissionCheck) {
 				return interaction.reply({
@@ -230,7 +228,20 @@ export default new Command({
 			}
 
 			await interaction.deferReply({ ephemeral: true });
-			const { result, error } = await createRoom();
+			const { result, error } = await createRoom({
+				fields: {
+					avatar: guild.iconURL(),
+					description: sprintf(CONTENT.ONBOARDING_ROOM_DESCRIPTION, {
+						guildName: guild.name,
+						hostName: interaction.member.displayName
+					}),
+					hostID: [hostId],
+					name: sprintf(CONTENT.ONBOARDING_ROOM_NAME, {
+						guildName: guild.name
+					}),
+					serverID: guildId
+				}
+			});
 
 			if (error)
 				return interaction.followUp({

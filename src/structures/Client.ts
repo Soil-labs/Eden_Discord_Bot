@@ -279,6 +279,7 @@ export class MyClient extends Client {
 			findMembers(),
 			findServers()
 		]);
+
 		const rowNames: Array<keyof CacheType> = ['Projects', 'Skills', 'Members', 'Servers'];
 
 		cacheResults.forEach((result, index) => {
@@ -316,7 +317,7 @@ export class MyClient extends Client {
 			}
 			voiceContextsCache[guildId] = defaultGuildVoiceContext;
 			chatThreadsCache[guildId] = [];
-			if (!myCache.myGet('Teams')?.[guildId]) return;
+			if (!myCache.myGet('Teams')?.[guildId]) continue;
 			for (const team of Object.values(myCache.myGet('Teams')[guildId])) {
 				const { forumChannelId } = team;
 
@@ -327,7 +328,7 @@ export class MyClient extends Client {
 					if (!forumChannel) continue;
 					const tagId = validForumTag(forumChannel, CONTENT.CHAT_TAG_NAME);
 
-					if (!tagId) return;
+					if (!tagId) continue;
 					while (true) {
 						const { result, error } = await awaitWrap(forumChannel.threads.fetch());
 
@@ -340,7 +341,7 @@ export class MyClient extends Client {
 							.filter(
 								(thread) =>
 									thread?.appliedTags?.filter((tag) => tag === tagId)?.length !==
-									0  
+									0
 							)
 							.map((thread) => thread.id)
 					);
@@ -357,7 +358,6 @@ export class MyClient extends Client {
 		myCache.mySet('VoiceContexts', voiceContextsCache);
 		myCache.mySet('GardenContext', {});
 		myCache.mySet('ChatThreads', chatThreadsCache);
-
 		if (exitFlag) {
 			logger.error(`\nFetching Data Error!\n${this.table.toString()}`);
 			process.exit(1);

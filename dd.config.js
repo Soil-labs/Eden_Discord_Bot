@@ -10,8 +10,8 @@ module.exports = {
 			out_file: '~/.pm2/logs/eden_dd-out.log',
 			ignore_watch: ['node_modules', 'src'],
 			env: {
-				PM2_ENDPOINT: 'https://oasis-botdevelopment.up.railway.app/graphql',
-				PM2_FRONTEND: 'https://eden-develop.vercel.app',
+				PM2_ENDPOINT: 'https://soil-api-backend-botproductionai2.up.railway.app/graphql',
+				PM2_FRONTEND: 'https://edenprotocol.app',
 				PM2_MODE: 'dev',
 				PM2_DMDISABLED: true,
 				PM2_ALLOWCOMMANDS: ['champion', 'invite', 'onboard', 'signup']

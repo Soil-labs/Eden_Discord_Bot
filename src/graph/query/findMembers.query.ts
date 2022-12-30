@@ -23,7 +23,7 @@ export async function findMembers() {
 		request,
 		variable: { fields: {} }
 	});
-
+	
 	if (error) return error;
 	else {
 		const toBeCached: MembersCache = {};

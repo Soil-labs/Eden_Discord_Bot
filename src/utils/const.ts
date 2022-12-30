@@ -42,7 +42,9 @@ type ContentProperty =
 	| 'GROUP_ONBORAD'
 	| 'CHANNEL_SETTING_FAIL_REPLY'
 	| 'CHANNEL_SETTING_SUCCESS_REPLY'
-	| 'CHAT_TAG_NAME';
+	| 'CHAT_TAG_NAME'
+	| 'ONBOARDING_ROOM_DESCRIPTION'
+	| 'ONBOARDING_ROOM_NAME';
 
 type Numerical = Readonly<Record<NumericalProperty, number>>;
 type Link = Readonly<Record<LinkProperty, string>>;
@@ -71,7 +73,7 @@ export const LINK: Link = {
 	USER: _frontend + '/profile/%s',
 	SIGNUP: _frontend + '/signup',
 	STAGING_ONBOARD: _frontend + 'onboard%s',
-	ROOM: 'https://eden-foundation-develop.vercel.app/onboard/party/%(roomId)s',
+	ROOM: 'https://eden-alpha-develop.vercel.app/party/onboard/%(roomId)s',
 	DISCORD_MSG: 'https://discord.com/channels/%(guildId)s/%(channelId)s/%(messageId)s',
 	LAUNCH_PROJECT: _frontend + '/launch',
 	PROJECT_TWEET: _frontend + '/projects/%s/feed',
@@ -97,7 +99,10 @@ export const CONTENT: Content = {
 		'Fail to set <#%(targetChannelId)s> as %(setChannelName)s channel, because of `%(reason)s`.',
 	CHANNEL_SETTING_SUCCESS_REPLY:
 		'Success to set <#%(targetChannelId)s> as %(setChannelName)s channel.',
-	CHAT_TAG_NAME: 'Chat'
+	CHAT_TAG_NAME: 'Chat',
+	ONBOARDING_ROOM_DESCRIPTION:
+		'Welcome to %(guildName)s onboarding call hosted by %(hostName)s. Hope you enjoy this call and feel free to ask any question.',
+	ONBOARDING_ROOM_NAME: '%(guildName)s Onboarding Call'
 };
 
 export const ERROR_REPLY: InternalError = {
