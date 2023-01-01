@@ -508,6 +508,8 @@ export class MyClient extends Client {
 		const birthdayQuery = query(collection(db, 'Birthday'));
 		const current = Math.floor(new Date().getTime() / 1000);
 		const nonBirthdayArray = [];
+
+		logger.info('Scan Start');
 		const birthdayArray: Array<{ id: string } & BirthdayInform> = (
 			await getDocs<BirthdayInform>(birthdayQuery as Query<BirthdayInform>)
 		).docs
@@ -521,8 +523,10 @@ export class MyClient extends Client {
 
 				if (current > date) {
 					pre.push(cur);
+					console.log('new Date: ', current);
 					const result = getNextBirthday(Number(month), Number(day), offset);
 
+					console.log('previous bir:', date, 'new bir: ', result.birthday);
 					batch.update<BirthdayInform>(
 						doc(db, 'Birthday', userId) as DocumentReference<BirthdayInform>,
 						{
