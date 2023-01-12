@@ -21,9 +21,6 @@ jobs:
       - name: Set current date as env variable
         run: echo "UNIQ_ID=$(date +'%y%m%d')-${GITHUB_RUN_ID}" >> $GITHUB_ENV
 
-      - name: Ouput value
-        run: echo ${{ env.BRANCH_NAME }}  ${{ env.UNIQ_ID }}
-
       - name: Repo Checkout
         uses: actions/checkout@v3
       
@@ -38,6 +35,9 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: alex1237/eden-local
+          tags: |
+            type=ref,event=branch
+            type=ref,event=branch,prefix=${{ env.UNIQ_ID }}-
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3 # docker build & push
