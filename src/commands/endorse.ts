@@ -9,6 +9,7 @@ import _ from 'lodash';
 
 import { addEndorsement } from '../graph/mutation/addEndorsement.mutation';
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
+import { useAIOnMessage } from '../graph/mutation/useAiOnMessage.mutation';
 import { Command } from '../structures/Command';
 import { CommandNameEmun } from '../types/Command';
 import { LINK } from '../utils/const';
@@ -99,8 +100,32 @@ export default new Command({
 		if (curEndorse?.arweaveTransactionID) {
 			curEndorseArLink += curEndorse?.arweaveTransactionID;
 		}
+
+		const { result: aiResult, error: aiError } = await useAIOnMessage({
+			fields: {
+				message: comment,
+				cash: false,
+				numberKeywords: 3
+			}
+		});
+		let replyContent = `You have successfully endorse ${member.username}!\nhttps://eden-foundation-develop.vercel.app/profile/${member.username}`;
+
+		console.log(aiResult, aiError);
+		if (
+			aiResult?.useAI_OnMessage.mainExpertise &&
+			aiResult.useAI_OnMessage.expertiseIdentified.length > 0
+		) {
+			const expertiseList = aiResult.useAI_OnMessage.expertiseIdentified.reduce(
+				(pre, cur) => {
+					return pre + `  - ${cur}\n`;
+				},
+				''
+			);
+
+			replyContent = `You have successfully endorse ${member.username}!\n<@${member.id}> will be endorsed on ${aiResult.useAI_OnMessage.mainExpertise}.\nThe specific skills that will be endorced are:\n${expertiseList}\n\nhttps://eden-foundation-develop.vercel.app/profile/${member.username}`;
+		}
 		return interaction.followUp({
-			content: `You have successfully endorse ${member.username}!\nhttps://eden-alpha-develop.vercel.app/profile/${member.username}`,
+			content: replyContent,
 			components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents([
 					new ButtonBuilder()
