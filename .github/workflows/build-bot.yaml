@@ -45,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v3 # docker build & push
         with:
           context: .
-          file: ./Dockerfile.local
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
