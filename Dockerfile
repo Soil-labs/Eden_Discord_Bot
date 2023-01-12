@@ -12,4 +12,4 @@ RUN npm run build
 
 EXPOSE 80
 
-CMD ["pm2-runtime", "local.config.js"]
+CMD ["pm2-runtime", "start", "./dist/index.js"]

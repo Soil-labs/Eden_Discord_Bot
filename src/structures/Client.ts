@@ -138,7 +138,7 @@ export class MyClient extends Client {
 			const command: CommandType = await this._importFiles(filePath);
 
 			if (!command.name) return;
-			if (typeof allowCommands === 'undefined') {
+			if (typeof allowCommands === 'undefined' || !allowCommands) {
 				this.commands.set(command.name, command);
 				slashCommands.push(command);
 				return;
