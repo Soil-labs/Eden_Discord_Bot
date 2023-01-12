@@ -70,12 +70,12 @@ jobs:
       - name: Update image tag
         uses: mikefarah/yq@v4.27.2
         with:
-          cmd: yq -i '.image.tag="${{ needs.build.outputs.docker-tag }}"' Charts/edenChart/values-local.yaml
+          cmd: yq -i '.image.tag="${{ needs.build.outputs.docker-tag }}"' Charts/edenChart/values-local.yaml && yq -i '.image.tag="${{ needs.build.outputs.docker-tag }}"' Charts/edenChart/values-eden.yaml
       
       - name: Push this change
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add Charts/edenChart/values-local.yaml
+          git add .
           git commit -m "build: ${{needs.build.outputs.docker-tag}}"
           git push
