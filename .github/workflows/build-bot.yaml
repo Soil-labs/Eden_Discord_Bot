@@ -63,7 +63,7 @@ jobs:
       - name: Checkout CD Repo
         uses: actions/checkout@v3
         with:
-          repository: alex1237/bot-deployment
+          repository: myz1237/bot-deployment
           token: ${{ secrets.ACCESS_TOKEN }}
           ref: main
       
