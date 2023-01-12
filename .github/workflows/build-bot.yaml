@@ -36,7 +36,7 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v4
         with:
-          images: alex1237/eden-local
+          images: alex1237/eden-bot
           tags: |
             type=ref,event=branch
             type=ref,event=branch,prefix=${{ env.UNIQ_ID }}-
