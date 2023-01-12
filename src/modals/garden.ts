@@ -114,7 +114,7 @@ export default new Modal({
 				]
 			},
 			appliedTags: [tagId],
-			autoArchiveDuration: autoArchiveDuration,
+			autoArchiveDuration,
 			reason: 'Garden Created'
 		});
 

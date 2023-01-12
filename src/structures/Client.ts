@@ -381,7 +381,7 @@ export class MyClient extends Client {
 		const { result: gardens, error: gardenError } = await findProjectUpdates();
 
 		if (gardenError) return;
-		const guildIds = [...client.guilds.cache.keys()];
+		const guildIds = [...(await client.guilds.fetch()).keys()];
 		// todo why _id could be null and serverID is []
 		const filteredGardens: {
 			[guildId: string]: {
@@ -422,6 +422,8 @@ export class MyClient extends Client {
 				return pre;
 			}, {});
 
+		const oneDayInMil = 24 * 60 * 60 * 1000;
+
 		for (const [guildId, guild] of client.guilds.cache) {
 			if (!filteredGardens[guildId]) continue;
 			for (const { authorId, threadId } of filteredGardens[guildId].gardens) {
@@ -454,14 +456,11 @@ export class MyClient extends Client {
 					autoArchiveDuration === ThreadAutoArchiveDuration.ThreeDays ||
 					autoArchiveDuration === ThreadAutoArchiveDuration.OneWeek
 				) {
-					const oneDayInMil = 24 * 60 * 60 * 1000;
-
 					if (
 						lastMessage.createdTimestamp + autoArchiveDuration * 60 * 1000 - current <=
 						oneDayInMil
 					) {
-						thread.setAutoArchiveDuration(ThreadAutoArchiveDuration.OneDay);
-						thread.send({
+						await thread.send({
 							content: `Hi, <@${authorId}>, this thread will be closed in 1 day. Time to make a decision.`,
 							components: [
 								new ActionRowBuilder<ButtonBuilder>().addComponents([
@@ -482,6 +481,7 @@ export class MyClient extends Client {
 								])
 							]
 						});
+						await thread.setAutoArchiveDuration(ThreadAutoArchiveDuration.OneDay);
 					}
 				}
 			}
@@ -523,10 +523,8 @@ export class MyClient extends Client {
 
 				if (current > date) {
 					pre.push(cur);
-					console.log('new Date: ', current);
 					const result = getNextBirthday(Number(month), Number(day), offset);
 
-					console.log('previous bir:', date, 'new bir: ', result.birthday);
 					batch.update<BirthdayInform>(
 						doc(db, 'Birthday', userId) as DocumentReference<BirthdayInform>,
 						{

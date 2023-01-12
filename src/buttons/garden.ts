@@ -1,4 +1,4 @@
-import { EmbedBuilder } from 'discord.js';
+import { EmbedBuilder, ThreadAutoArchiveDuration } from 'discord.js';
 
 import { Button } from '../structures/Button';
 
@@ -18,7 +18,7 @@ export default new Button({
 			buttonJson.components[1].disabled = false;
 			buttonJson.components[2].disabled = true;
 		}
-		
+
 		await interaction.message.edit({
 			content: message.content,
 			components: [buttonJson]
@@ -38,16 +38,19 @@ export default new Button({
 				const archiveDays = Number(
 					interaction.component.label.match(/\s\d{1}\s/)[0].slice(1)
 				);
-				const archiveDuration = archiveDays === 3 ? 4320 : 10080;
+				const archiveDuration =
+					archiveDays === 3
+						? ThreadAutoArchiveDuration.ThreeDays
+						: ThreadAutoArchiveDuration.OneWeek;
 
-				await thread.setAutoArchiveDuration(archiveDuration);
-				return interaction.reply({
+				await interaction.reply({
 					embeds: [
 						new EmbedBuilder().setDescription(
-							`<#${thread.id}> will be archived in ${archiveDays} days by <@${interaction.user.id}>.`
+							`<#${thread.id}> will be archived in ${archiveDays} days, set by <@${interaction.user.id}>.`
 						)
 					]
 				});
+				return thread.setAutoArchiveDuration(archiveDuration);
 			}
 		} else {
 			return interaction.reply({

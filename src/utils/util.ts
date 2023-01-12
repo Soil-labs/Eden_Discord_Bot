@@ -281,7 +281,6 @@ export function getNextBirthday(month: number, day: number, offset: string): Get
 		let birthday = dayjs.tz(`${thisYear}-${month}-${day}`, 'YYYY-MM-DD', offset).unix();
 		const current = dayjs().unix();
 
-		console.log('Internal current: ', current);
 		if (current > birthday) {
 			const nextYear = thisYear + 1;
 
