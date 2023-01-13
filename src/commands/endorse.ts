@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 import { addEndorsement } from '../graph/mutation/addEndorsement.mutation';
 import { addNewMember } from '../graph/mutation/addNewMember.mutation';
-import { useAIOnMessage } from '../graph/mutation/useAiOnMessage.mutation';
+import { useAIOnMessage } from '../graph/mutation/useAIOnMessage.mutation';
 import { Command } from '../structures/Command';
 import { CommandNameEmun } from '../types/Command';
 import { LINK } from '../utils/const';
