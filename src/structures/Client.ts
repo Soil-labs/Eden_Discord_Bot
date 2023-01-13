@@ -508,8 +508,6 @@ export class MyClient extends Client {
 		const birthdayQuery = query(collection(db, 'Birthday'));
 		const current = Math.floor(new Date().getTime() / 1000);
 		const nonBirthdayArray = [];
-
-		logger.info('Scan Start');
 		const birthdayArray: Array<{ id: string } & BirthdayInform> = (
 			await getDocs<BirthdayInform>(birthdayQuery as Query<BirthdayInform>)
 		).docs

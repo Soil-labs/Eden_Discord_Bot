@@ -105,12 +105,14 @@ export default new Command({
 			fields: {
 				message: comment,
 				cash: false,
-				numberKeywords: 3
+				numberKeywords: 10
 			}
 		});
-		let replyContent = `You have successfully endorse ${member.username}!\nhttps://eden-foundation-develop.vercel.app/profile/${member.username}`;
+		let replyContent = `You have successfully endorse <@${member.id}>!\nhttps://eden-foundation-develop.vercel.app/profile/${member.username}`;
 
-		console.log(aiResult, aiError);
+		if (aiError) {
+			replyContent = `You have successfully endorse <@${member.id}>! But our AI does not work because \`${aiError}\`.\nhttps://eden-foundation-develop.vercel.app/profile/${member.username}`;
+		}
 		if (
 			aiResult?.useAI_OnMessage.mainExpertise &&
 			aiResult.useAI_OnMessage.expertiseIdentified.length > 0
@@ -122,7 +124,7 @@ export default new Command({
 				''
 			);
 
-			replyContent = `You have successfully endorse ${member.username}!\n<@${member.id}> will be endorsed on ${aiResult.useAI_OnMessage.mainExpertise}.\nThe specific skills that will be endorced are:\n${expertiseList}\n\nhttps://eden-foundation-develop.vercel.app/profile/${member.username}`;
+			replyContent = `You have successfully endorse <@${member.id}>!\n<@${member.id}> will be endorsed on ${aiResult.useAI_OnMessage.mainExpertise}.\nThe specific skills that will be endorced are:\n${expertiseList}https://eden-foundation-develop.vercel.app/profile/${member.username}`;
 		}
 		return interaction.followUp({
 			content: replyContent,
