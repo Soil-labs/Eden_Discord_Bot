@@ -13,7 +13,7 @@ env:
 jobs:
   build:
     name: 'Build the bot'
-    if: github.ref_name === 'develop'
+    if: github.ref_name == 'develop'
     runs-on: ubuntu-latest
     outputs:
       docker-tag: ${{ steps.out.outputs.docker-tag }}
@@ -37,7 +37,6 @@ jobs:
         with:
           images: alex1237/eden-bot-test
           tags: |
-            type=ref,event=branch
             type=ref,event=branch,prefix=${{ env.UNIQ_ID }}-
 
       - name: Build and push Docker image
@@ -64,7 +63,7 @@ jobs:
         with:
           repository: myz1237/bot-deployment
           token: ${{ secrets.ACCESS_TOKEN }}
-          ref: main
+          ref: develop
       
       - name: Update image tag
         uses: mikefarah/yq@v4.27.2
