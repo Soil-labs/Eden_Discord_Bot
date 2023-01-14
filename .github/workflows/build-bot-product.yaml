@@ -1,4 +1,4 @@
-name: Eden Bot Production
+name: Eden Bot Production Test
 
 on:
   push:
