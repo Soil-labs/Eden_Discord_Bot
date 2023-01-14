@@ -1,11 +1,11 @@
-name: Eden Bot Production Test
+name: Eden Bot Production
 
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '.github/worksflows/**'
+    paths:
+      - '!.github/worksflows/*.yaml'
   workflow_dispatch:
 
 defaults:
