@@ -1,7 +1,7 @@
 name: Eden Bot Production Action
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
@@ -38,7 +38,6 @@ jobs:
         with:
           images: alex1237/eden-bot
           tags: |
-            type=ref,event=branch
             type=ref,event=branch,prefix=${{ env.UNIQ_ID }}-
 
       - name: Build and push Docker image
