@@ -1,9 +1,12 @@
-name: Eden Bot Production Action
+name: Eden Bot Production
 
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '.github/worksflows'
+  workflow_dispatch:
 
 defaults:
   run:
