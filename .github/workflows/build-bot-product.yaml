@@ -1,4 +1,4 @@
-name: Build Eden Bot Docker Image and Update it to the CD Repo
+name: Eden Bot Production Action
 
 on:
   pull_request:

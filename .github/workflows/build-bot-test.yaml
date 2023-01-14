@@ -1,11 +1,8 @@
-name: Build Test Docker File and jump into the test workflow
+name: Eden Bot Test Action
 
 on:
-  push:
-    branches:
-      - develop
   workflow_dispatch:
-
+  
 defaults:
   run:
     shell: bash
@@ -16,6 +13,7 @@ env:
 jobs:
   build:
     name: 'Build the bot'
+    if: github.ref_name === 'develop'
     runs-on: ubuntu-latest
     outputs:
       docker-tag: ${{ steps.out.outputs.docker-tag }}
