@@ -1,9 +1,12 @@
-name: Eden Bot Production Action
+name: Eden Bot Production
 
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '.github/worksflows'
+  workflow_dispatch:
 
 defaults:
   run:
@@ -67,7 +70,7 @@ jobs:
           ref: main
       
       - name: Update image tag
-        uses: mikefarah/yq@v4.27.2
+        uses: mikefarah/yq@v4.30.7
         with:
           cmd: |
             yq -i '.image.tag="${{ needs.build.outputs.docker-tag }}"' Charts/edenChart/values-local.yaml
