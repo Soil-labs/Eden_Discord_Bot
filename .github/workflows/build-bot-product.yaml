@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - '!.github/worksflows/*.yaml'
+      - '!README.md'
   workflow_dispatch:
 
 defaults:
