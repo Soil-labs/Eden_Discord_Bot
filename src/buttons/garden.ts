@@ -1,9 +1,14 @@
 import { EmbedBuilder, ThreadAutoArchiveDuration } from 'discord.js';
 
 import { Button } from '../structures/Button';
+import { ButtonCustomIdEnum } from '../types/Button';
 
 export default new Button({
-	customIds: ['expired', 'putoffexpire', 'expired_post'],
+	customIds: [
+		ButtonCustomIdEnum.ArchivePost,
+		ButtonCustomIdEnum.PostponeArchive,
+		ButtonCustomIdEnum.ArchiveGarden
+	],
 	execute: async ({ interaction }) => {
 		const { customId, message } = interaction;
 		const thread = interaction.channel;
@@ -13,7 +18,7 @@ export default new Button({
 		buttonJson.components[0].disabled = true;
 		buttonJson.components[1].disabled = true;
 
-		if (customId === 'expired_post') {
+		if (customId === ButtonCustomIdEnum.ArchiveGarden) {
 			buttonJson.components[0].disabled = false;
 			buttonJson.components[1].disabled = false;
 			buttonJson.components[2].disabled = true;
@@ -25,7 +30,10 @@ export default new Button({
 		});
 
 		if (thread.isThread()) {
-			if (customId === 'expired' || customId === 'expired_post') {
+			if (
+				customId === ButtonCustomIdEnum.ArchivePost ||
+				customId === ButtonCustomIdEnum.ArchiveGarden
+			) {
 				await interaction.reply({
 					embeds: [
 						new EmbedBuilder().setDescription(

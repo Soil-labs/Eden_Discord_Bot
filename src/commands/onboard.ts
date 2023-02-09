@@ -17,6 +17,7 @@ import { addNewMember } from '../graph/mutation/addNewMember.mutation';
 import { createRoom } from '../graph/mutation/createRoom.mutation';
 import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
+import { ButtonCustomIdEnum } from '../types/Button';
 import { VoiceContext } from '../types/Cache';
 import { CommandNameEmun } from '../types/Command';
 import { CONTENT, LINK } from '../utils/const';
@@ -284,7 +285,7 @@ export default new Command({
 							)
 							.setEmoji('🎟️'),
 						new ButtonBuilder()
-							.setCustomId('end')
+							.setCustomId(ButtonCustomIdEnum.EndOnboarding)
 							.setStyle(ButtonStyle.Secondary)
 							.setLabel('End Party')
 					])

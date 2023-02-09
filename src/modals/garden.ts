@@ -13,13 +13,15 @@ import { GraphQL_CreateProjectUpdateInput } from '../graph/gql/result';
 import { createProjectUpdate } from '../graph/mutation/createProjectUpdate.mutation';
 import { myCache } from '../structures/Cache';
 import { Modal } from '../structures/Modal';
+import { ButtonCustomIdEnum } from '../types/Button';
 import { GardenMemberId } from '../types/Cache';
 import { CommandNameEmun } from '../types/Command';
+import { ModalCustomIdEnum } from '../types/Modal';
 import { LINK } from '../utils/const';
 import { awaitWrap, checkForumPermission, getErrorReply } from '../utils/util';
 
 export default new Modal({
-	customId: 'update',
+	customId: ModalCustomIdEnum.UpdateGardenInfo,
 	execute: async ({ interaction }) => {
 		const userId = interaction.user.id;
 		const guildId = interaction.guild.id;
@@ -106,7 +108,7 @@ export default new Modal({
 							.setStyle(ButtonStyle.Link)
 							.setURL(LINK.GARDEN_GRAPH),
 						new ButtonBuilder()
-							.setCustomId('expired_post')
+							.setCustomId(ButtonCustomIdEnum.PostponeArchive)
 							.setLabel('Archive this thread')
 							.setStyle(ButtonStyle.Danger)
 							.setEmoji('🗃️')

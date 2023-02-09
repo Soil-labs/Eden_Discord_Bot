@@ -41,7 +41,7 @@ import { findProjects } from '../graph/query/findProjects.query';
 import { findServers } from '../graph/query/findServers.query';
 import { findSkills } from '../graph/query/findSkills.query';
 import { AutoType } from '../types/Auto';
-import { ButtonType } from '../types/Button';
+import { ButtonCustomIdEnum, ButtonType } from '../types/Button';
 import {
 	BirthdayInform,
 	CacheType,
@@ -465,7 +465,7 @@ export class MyClient extends Client {
 							components: [
 								new ActionRowBuilder<ButtonBuilder>().addComponents([
 									new ButtonBuilder()
-										.setCustomId('expired')
+										.setCustomId(ButtonCustomIdEnum.ArchivePost)
 										.setLabel('Archive this thread')
 										.setStyle(ButtonStyle.Danger)
 										.setEmoji('🗃️'),
@@ -475,7 +475,7 @@ export class MyClient extends Client {
 												autoArchiveDuration / (24 * 60)
 											} days`
 										)
-										.setCustomId('putoffexpire')
+										.setCustomId(ButtonCustomIdEnum.PostponeArchive)
 										.setStyle(ButtonStyle.Success)
 										.setEmoji('💡')
 								])

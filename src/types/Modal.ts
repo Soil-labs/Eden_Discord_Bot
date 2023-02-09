@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { GuildMember, ModalSubmitInteraction } from 'discord.js';
 
 import { MyClient } from '../structures/Client';
@@ -12,9 +13,16 @@ interface ModalRunOptions {
 }
 
 type RunFunction = (options: ModalRunOptions) => any;
-type ModalCustomId = 'update';
-// todo limit customId
+export enum ModalCustomIdEnum {
+	UpdateGardenInfo = 'update'
+}
+
+export enum TextInputCustomIdEnum {
+	GardenTitle = 'garden_title',
+	GardenContent = 'garden_content'
+}
+
 export interface ModalType {
-	customId: ModalCustomId;
+	customId: ModalCustomIdEnum;
 	execute: RunFunction;
 }
