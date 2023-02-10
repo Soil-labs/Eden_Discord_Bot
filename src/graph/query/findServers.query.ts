@@ -14,6 +14,7 @@ const request = gql`
 			adminCommands
 			channel {
 				chatID
+				forumID
 			}
 		}
 	}
@@ -39,7 +40,8 @@ export async function findServers() {
 				adminCommands: server.adminCommands,
 				adminID: server.adminID,
 				adminRoles: server.adminRoles,
-				channelChatID: server.channel.chatID
+				channelChatID: server.channel.chatID,
+				forumChatID: server.channel.forumID
 			};
 		});
 		myCache.mySet('Servers', toBeCached);
