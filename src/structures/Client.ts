@@ -56,14 +56,14 @@ import { CommandType } from '../types/Command';
 import { RegisterCommandsOptions } from '../types/CommandRegister';
 import { MessageContextMenuType, UserContextMenuType } from '../types/ContextMenu';
 import { ModalType } from '../types/Modal';
-import { CONTENT, defaultGuildVoiceContext, LINK, NUMBER } from '../utils/const';
+import { defaultGuildVoiceContext, FORUM_TAG, LINK, NUMBER } from '../utils/const';
 import { logger } from '../utils/logger';
 import {
 	awaitWrap,
 	checkOnboardPermission,
 	convertMsToTime,
 	getNextBirthday,
-	validForumTag
+	getTagId
 } from '../utils/util';
 import { myCache } from './Cache';
 import { Event } from './Event';
@@ -326,7 +326,7 @@ export class MyClient extends Client {
 					const threads: Array<ThreadChannel> = [];
 
 					if (!forumChannel) continue;
-					const tagId = validForumTag(forumChannel, CONTENT.CHAT_TAG_NAME);
+					const tagId = getTagId(forumChannel, FORUM_TAG.Chat);
 
 					if (!tagId) continue;
 					while (true) {
