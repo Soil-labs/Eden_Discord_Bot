@@ -171,7 +171,8 @@ export default new Button({
 		});
 
 		if (customId !== ButtonCustomIdEnum.AgreeToConnect) {
-			return channel.setArchived(true);
+			await channel.setArchived(true);
 		}
+		return;
 	}
 });

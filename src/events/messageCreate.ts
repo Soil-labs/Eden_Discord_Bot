@@ -157,17 +157,17 @@ const _dmRepliesMap: Array<
 			const title =
 				tagName === FORUM_TAG.ServerForumUserIntroduction
 					? {
-							inviter: `You successfully sent your introduction to <@${invitee.displayName}>.`,
-							invitee: `You received an introduction from <@${inviter.displayName}>`
+							inviter: `You successfully sent your introduction to ${invitee.displayName}.`,
+							invitee: `You received an introduction from ${inviter.displayName}.`
 					  }
 					: tagName === FORUM_TAG.ServerForumProjectInterest
 					? {
-							inviter: `You successfully showed your interest to <@${invitee.displayName}>'s project.`,
-							invitee: `<@${inviter.displayName}> is interested in your project.`
+							inviter: `You successfully showed your interest to ${invitee.displayName}'s project.`,
+							invitee: `${inviter.displayName} is interested in your project.`
 					  }
 					: {
-							inviter: `You successfully submitted your application to <@${invitee.displayName}>'s project.`,
-							invitee: `You received an application from <@${inviter.displayName}>`
+							inviter: `You successfully submitted your application to ${invitee.displayName}'s project.`,
+							invitee: `You received an application from ${inviter.displayName}.`
 					  };
 			const description =
 				tagName === FORUM_TAG.ServerForumUserIntroduction
