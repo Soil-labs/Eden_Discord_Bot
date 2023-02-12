@@ -3,10 +3,7 @@ name: Eden Bot Production
 on:
   push:
     branches:
-      - main
-    paths:
-      - '!.github/worksflows/*.yaml'
-      - '!README.md'
+      - main   
   workflow_dispatch:
 
 defaults:
