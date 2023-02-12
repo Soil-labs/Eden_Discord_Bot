@@ -31,7 +31,7 @@ import {
 import { CommandNameEmun } from '../types/Command';
 import { ContextMenuNameEnum } from '../types/ContextMenu';
 import { GetNextBirthday } from '../types/Util';
-import { ERROR_REPLY, NUMBER } from './const';
+import { ERROR_REPLY, FORUM_TAG, NUMBER } from './const';
 import { TimeOutError } from './error';
 
 export interface awaitWrapType<T> {
@@ -389,10 +389,25 @@ export function initGuildInform(guildIds: GuildId[]) {
 	}, {});
 }
 
-export function validForumTag(channel: ForumChannel, tagName: string) {
+export function getTagId(channel: ForumChannel, tagName: FORUM_TAG) {
 	const tags = channel.availableTags.filter((tag) => tag.name === tagName);
 
 	return tags.length === 0 ? null : tags[0].id;
+}
+
+export function getTagName(channel: ForumChannel, tagId: string) {
+	const tags = channel.availableTags.filter((tag) => tag.id === tagId);
+
+	return tags.length === 0 ? null : tags[0].name as FORUM_TAG;
+}
+
+export function hasTags(channel: ForumChannel, tagNames: Array<FORUM_TAG>) {
+	return (
+		_.intersection(
+			channel.availableTags.map((tag) => tag.name),
+			tagNames
+		).length === tagNames.length
+	);
 }
 
 export function fetchCommandId(commandName: CommandNameEmun, guild: Guild) {

@@ -3,11 +3,12 @@ import { sprintf } from 'sprintf-js';
 
 import { Button } from '../structures/Button';
 import { myCache } from '../structures/Cache';
+import { ButtonCustomIdEnum } from '../types/Button';
 import { defaultGuildVoiceContext } from '../utils/const';
 import { convertMsToTime } from '../utils/util';
 
 export default new Button({
-	customIds: ['end'],
+	customIds: [ButtonCustomIdEnum.EndOnboarding],
 	execute: async ({ interaction }) => {
 		if (!myCache.myHas('VoiceContexts'))
 			return interaction.reply({

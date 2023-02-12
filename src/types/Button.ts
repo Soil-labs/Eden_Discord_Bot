@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { ButtonInteraction, GuildMember, Message } from 'discord.js';
 
 import { MyClient } from '../structures/Client';
@@ -13,8 +14,16 @@ interface ButtonRunOptions {
 }
 
 type RunFunction = (options: ButtonRunOptions) => any;
-type buttonCustomId = 'end' | 'expired' | 'putoffexpire' | 'expired_post';
+export enum ButtonCustomIdEnum {
+	EndOnboarding = 'end',
+	ArchivePost = 'expired',
+	PostponeArchive = 'putoffexpire',
+	ArchiveGarden = 'expired_post',
+	AgreeToConnect = 'connect',
+	RefuseConnect = 'refuse_connect',
+	NoInterest = 'no_interest'
+}
 export interface ButtonType {
-	customIds: Array<buttonCustomId>;
+	customIds: Array<ButtonCustomIdEnum>;
 	execute: RunFunction;
 }

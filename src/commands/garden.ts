@@ -15,6 +15,7 @@ import { myCache } from '../structures/Cache';
 import { Command } from '../structures/Command';
 import { GardenInform } from '../types/Cache';
 import { CommandNameEmun } from '../types/Command';
+import { ModalCustomIdEnum, TextInputCustomIdEnum } from '../types/Modal';
 import { NUMBER } from '../utils/const';
 import { awaitWrap, checkForumPermission, validGarden } from '../utils/util';
 
@@ -170,13 +171,13 @@ export default new Command({
 					components: []
 				});
 				const gardenModal = new ModalBuilder()
-					.setCustomId('update')
+					.setCustomId(ModalCustomIdEnum.UpdateGardenInfo)
 					.setTitle(`Share news to the secret garden!`);
 
 				gardenModal.addComponents(
 					new ActionRowBuilder<TextInputBuilder>().addComponents(
 						new TextInputBuilder()
-							.setCustomId('garden_title')
+							.setCustomId(TextInputCustomIdEnum.GardenTitle)
 							.setRequired(true)
 							.setPlaceholder('Enter title here')
 							.setLabel('GARDERN TITLE')
@@ -184,7 +185,7 @@ export default new Command({
 					),
 					new ActionRowBuilder<TextInputBuilder>().addComponents(
 						new TextInputBuilder()
-							.setCustomId('garden_content')
+							.setCustomId(TextInputCustomIdEnum.GardenContent)
 							.setRequired(true)
 							.setPlaceholder('Enter content here')
 							.setLabel('GARDERN CONTENT')

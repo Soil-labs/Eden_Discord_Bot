@@ -20,7 +20,8 @@ export const templateGuildInform: GuildInform = {
 	adminRoles: [],
 	adminCommands: [],
 	adminID: [],
-	channelChatID: null
+	channelChatID: null,
+	forumChatID: null
 };
 
 export const templateGuildSettingInform: GuildSettingInform = {
@@ -40,7 +41,10 @@ export type VoiceContext = {
 };
 
 export type GuildInform = Required<
-	Pick<GraphQL_UpdateServerInput, 'adminCommands' | 'adminID' | 'adminRoles' | 'channelChatID'>
+	Pick<
+		GraphQL_UpdateServerInput,
+		'adminCommands' | 'adminID' | 'adminRoles' | 'channelChatID' | 'forumChatID'
+	>
 >;
 
 // todo this part will be integrated with GuildInform, once graphql has

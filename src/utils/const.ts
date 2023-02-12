@@ -42,7 +42,6 @@ type ContentProperty =
 	| 'GROUP_ONBORAD'
 	| 'CHANNEL_SETTING_FAIL_REPLY'
 	| 'CHANNEL_SETTING_SUCCESS_REPLY'
-	| 'CHAT_TAG_NAME'
 	| 'ONBOARDING_ROOM_DESCRIPTION'
 	| 'ONBOARDING_ROOM_NAME';
 
@@ -99,11 +98,17 @@ export const CONTENT: Content = {
 		'Fail to set <#%(targetChannelId)s> as %(setChannelName)s channel, because of `%(reason)s`.',
 	CHANNEL_SETTING_SUCCESS_REPLY:
 		'Success to set <#%(targetChannelId)s> as %(setChannelName)s channel.',
-	CHAT_TAG_NAME: 'Chat',
 	ONBOARDING_ROOM_DESCRIPTION:
 		'Welcome to %(guildName)s onboarding call hosted by %(hostName)s. Hope you enjoy this call and feel free to ask any question.',
 	ONBOARDING_ROOM_NAME: '%(guildName)s Onboarding Call'
 };
+
+export enum FORUM_TAG {
+	Chat = 'Chat',
+	ServerForumProjectInterest = 'Project Interest',
+	ServerForumProjectApplication = 'Project Application',
+	ServerForumUserIntroduction = 'User Introduction'
+}
 
 export const ERROR_REPLY: InternalError = {
 	GRAPHQL: 'Error occured when running `%(action)s`: %(errorMessage)s',

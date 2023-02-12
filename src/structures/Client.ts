@@ -41,7 +41,7 @@ import { findProjects } from '../graph/query/findProjects.query';
 import { findServers } from '../graph/query/findServers.query';
 import { findSkills } from '../graph/query/findSkills.query';
 import { AutoType } from '../types/Auto';
-import { ButtonType } from '../types/Button';
+import { ButtonCustomIdEnum, ButtonType } from '../types/Button';
 import {
 	BirthdayInform,
 	CacheType,
@@ -56,14 +56,14 @@ import { CommandType } from '../types/Command';
 import { RegisterCommandsOptions } from '../types/CommandRegister';
 import { MessageContextMenuType, UserContextMenuType } from '../types/ContextMenu';
 import { ModalType } from '../types/Modal';
-import { CONTENT, defaultGuildVoiceContext, LINK, NUMBER } from '../utils/const';
+import { defaultGuildVoiceContext, FORUM_TAG, LINK, NUMBER } from '../utils/const';
 import { logger } from '../utils/logger';
 import {
 	awaitWrap,
 	checkOnboardPermission,
 	convertMsToTime,
 	getNextBirthday,
-	validForumTag
+	getTagId
 } from '../utils/util';
 import { myCache } from './Cache';
 import { Event } from './Event';
@@ -326,7 +326,7 @@ export class MyClient extends Client {
 					const threads: Array<ThreadChannel> = [];
 
 					if (!forumChannel) continue;
-					const tagId = validForumTag(forumChannel, CONTENT.CHAT_TAG_NAME);
+					const tagId = getTagId(forumChannel, FORUM_TAG.Chat);
 
 					if (!tagId) continue;
 					while (true) {
@@ -465,7 +465,7 @@ export class MyClient extends Client {
 							components: [
 								new ActionRowBuilder<ButtonBuilder>().addComponents([
 									new ButtonBuilder()
-										.setCustomId('expired')
+										.setCustomId(ButtonCustomIdEnum.ArchivePost)
 										.setLabel('Archive this thread')
 										.setStyle(ButtonStyle.Danger)
 										.setEmoji('🗃️'),
@@ -475,7 +475,7 @@ export class MyClient extends Client {
 												autoArchiveDuration / (24 * 60)
 											} days`
 										)
-										.setCustomId('putoffexpire')
+										.setCustomId(ButtonCustomIdEnum.PostponeArchive)
 										.setStyle(ButtonStyle.Success)
 										.setEmoji('💡')
 								])
