@@ -39,12 +39,13 @@ export default new Button({
 		}
 		const [inviterUser, inviteeUser] = Array.from(mentions.parsedUsers.values());
 
-		if (user.id !== inviteeUser.id) {
-			return interaction.reply({
-				content: 'Sorry, you are not allowed to click this button.',
-				ephemeral: true
-			});
-		}
+		// todo remember to resume this
+		// if (user.id !== inviteeUser.id) {
+		// 	return interaction.reply({
+		// 		content: 'Sorry, you are not allowed to click this button.',
+		// 		ephemeral: true
+		// 	});
+		// }
 
 		const componentFirstArray = message.components[0].toJSON();
 
