@@ -3,7 +3,9 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	ChannelType,
-	Message,
+	EmbedBuilder,
+	ForumChannel,
+	InteractionReplyOptions,
 	MessageCreateOptions
 } from 'discord.js';
 import { sprintf } from 'sprintf-js';
@@ -11,7 +13,7 @@ import { sprintf } from 'sprintf-js';
 import { Button } from '../structures/Button';
 import { ButtonCustomIdEnum } from '../types/Button';
 import { LINK } from '../utils/const';
-import { awaitWrap } from '../utils/util';
+import { awaitWrap, getTagName, ParseMemberFromString } from '../utils/util';
 
 export default new Button({
 	customIds: [
@@ -20,32 +22,48 @@ export default new Button({
 		ButtonCustomIdEnum.AgreeToConnect
 	],
 	execute: async ({ interaction }) => {
-		const { customId, message, channel, user } = interaction;
-		const { mentions } = message;
+		const { customId, message, channel } = interaction;
+		const { mentions, content } = message;
 
 		if (channel.type !== ChannelType.PublicThread) return;
-
-		if (mentions.parsedUsers.size === 0) {
+		if (!mentions || mentions.members.size === 0) {
 			return interaction.reply({
 				content: 'Sorry, no invitee and inviter is found.',
 				ephemeral: true
 			});
 		}
-		if (mentions.parsedUsers.size !== 2) {
+		if (mentions.members.size !== 2) {
 			return interaction.reply({
 				content: 'Sorry, more than two members are mentioned.',
 				ephemeral: true
 			});
 		}
-		const [inviterUser, inviteeUser] = Array.from(mentions.parsedUsers.values());
 
-		// todo remember to resume this
-		// if (user.id !== inviteeUser.id) {
+		const [inviterMember, inviteeMember] = ParseMemberFromString(content, interaction.guild);
+
+		if (!inviterMember || !inviteeMember) {
+			return interaction.reply({
+				content: 'Sorry, parsing and fetching users failed.',
+				ephemeral: true
+			});
+		}
+
+		// todo Commenting is is only for test
+		// if (interaction.user.id !== inviteeMember.id) {
 		// 	return interaction.reply({
 		// 		content: 'Sorry, you are not allowed to click this button.',
 		// 		ephemeral: true
 		// 	});
 		// }
+
+		const tagName = getTagName(channel.parent as ForumChannel, channel.appliedTags?.[0]);
+
+		if (!tagName) {
+			return interaction.reply({
+				content: 'Sorry, this post does not include a tag.',
+				ephemeral: true
+			});
+		}
 
 		const componentFirstArray = message.components[0].toJSON();
 
@@ -70,105 +88,166 @@ export default new Button({
 				)
 				.setEmoji('🔗')
 		]);
+		const inviteeDmEmbed = new EmbedBuilder()
+			.setTitle('Post Response Receipt')
+			.setThumbnail(inviteeMember.displayAvatarURL());
+		const [inviterName, inviteeName] = [inviterMember.displayName, inviteeMember.displayName];
+		const inviteeDmTemplate = `**Post Type**: \`${tagName}\`\n**Post Created**: <#${channel.id}>\n**From**: \`${inviterName}\`\n\n%s.`;
+		const inviterDmTemplate = `**Post Type**: \`${tagName}\`\n**Post Created**: <#${channel.id}>\n**From**: \`${inviteeName}\`\n\n%s.`;
+
 		const inviteeDmMessage: MessageCreateOptions =
 			customId === ButtonCustomIdEnum.NoInterest
 				? {
-						content: `Thanks for using Eden bot, we ensure \`${inviterUser.username}\` won' bother you again. Meanwhile, the correponding post is about to be closed. You can access the post by clicking the button.`
+						embeds: [
+							inviteeDmEmbed.setDescription(
+								sprintf(
+									inviteeDmTemplate,
+									`Thanks for using Eden bot, we ensure \`${inviterName}\` won' bother you again. Meanwhile, the correponding post is about to be closed`
+								)
+							)
+						]
 				  }
 				: customId === ButtonCustomIdEnum.RefuseConnect
 				? {
-						content: `Thanks for using Eden bot, you have refused this inviter. We ensure \`${inviterUser.username}\` won' bother you again. Meanwhile, the correponding post is about to be closed. You can access the post by clicking the button.`
+						embeds: [
+							inviteeDmEmbed.setDescription(
+								sprintf(
+									inviteeDmTemplate,
+									`Thanks for using Eden bot, you have refused this inviter. We ensure \`${inviterName}\` won' bother you again. Meanwhile, the correponding post is about to be closed`
+								)
+							)
+						]
 				  }
 				: {
-						content: `Thanks for using Eden bot and connecting to \`${inviterUser.username}\`, we hope you can secure what you want through this talk. You can access the post by clicking the button.`
+						embeds: [
+							inviteeDmEmbed.setDescription(
+								sprintf(
+									inviteeDmTemplate,
+									`Thanks for using Eden bot and connecting to \`${inviterName}\`, we hope you can secure what you want through this talk`
+								)
+							)
+						]
 				  };
+
+		const inviterDmEmbed = EmbedBuilder.from(inviteeDmEmbed.toJSON()).setThumbnail(
+			inviterMember.displayAvatarURL()
+		);
 		const inviterDmMessage: MessageCreateOptions =
 			customId === ButtonCustomIdEnum.NoInterest
 				? {
-						content: `Thanks for using Eden bot, \`${inviteeUser.username}\` has no interest in your invitation. Meanwhile, the correponding post is about to be closed. You can access the post by clicking the button.`
+						embeds: [
+							inviterDmEmbed.setDescription(
+								sprintf(
+									inviterDmTemplate,
+									`Thanks for using Eden bot, \`${inviteeName}\` has no interest in your invitation. Meanwhile, the correponding post is about to be closed`
+								)
+							)
+						]
 				  }
 				: customId === ButtonCustomIdEnum.RefuseConnect
 				? {
-						content: `Thanks for using Eden bot, \`${inviteeUser.username}\` has refused your invite and you are not allowed to send further invitation either. Meanwhile, the correponding post is about to be closed. You can access the post by clicking the button.`
+						embeds: [
+							inviterDmEmbed.setDescription(
+								sprintf(
+									inviterDmTemplate,
+									`Thanks for using Eden bot, \`${inviteeName}\` has refused your invite and you are not allowed to send further invitation either. Meanwhile, the correponding post is about to be closed`
+								)
+							)
+						]
 				  }
 				: {
-						content: `Thanks for using Eden bot, congrats! \`${inviteeUser.username}\` is willing to talk with you. You can access the post by clicking the button.`
+						embeds: [
+							inviterDmEmbed.setDescription(
+								sprintf(
+									inviterDmTemplate,
+									`Thanks for using Eden bot, congrats! \`${inviteeName}\` is willing to talk with you`
+								)
+							)
+						]
 				  };
 
 		inviteeDmMessage.components = [PostLinkButtonComponent];
 		inviterDmMessage.components = [PostLinkButtonComponent];
 		await interaction.deferReply({ ephemeral: true });
-		const { result: inviteeDmChannel } = await awaitWrap(inviterUser.createDM());
-		const { result: inviterDmChannel } = await awaitWrap(inviteeUser.createDM());
-		const promiseArray: Array<Promise<Message>> = [];
+		const { result: inviteeDmChannel } = await awaitWrap(inviteeMember.createDM());
+		const { result: inviterDmChannel } = await awaitWrap(inviterMember.createDM());
 		const dmIndicator = {
-			inviteeDM: false,
-			inviterDM: false
+			isInviteeDmClose: false,
+			isInviterDmClose: false
 		};
 
 		if (inviteeDmChannel) {
-			promiseArray.push(inviteeDmChannel.send(inviteeDmMessage));
-			dmIndicator.inviteeDM = true;
+			const { error } = await awaitWrap(inviteeDmChannel.send(inviteeDmMessage));
+
+			dmIndicator.isInviteeDmClose = error ? true : false;
 		}
 		if (inviterDmChannel) {
-			promiseArray.push(inviterDmChannel.send(inviterDmMessage));
-			dmIndicator.inviterDM = true;
-		}
-		if (promiseArray.length !== 0) {
-			await Promise.all(promiseArray);
+			const { error } = await awaitWrap(inviterDmChannel.send(inviterDmMessage));
+
+			dmIndicator.isInviterDmClose = error ? true : false;
 		}
 
-		const contentMap: Array<
+		const contentMap: Array<[typeof dmIndicator, InteractionReplyOptions]> = [
 			[
 				{
-					inviteeDM: boolean;
-					inviterDM: boolean;
+					isInviteeDmClose: false,
+					isInviterDmClose: false
 				},
-				string
-			]
-		> = [
-			[
 				{
-					inviteeDM: true,
-					inviterDM: true
-				},
-				`DM have been sent to you and <@${inviterUser.id}>.`
+					content: `DM has been sent to you and <@${inviterMember.id}>.`
+				}
 			],
 			[
 				{
-					inviteeDM: false,
-					inviterDM: true
+					isInviteeDmClose: true,
+					isInviterDmClose: false
 				},
-				`DM has been sent to <@${inviterUser.id}>.\n${inviteeDmMessage.content}`
+				{
+					content: `DM has been sent to <@${inviterMember.id}>`,
+					embeds: inviteeDmMessage.embeds
+				}
 			],
 			[
 				{
-					inviteeDM: true,
-					inviterDM: false
+					isInviteeDmClose: false,
+					isInviterDmClose: true
 				},
-				`DM has been sent to you.`
+				{
+					content: 'DM has been sent to you.'
+				}
 			],
 			[
 				{
-					inviteeDM: false,
-					inviterDM: false
+					isInviteeDmClose: true,
+					isInviterDmClose: true
 				},
-				`${inviteeDmMessage.content}`
+				{
+					embeds: inviteeDmMessage.embeds
+				}
 			]
 		];
 
-		if (!dmIndicator.inviterDM) {
+		if (dmIndicator.isInviterDmClose) {
 			await channel.send({
-				content: `<@${inviterUser.id}>\n${inviterDmMessage}`
+				content: `<@${inviterMember.id}>`,
+				embeds: inviterDmMessage.embeds
 			});
 		}
 
-		await interaction.followUp({
-			content: [...contentMap].filter(
+		await interaction.followUp(
+			[...contentMap].filter(
 				(value) =>
-					value[0].inviteeDM === dmIndicator.inviteeDM &&
-					value[0].inviterDM === dmIndicator.inviterDM
+					value[0].isInviteeDmClose === dmIndicator.isInviteeDmClose &&
+					value[0].isInviterDmClose === dmIndicator.isInviterDmClose
 			)[0][1]
+		);
+
+		await interaction.followUp({
+			embeds: [
+				new EmbedBuilder()
+					.setTitle('Post Status Indicator')
+					.setDescription(`Current post status: \`${interaction.component.label}\``)
+			]
 		});
 
 		if (customId !== ButtonCustomIdEnum.AgreeToConnect) {
