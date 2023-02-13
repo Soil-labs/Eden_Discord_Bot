@@ -48,6 +48,7 @@ export default new Button({
 			});
 		}
 
+		// todo Commenting is is only for test
 		// if (interaction.user.id !== inviteeMember.id) {
 		// 	return interaction.reply({
 		// 		content: 'Sorry, you are not allowed to click this button.',
@@ -87,19 +88,21 @@ export default new Button({
 				)
 				.setEmoji('🔗')
 		]);
-		const commonEmbed = new EmbedBuilder().setTitle('Post Response Receipt');
+		const inviteeDmEmbed = new EmbedBuilder()
+			.setTitle('Post Response Receipt')
+			.setThumbnail(inviteeMember.displayAvatarURL());
 		const [inviterName, inviteeName] = [inviterMember.displayName, inviteeMember.displayName];
-		const inviteeDmTemplate = `**Post Type**: \`${tagName}\`\n**From**: \`${inviterName}\`\n\n%s.`;
-		const inviterDmTemplate = `**Post Type**: \`${tagName}\`\n**From**: \`${inviteeName}\`\n\n%s.`;
+		const inviteeDmTemplate = `**Post Type**: \`${tagName}\`\n**Post Created**: <#${channel.id}>\n**From**: \`${inviterName}\`\n\n%s.`;
+		const inviterDmTemplate = `**Post Type**: \`${tagName}\`\n**Post Created**: <#${channel.id}>\n**From**: \`${inviteeName}\`\n\n%s.`;
 
 		const inviteeDmMessage: MessageCreateOptions =
 			customId === ButtonCustomIdEnum.NoInterest
 				? {
 						embeds: [
-							commonEmbed.setDescription(
+							inviteeDmEmbed.setDescription(
 								sprintf(
 									inviteeDmTemplate,
-									`Thanks for using Eden bot, we ensure \`${inviterName}\` won' bother you again. Meanwhile, the correponding post is about to be closed. You can access the post by clicking the button`
+									`Thanks for using Eden bot, we ensure \`${inviterName}\` won' bother you again. Meanwhile, the correponding post is about to be closed`
 								)
 							)
 						]
@@ -107,32 +110,36 @@ export default new Button({
 				: customId === ButtonCustomIdEnum.RefuseConnect
 				? {
 						embeds: [
-							commonEmbed.setDescription(
+							inviteeDmEmbed.setDescription(
 								sprintf(
 									inviteeDmTemplate,
-									`Thanks for using Eden bot, you have refused this inviter. We ensure \`${inviterName}\` won' bother you again. Meanwhile, the correponding post is about to be closed. You can access the post by clicking the button`
+									`Thanks for using Eden bot, you have refused this inviter. We ensure \`${inviterName}\` won' bother you again. Meanwhile, the correponding post is about to be closed`
 								)
 							)
 						]
 				  }
 				: {
 						embeds: [
-							commonEmbed.setDescription(
+							inviteeDmEmbed.setDescription(
 								sprintf(
 									inviteeDmTemplate,
-									`Thanks for using Eden bot and connecting to \`${inviterName}\`, we hope you can secure what you want through this talk. You can access the post by clicking the button`
+									`Thanks for using Eden bot and connecting to \`${inviterName}\`, we hope you can secure what you want through this talk`
 								)
 							)
 						]
 				  };
+
+		const inviterDmEmbed = EmbedBuilder.from(inviteeDmEmbed.toJSON()).setThumbnail(
+			inviterMember.displayAvatarURL()
+		);
 		const inviterDmMessage: MessageCreateOptions =
 			customId === ButtonCustomIdEnum.NoInterest
 				? {
 						embeds: [
-							commonEmbed.setDescription(
+							inviterDmEmbed.setDescription(
 								sprintf(
 									inviterDmTemplate,
-									`Thanks for using Eden bot, \`${inviteeName}\` has no interest in your invitation. Meanwhile, the correponding post is about to be closed. You can access the post by clicking the button`
+									`Thanks for using Eden bot, \`${inviteeName}\` has no interest in your invitation. Meanwhile, the correponding post is about to be closed`
 								)
 							)
 						]
@@ -140,20 +147,20 @@ export default new Button({
 				: customId === ButtonCustomIdEnum.RefuseConnect
 				? {
 						embeds: [
-							commonEmbed.setDescription(
+							inviterDmEmbed.setDescription(
 								sprintf(
 									inviterDmTemplate,
-									`Thanks for using Eden bot, \`${inviteeName}\` has refused your invite and you are not allowed to send further invitation either. Meanwhile, the correponding post is about to be closed. You can access the post by clicking the button`
+									`Thanks for using Eden bot, \`${inviteeName}\` has refused your invite and you are not allowed to send further invitation either. Meanwhile, the correponding post is about to be closed`
 								)
 							)
 						]
 				  }
 				: {
 						embeds: [
-							commonEmbed.setDescription(
+							inviterDmEmbed.setDescription(
 								sprintf(
 									inviterDmTemplate,
-									`Thanks for using Eden bot, congrats! \`${inviteeName}\` is willing to talk with you. You can access the post by clicking the button`
+									`Thanks for using Eden bot, congrats! \`${inviteeName}\` is willing to talk with you`
 								)
 							)
 						]
