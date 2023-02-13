@@ -19,7 +19,7 @@ import { myCache } from '../structures/Cache';
 import { Event } from '../structures/Event';
 import { FORUM_TAG, LINK } from '../utils/const';
 import { logger } from '../utils/logger';
-import { awaitWrap, getTagName } from '../utils/util';
+import { awaitWrap, getTagName, ParseMemberFromString } from '../utils/util';
 
 export default new Event('messageCreate', async (message: Message) => {
 	if (!myCache.myHases(['ChatThreads', 'Servers'])) return;
@@ -54,9 +54,9 @@ export default new Event('messageCreate', async (message: Message) => {
 		// If invitee = inviter, this workflow won's be triggered, because the size is 1
 		if (mentionedMember.size === 0 || mentionedMember.size !== 2) return;
 
-		const [invitee, inviter] = [...mentionedMember.values()];
+		const [inviterMember, inviteeMember] = ParseMemberFromString(content, message.guild);
 
-		if (!invitee || !inviter) return;
+		if (!inviterMember || !inviteeMember) return;
 		const isChatThread = myCache.myGet('ChatThreads')?.[guildId]?.includes(channelId);
 		const isForumChatThread =
 			myCache.myGet('Servers')?.[guildId]?.forumChatID === channel?.parentId;
@@ -71,9 +71,10 @@ export default new Event('messageCreate', async (message: Message) => {
 		}
 
 		const dmReply = dmReplies[0][1](
-			invitee,
-			inviter,
-			getTagName(channel.parent as ForumChannel, channel.appliedTags[0])
+			inviteeMember,
+			inviterMember,
+			getTagName(channel.parent as ForumChannel, channel.appliedTags[0]),
+			channel.id
 		);
 		const threadId = sprintf(LINK.THREAD, {
 			guildId: guildId,
@@ -81,7 +82,7 @@ export default new Event('messageCreate', async (message: Message) => {
 		});
 		const buttonComponent = new ActionRowBuilder<ButtonBuilder>().addComponents([
 			new ButtonBuilder()
-				.setLabel('Read more')
+				.setLabel('Link to the post')
 				.setStyle(ButtonStyle.Link)
 				.setEmoji('🔗')
 				.setURL(threadId)
@@ -90,16 +91,11 @@ export default new Event('messageCreate', async (message: Message) => {
 		dmReply.inviteeReply.components = [buttonComponent];
 		dmReply.inviterReply.components = [buttonComponent];
 
-		const DMChannel = await invitee.createDM();
-		const { error } = await awaitWrap(DMChannel.send(dmReply.inviteeReply));
+		const inviterDmChannel = await inviterMember.createDM();
+		const inviteeDmChannel = await inviteeMember.createDM();
 
-		if (error) return;
-
-		const senderDMChannel = await inviter.createDM();
-
-		const { error: senderError } = await awaitWrap(senderDMChannel.send(dmReply.inviterReply));
-
-		if (senderError) return;
+		await awaitWrap(inviterDmChannel.send(dmReply.inviterReply));
+		await awaitWrap(inviteeDmChannel.send(dmReply.inviteeReply));
 	}
 
 	// Update current chat information to backend for AI usage
@@ -123,7 +119,8 @@ const _dmRepliesMap: Array<
 		(
 			invitee: GuildMember,
 			inviter: GuildMember,
-			tagName: FORUM_TAG
+			tagName: FORUM_TAG,
+			channelId: string
 		) => {
 			inviteeReply: MessageCreateOptions;
 			inviterReply: MessageCreateOptions;
@@ -153,22 +150,23 @@ const _dmRepliesMap: Array<
 	],
 	[
 		{ isChatThread: false, isForumChatThread: true },
-		(invitee, inviter, tagName) => {
+		(invitee, inviter, tagName, channelId) => {
 			const title =
 				tagName === FORUM_TAG.ServerForumUserIntroduction
 					? {
-							inviter: `You successfully sent your introduction to ${invitee.displayName}.`,
-							invitee: `You received an introduction from ${inviter.displayName}.`
+							inviter: `You successfully sent your introduction to ${invitee.displayName}`,
+							invitee: `You received an introduction from ${inviter.displayName}`
 					  }
 					: tagName === FORUM_TAG.ServerForumProjectInterest
 					? {
-							inviter: `You successfully showed your interest to ${invitee.displayName}'s project.`,
-							invitee: `${inviter.displayName} is interested in your project.`
+							inviter: `You successfully showed your interest to ${invitee.displayName}'s project`,
+							invitee: `${inviter.displayName} is interested in your project`
 					  }
 					: {
-							inviter: `You successfully submitted your application to ${invitee.displayName}'s project.`,
-							invitee: `You received an application from ${inviter.displayName}.`
+							inviter: `You successfully submitted your application to ${invitee.displayName}'s project`,
+							invitee: `You received an application from ${inviter.displayName}`
 					  };
+			const descriptionPreix = `**Post Created**: <#${channelId}>\n\n`;
 			const description =
 				tagName === FORUM_TAG.ServerForumUserIntroduction
 					? {
@@ -190,14 +188,16 @@ const _dmRepliesMap: Array<
 					embeds: [
 						new EmbedBuilder()
 							.setTitle(title.invitee)
-							.setDescription(description.invitee)
+							.setDescription(descriptionPreix + description.invitee)
+							.setThumbnail(inviter.displayAvatarURL())
 					]
 				},
 				inviterReply: {
 					embeds: [
 						new EmbedBuilder()
 							.setTitle(title.inviter)
-							.setDescription(description.inviter)
+							.setDescription(descriptionPreix + description.inviter)
+							.setThumbnail(invitee.displayAvatarURL())
 					]
 				}
 			};

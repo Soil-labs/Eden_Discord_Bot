@@ -7,6 +7,7 @@ import {
 	ForumChannel,
 	Guild,
 	GuildTextBasedChannel,
+	MessageMentions,
 	PermissionFlagsBits,
 	VoiceBasedChannel
 } from 'discord.js';
@@ -398,7 +399,7 @@ export function getTagId(channel: ForumChannel, tagName: FORUM_TAG) {
 export function getTagName(channel: ForumChannel, tagId: string) {
 	const tags = channel.availableTags.filter((tag) => tag.id === tagId);
 
-	return tags.length === 0 ? null : tags[0].name as FORUM_TAG;
+	return tags.length === 0 ? null : (tags[0].name as FORUM_TAG);
 }
 
 export function hasTags(channel: ForumChannel, tagNames: Array<FORUM_TAG>) {
@@ -423,4 +424,13 @@ export function fetchCommandId(commandName: CommandNameEmun, guild: Guild) {
 				?.first()?.id ?? '123456789'
 		);
 	}
+}
+
+export function ParseMemberFromString(text: string, guild: Guild) {
+	const [firstMatch, secondMatch] = text.matchAll(new RegExp(MessageMentions.UsersPattern, 'g'));
+
+	return [
+		guild.members.cache.get(firstMatch?.groups?.id),
+		guild.members.cache.get(secondMatch?.groups?.id)
+	];
 }
