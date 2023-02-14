@@ -6,7 +6,7 @@ import { awaitWrapWithTimeout } from '../utils/util';
 let _client: GraphQLClient;
 
 if (typeof process.env.PM2_ENDPOINT === 'undefined') {
-	_client = new GraphQLClient('https://soil-api-backend-botdevelopai2.up.railway.app/graphql', {
+	_client = new GraphQLClient('https://soil-api-backend-botdevelopai3.up.railway.app/graphql', {
 		headers: {}
 	});
 } else {
