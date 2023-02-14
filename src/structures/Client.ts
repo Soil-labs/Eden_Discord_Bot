@@ -29,6 +29,7 @@ import {
 	writeBatch
 } from 'firebase/firestore';
 import glob from 'glob';
+import { platform } from 'os';
 import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
 
@@ -132,7 +133,11 @@ export class MyClient extends Client {
 			| UserApplicationCommandData
 		> = [];
 		const allowCommands = process.env.PM2_ALLOWCOMMANDS;
-		const commandFiles = await globPromise(`${__dirname}/../commands/*{.ts,.js}`);
+		const commandFiles = await globPromise(
+			platform() === 'win32'
+				? `${__dirname}\\..\\commands\\*{.ts,.js}`
+				: `${__dirname}/../commands/*{.ts,.js}`
+		);
 
 		commandFiles.forEach(async (filePath) => {
 			const command: CommandType = await this._importFiles(filePath);
@@ -149,7 +154,11 @@ export class MyClient extends Client {
 			}
 		});
 
-		const buttonFiles = await globPromise(`${__dirname}/../buttons/*{.ts,.js}`);
+		const buttonFiles = await globPromise(
+			platform() === 'win32'
+				? `${__dirname}\\..\\buttons\\*{.ts,.js}`
+				: `${__dirname}/../buttons/*{.ts,.js}`
+		);
 
 		buttonFiles.forEach(async (filePath) => {
 			const button: ButtonType = await this._importFiles(filePath);
@@ -159,7 +168,11 @@ export class MyClient extends Client {
 			});
 		});
 
-		const modalFiles = await globPromise(`${__dirname}/../modals/*{.ts,.js}`);
+		const modalFiles = await globPromise(
+			platform() === 'win32'
+				? `${__dirname}\\..\\modals\\*{.ts,.js}`
+				: `${__dirname}/../modals/*{.ts,.js}`
+		);
 
 		modalFiles.forEach(async (filePath) => {
 			const modal: ModalType = await this._importFiles(filePath);
@@ -167,7 +180,11 @@ export class MyClient extends Client {
 			this.modals.set(modal.customId, modal);
 		});
 
-		const autoFiles = await globPromise(`${__dirname}/../autocompletes/*{.ts,.js}`);
+		const autoFiles = await globPromise(
+			platform() === 'win32'
+				? `${__dirname}\\..\\autocompletes\\*{.ts,.js}`
+				: `${__dirname}/../autocompletes/*{.ts,.js}`
+		);
 
 		autoFiles.forEach(async (filePath) => {
 			const auto: AutoType = await this._importFiles(filePath);
@@ -175,7 +192,11 @@ export class MyClient extends Client {
 			this.autos.set(auto.correspondingCommandName, auto);
 		});
 
-		const menuFiles = await globPromise(`${__dirname}/../contextmenus/*{.ts,.js}`);
+		const menuFiles = await globPromise(
+			platform() === 'win32'
+				? `${__dirname}\\..\\contextmenus\\*{.ts,.js}`
+				: `${__dirname}/../contextmenus/*{.ts,.js}`
+		);
 
 		menuFiles.forEach(async (filePath) => {
 			const menu: MessageContextMenuType | UserContextMenuType = await this._importFiles(
