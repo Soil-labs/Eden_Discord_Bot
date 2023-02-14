@@ -209,12 +209,9 @@ export type GraphQL_Mutation = {
   addNodesToProjectRole?: Maybe<GraphQL_Project>;
   addPreferencesToMember?: Maybe<GraphQL_Members>;
   addProjectRole?: Maybe<GraphQL_Project>;
-  addSkillToMember?: Maybe<GraphQL_Members>;
   applyGrant?: Maybe<GraphQL_GrantTemplate>;
-  approveOrRejectSkill?: Maybe<GraphQL_Skills>;
   approveTweet?: Maybe<GraphQL_Project>;
   changeTeamMember_Phase_Project?: Maybe<GraphQL_Project>;
-  createApprovedSkill?: Maybe<GraphQL_Skills>;
   createError?: Maybe<GraphQL_ErrorLog>;
   createNewEpic?: Maybe<GraphQL_Epic>;
   createNewRole?: Maybe<GraphQL_Role>;
@@ -223,8 +220,6 @@ export type GraphQL_Mutation = {
   createProject?: Maybe<GraphQL_Project>;
   createProjectUpdate?: Maybe<GraphQL_ProjectUpdate>;
   createRoom?: Maybe<GraphQL_Rooms>;
-  createSkill?: Maybe<GraphQL_Skills>;
-  createSkills?: Maybe<Array<Maybe<GraphQL_Skills>>>;
   deleteError?: Maybe<GraphQL_ErrorLog>;
   deleteMember?: Maybe<GraphQL_Members>;
   deleteNodesFromMember?: Maybe<GraphQL_Members>;
@@ -240,7 +235,6 @@ export type GraphQL_Mutation = {
   newTweetProject?: Maybe<GraphQL_TweetsProject>;
   relatedNode?: Maybe<GraphQL_Node>;
   relatedNode_name?: Maybe<GraphQL_Node>;
-  relatedSkills?: Maybe<GraphQL_Skills>;
   updateChatReply?: Maybe<GraphQL_Chats>;
   updateChatResult?: Maybe<GraphQL_Chats>;
   updateGrant?: Maybe<GraphQL_GrantTemplate>;
@@ -254,8 +248,6 @@ export type GraphQL_Mutation = {
   updateProject?: Maybe<GraphQL_Project>;
   updateRoleTemplate?: Maybe<GraphQL_RoleTemplate>;
   updateServer?: Maybe<GraphQL_ServerTemplate>;
-  updateSkillCategory?: Maybe<GraphQL_SkillCategory>;
-  updateSkillSubCategory?: Maybe<GraphQL_SkillSubCategory>;
   useAI_OnMessage?: Maybe<GraphQL_UseAi_OnMessageOutput>;
 };
 
@@ -320,18 +312,8 @@ export type GraphQL_MutationAddProjectRoleArgs = {
 };
 
 
-export type GraphQL_MutationAddSkillToMemberArgs = {
-  fields: GraphQL_AddSkillToMember_Input;
-};
-
-
 export type GraphQL_MutationApplyGrantArgs = {
   fields?: InputMaybe<GraphQL_ApplyGrantInput>;
-};
-
-
-export type GraphQL_MutationApproveOrRejectSkillArgs = {
-  fields?: InputMaybe<GraphQL_ApproveOrRejectSkillInput>;
 };
 
 
@@ -342,11 +324,6 @@ export type GraphQL_MutationApproveTweetArgs = {
 
 export type GraphQL_MutationChangeTeamMember_Phase_ProjectArgs = {
   fields: GraphQL_ChangeTeamMember_Phase_ProjectInput;
-};
-
-
-export type GraphQL_MutationCreateApprovedSkillArgs = {
-  fields?: InputMaybe<GraphQL_CreateApprovedSkillInput>;
 };
 
 
@@ -387,16 +364,6 @@ export type GraphQL_MutationCreateProjectUpdateArgs = {
 
 export type GraphQL_MutationCreateRoomArgs = {
   fields: GraphQL_CreateRoomInput;
-};
-
-
-export type GraphQL_MutationCreateSkillArgs = {
-  fields?: InputMaybe<GraphQL_CreateSkillInput>;
-};
-
-
-export type GraphQL_MutationCreateSkillsArgs = {
-  fields?: InputMaybe<GraphQL_CreateSkillsInput>;
 };
 
 
@@ -475,11 +442,6 @@ export type GraphQL_MutationRelatedNode_NameArgs = {
 };
 
 
-export type GraphQL_MutationRelatedSkillsArgs = {
-  fields?: InputMaybe<GraphQL_RelatedSkillsInput>;
-};
-
-
 export type GraphQL_MutationUpdateChatReplyArgs = {
   fields?: InputMaybe<GraphQL_UpdateChatReplyInput>;
 };
@@ -542,16 +504,6 @@ export type GraphQL_MutationUpdateRoleTemplateArgs = {
 
 export type GraphQL_MutationUpdateServerArgs = {
   fields?: InputMaybe<GraphQL_UpdateServerInput>;
-};
-
-
-export type GraphQL_MutationUpdateSkillCategoryArgs = {
-  fields?: InputMaybe<GraphQL_UpdateSkillCategoryInput>;
-};
-
-
-export type GraphQL_MutationUpdateSkillSubCategoryArgs = {
-  fields?: InputMaybe<GraphQL_UpdateSkillSubCategoryInput>;
 };
 
 
@@ -1226,7 +1178,6 @@ export type GraphQL_AddEndorsementInput = {
 
 export type GraphQL_AddFavoriteProjectInput = {
   favorite?: InputMaybe<Scalars['Boolean']>;
-  memberID?: InputMaybe<Scalars['ID']>;
   projectID?: InputMaybe<Scalars['ID']>;
 };
 
@@ -1246,7 +1197,6 @@ export type GraphQL_AddNewChatInput = {
   projectID: Scalars['ID'];
   projectRoleID?: InputMaybe<Scalars['ID']>;
   receiverID: Scalars['ID'];
-  senderID: Scalars['ID'];
   serverID: Scalars['ID'];
   threadID: Scalars['ID'];
 };
@@ -2523,7 +2473,6 @@ export type GraphQL_UpdateNodesToMemberInRoomInput = {
 };
 
 export type GraphQL_UpdateNodesToMemberInput = {
-  memberID?: InputMaybe<Scalars['ID']>;
   nodeType?: InputMaybe<Scalars['String']>;
   nodesID?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   nodesID_level?: InputMaybe<Array<InputMaybe<GraphQL_NodesId_LevelInput>>>;
