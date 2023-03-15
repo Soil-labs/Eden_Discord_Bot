@@ -23,18 +23,21 @@ export async function findMembers() {
 		request,
 		variable: { fields: {} }
 	});
-	
+
 	if (error) return error;
 	else {
-		const toBeCached: MembersCache = {};
+		if (!result.findMembers || result.findMembers.length === 0) return;
 
-		result.findMembers.forEach((member) => {
-			toBeCached[member._id] = {
-				discordName: member.discordName,
-				serverId: member.serverID
-			};
-		});
-		myCache.mySet('Members', toBeCached);
+		myCache.mySet(
+			'Members',
+			result.findMembers.reduce((pre, cur) => {
+				pre[cur._id] = {
+					discordName: cur.discordName,
+					serverId: cur.serverID
+				};
+				return pre;
+			}, {}) as MembersCache
+		);
 		return true;
 	}
 }
