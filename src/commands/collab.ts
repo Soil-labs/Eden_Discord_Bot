@@ -10,7 +10,7 @@ export default new Command({
 	execute: ({ interaction }) => {
 		return interaction.reply({
 			content:
-				'Find somebody to collaborate with [here](https://eden-alpha-develop.vercel.app/test/user).',
+				'Find somebody to collaborate with [here](https://eden-alpha-develop.vercel.app/test/chatEden).',
 			ephemeral: true
 		});
 	}
