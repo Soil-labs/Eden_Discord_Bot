@@ -350,21 +350,22 @@ export class MyClient extends Client {
 					const tagId = getTagId(forumChannel, FORUM_TAG.Chat);
 
 					if (!tagId) continue;
-					while (true) {
-						// todo Read the api doc again to get the correct type
-						const { result, error } = await awaitWrap(
-							forumChannel.threads.fetch({
-								archived: {
-									type: 'public',
-									fetchAll: true
-								}
-							})
-						);
+					// todo Read the api doc again to get the correct type
+					const { result } = await awaitWrap(forumChannel.threads.fetchActive(true));
 
-						if (error) break;
+					if (result) {
 						threads.push(...result.threads.values());
-						if (!result.hasMore) break;
 					}
+
+					// while (true) {
+					// 	const { result, error } = await awaitWrap(
+					// 		forumChannel.threads.fetchActive(true)
+					// 	);
+
+					// 	if (error) break;
+
+					// 	// if (!result.hasMore) break;
+					// }
 					chatThreadsCache[guildId].push(
 						...threads
 							.filter(
