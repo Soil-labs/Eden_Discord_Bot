@@ -66,6 +66,7 @@ export default new Event('messageCreate', async (message: Message) => {
 		);
 
 		// Special case: ChatForum is equal to ServerForum
+		// todo unexpected triggered when garden is created with only two mentioned users 
 		if (dmReplies.length === 0) {
 			return logger.warn('ChatForum is equal to ServerForum');
 		}

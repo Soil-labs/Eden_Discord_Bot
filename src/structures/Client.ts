@@ -351,7 +351,15 @@ export class MyClient extends Client {
 
 					if (!tagId) continue;
 					while (true) {
-						const { result, error } = await awaitWrap(forumChannel.threads.fetch());
+						// todo Read the api doc again to get the correct type
+						const { result, error } = await awaitWrap(
+							forumChannel.threads.fetch({
+								archived: {
+									type: 'public',
+									fetchAll: true
+								}
+							})
+						);
 
 						if (error) break;
 						threads.push(...result.threads.values());
